@@ -20,11 +20,11 @@ unittest
      -----------+--------
      np.float32 | float
      np.float64 | double
-     np.int8 	  | byte
-     np.uint8 	| ubyte
-     np.int16 	| short
+     np.int8    | byte
+     np.uint8   | ubyte
+     np.int16   | short
      np.int32   | int
-     np.int64 	| long
+     np.int64   | long
 
      see also https://dlang.org/spec/type.html
   */
@@ -93,13 +93,13 @@ unittest
      numpy            | numir
      -----------------+---------------------------------------
      np.empty([2,2])  | numir.empty(2, 2), numir.empty([2, 2])
-     np.empty_like(x) |	numir.empty_like(x)
-     np.eye 	        | numir.eye
-     np.identity 	    | numir.identity
-     np.ones 	        | numir.ones
-     np.ones_like 	  | numir.ones_like
-     np.zeros 	      | numir.zeros
-     np.zeros_like 	  | numir.zeros_like
+     np.empty_like(x) | numir.empty_like(x)
+     np.eye           | numir.eye
+     np.identity      | numir.identity
+     np.ones          | numir.ones
+     np.ones_like     | numir.ones_like
+     np.zeros         | numir.zeros
+     np.zeros_like    | numir.zeros_like
 
      see also https://dlang.org/phobos/std_experimental_ndslice_slice.html
   */
@@ -151,7 +151,7 @@ unittest
      np.array([ [1,2],[3,4] ]) | sliced([ [1,2],[3,4] ])
      np.ascontiguousarray(x)   | x.assumeContiguous
      np.copy(x)                | ????
-     np.fromfile(file) 	       | <WIP>
+     np.fromfile(file)         | <WIP>
      np.concatenate            | <WIP>
    */
 
@@ -187,9 +187,9 @@ unittest
 
      numpy    | numir
      ---------+---------
-     np.diag 	| diagonal
-     np.tril 	| <WIP>
-     np.triu 	| <WIP>
+     np.diag  | diagonal
+     np.tril  | <WIP>
+     np.triu  | <WIP>
    */
 
   //  -------
@@ -229,11 +229,11 @@ unittest
 
      numpy     | numir
      ----------+---------------
-     x.shape 	 | x.shape
+     x.shape   | x.shape
      x.strides | x.byteStrides (!) already, strides defined in mir
-     x.ndim 	 | x.ndim
+     x.ndim    | x.ndim
      x.data    | ???
-     x.size	   | x.size
+     x.size    | x.size
      len(x)    | x.length
      x.dtype   | x.dtype
    */
