@@ -1,0 +1,12 @@
+{
+	  "name": "numir",
+	  "authors": [
+		    "karita"
+	  ],
+	  "description": "numpy-like API wrappers of mir",
+    "dependencies": {
+        "mir": "~>1.0.0"
+    },
+	  "copyright": "Copyright © 2017, karita",
+	  "license": "Boost"
+}
