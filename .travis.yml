@@ -1,0 +1,17 @@
+sudo: false
+
+os:
+  - linux
+  - osx
+
+language: d
+
+d:
+  - ldc-1.1.0
+  - dmd
+
+env:
+  - ARCH="x86_64"
+
+script:
+  - dub test -b unittest-cov
