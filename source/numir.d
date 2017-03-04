@@ -120,8 +120,8 @@ unittest
   static assert(is(E0 == E1));
 
   // eye
-  assert(eye(2) == [[1.0, 0.0],
-                    [0.0, 1.0]]);
+  assert(identity(2) == [[1.0, 0.0],
+                         [0.0, 1.0]]);
   assert(eye(2, 3, 1) == [[0.0, 1.0, 0.0],
                           [0.0, 0.0, 1.0]]);
 
