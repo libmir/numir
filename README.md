@@ -6,6 +6,8 @@
 
 [numpy](http://www.numpy.org)-like [mir](https://github.com/libmir) helper functions
 
++ [API doc](https://shigekikarita.github.io/numir)
+
 ## roadmaps
 
 basically support all operations in [Torch for Numpy users](https://github.com/torch/torch7/wiki/Torch-for-Numpy-users)

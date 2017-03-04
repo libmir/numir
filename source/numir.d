@@ -210,13 +210,14 @@ unittest
   */
 }
 
-
+/++ return diagonal slice +/
 auto diag(S)(S s, long k=0)
 {
   auto sk = k >= 0 ?  s[0 .. $, k .. $] : s[-k .. $, 0 .. $];
   return sk.diagonal;
 }
 
+///
 unittest
 {
   /* Building Matrices
@@ -238,27 +239,32 @@ unittest
   assert(a.diag(-1) == [3]);
 }
 
+/// return
 auto dtype(S)(S s)
 {
   return typeid(DeepElementType!S);
 }
 
-auto ndim(S)(S s)
+/// return 
+size_t ndim(S)(S s)
 {
   return s.shape.length;
 }
 
-auto byteStrides(S)(S s) {
+/// return strides of byte size
+size_t[] byteStrides(S)(S s) {
   import mir.ndslice.topology : map;
   enum b = DeepElementType!S.sizeof;
   return s.strides.sliced.map!(n => n * b).array;
 }
 
+/// return size of raveled array
 auto size(S)(S s) {
   import std.algorithm : reduce;
   return s.shape.array.reduce!"a * b";
 }
 
+///
 unittest
 {
   /* Attributes
