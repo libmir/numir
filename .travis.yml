@@ -18,4 +18,4 @@ install:
 
 script:
   - dub test -b unittest-cov
-  - ./doveralls
+  - dub run doveralls
