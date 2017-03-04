@@ -1,5 +1,11 @@
-// -*- tab-width : 2 -*- ; mode : D -*-
+/**
+   License: $(LINK2 http://boost.org/LICENSE_1_0.txt, Boost License 1.0).
+
+   Authors: $(LINK2 http://shigekikarita.github.io, karita)
+*/
+
 module numir;
+
 /*
   this library is motivated by
   https://github.com/torch/torch7/wiki/Torch-for-Numpy-users
@@ -12,68 +18,101 @@ import std.stdio;
 import std.array : array;
 import std.algorithm.iteration : map;
 
+
+///
 unittest
 {
-  /* Types
+  /*
+    Types
 
-     np.ndarray | D
-     -----------+--------
-     np.float32 | float
-     np.float64 | double
-     np.int8    | byte
-     np.uint8   | ubyte
-     np.int16   | short
-     np.int32   | int
-     np.int64   | long
+    np.ndarray | D
+    -----------+--------
+    np.float32 | float
+    np.float64 | double
+    np.int8    | byte
+    np.uint8   | ubyte
+    np.int16   | short
+    np.int32   | int
+    np.int64   | long
 
-     see also https://dlang.org/spec/type.html
+    see also https://dlang.org/spec/type.html
   */
-
-  // nothing to test?
 }
 
 
-auto like(alias f, S)(S slice)
-{
-  return f!(DeepElementType!S)(slice.shape);
-}
+/++
+construct new uninitialized slice of an element type `E` and shape(`length ...`)
 
+Params:
+    length = elements of shape
+Returns:
+    new uninitialized slice
++/
 auto empty(E=double, size_t N)(size_t[N] length...)
 {
   return uninitializedSlice!E(length);
 }
 
+/++
+construct new slice having the same element type and shape to given slice
+
+Params:
+    initializer = template function(ElementType)(shape) that initializes slice
+    slice = source slice to refer shape and element type
+Returns:
+    new uninitialized slice
++/
+auto like(alias initializer, S)(S slice)
+{
+  return initializer!(DeepElementType!S)(slice.shape);
+}
+
+///
 auto empty_like(S)(S slice)
 {
   return slice.like!empty;
 }
 
+/++
+construct new slice initialized all the values with init
+
+Params:
+    init = a value to initialize all elements
+    length = elements of shape
+Returns:
+    initialized slice
++/
 auto inits(E, size_t N)(E init, size_t[N] length...)
 {
   import std.experimental.allocator.mallocator : Mallocator;
   return makeSlice!E(Mallocator.instance, length, init).slice;
 }
 
+///
 auto ones(E=double, size_t N)(size_t[N] length...)
 {
   return inits!E(1, length);
 }
 
+///
 auto ones_like(S)(S slice)
 {
   return slice.like!ones;
 }
 
+///
 auto zeros(E=double, size_t N)(size_t[N] length...)
 {
   return inits!E(0, length);
 }
 
+///
 auto zeros_like(S)(S slice)
 {
   return slice.like!zeros;
 }
 
+///
 auto eye(E=double)(size_t m, size_t n=0, long k=0)
 {
   if (n == 0) n = m;
@@ -82,10 +121,12 @@ auto eye(E=double)(size_t m, size_t n=0, long k=0)
   return z;
 }
 
+///
 auto identity(E=double)(size_t n) {
   return eye!E(n);
 }
 
+///
 unittest
 {
   /* Constructors
@@ -104,27 +145,16 @@ unittest
      see also https://dlang.org/phobos/std_experimental_ndslice_slice.html
   */
 
-  // np.empty
+  // np.empty, empty_like
   assert(empty(2 ,3).shape == [2, 3]);
-  auto e0 = empty([2 ,3]);
-  assert(e0.shape == [2, 3]);
-
-  e0[0, 0] += 1;
+  assert(empty([2 ,3]).shape == [2, 3]);
+  auto e0 = empty!int(2, 3);
   auto e1 = empty_like(e0);
   assert(e1.shape == e0.shape);
   assert(e1 != e0);
-
-  // np.empty_like
   alias E0 = DeepElementType!(typeof(e0));
   alias E1 = DeepElementType!(typeof(e1));
   static assert(is(E0 == E1));
-
-  // eye
-  assert(identity(2) == [[1.0, 0.0],
-                         [0.0, 1.0]]);
-  assert(eye(2, 3, 1) == [[0.0, 1.0, 0.0],
-                          [0.0, 0.0, 1.0]]);
-
 
   // np.ones, ones_like
   auto o = ones(2, 3);
@@ -133,12 +163,18 @@ unittest
   assert(o == ones([2, 3]));
   assert(o == o.ones_like);
 
-  // zeros
+  // np.zeros, np.zeros_like
   auto z = zeros(2, 3);
   assert(z.all!(x => x == 0));
   assert(z.shape == [2, 3]);
   assert(z == zeros([2, 3]));
   assert(z == z.zeros_like);
+
+  // np.eye, identity
+  assert(eye(2, 3, 1) == [[0.0, 1.0, 0.0],
+                          [0.0, 0.0, 1.0]]);
+  assert(identity(2) == [[1.0, 0.0],
+                         [0.0, 1.0]]);
 }
 
 
