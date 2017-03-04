@@ -14,8 +14,7 @@ env:
   - ARCH="x86_64"
 
 install:
-  - wget -q -O - "http://bit.ly/Doveralls" | bash
-  - chmod +x doveralls
+  - dub fetch doveralls
 
 script:
   - dub test -b unittest-cov
