@@ -13,10 +13,12 @@ module numir;
 
 import mir.ndslice;
 import mir.ndslice.algorithm : all;
+import mir.ndslice.topology : map;
 
+import std.conv : to;
 import std.stdio;
 import std.array : array;
-import std.algorithm.iteration : map;
+import std.algorithm : stdmap = map;
 
 
 ///
@@ -25,7 +27,7 @@ unittest
   /*
     Types
 
-    np.ndarray | D
+    np.ndarray | mir
     -----------+--------
     np.float32 | float
     np.float64 | double
@@ -34,6 +36,7 @@ unittest
     np.int16   | short
     np.int32   | int
     np.int64   | long
+    np.astype  | as
 
     see also https://dlang.org/spec/type.html
   */
@@ -73,25 +76,10 @@ auto empty_like(S)(S slice)
   return slice.like!empty;
 }
 
-/++
-construct new slice initialized all the values with init
-
-Params:
-    init = a value to initialize all elements
-    length = elements of shape
-Returns:
-    initialized slice
-+/
-auto inits(E, size_t N)(E init, size_t[N] length...)
-{
-  import std.experimental.allocator.mallocator : Mallocator;
-  return makeSlice!E(Mallocator.instance, length, init).slice;
-}
-
 ///
 auto ones(E=double, size_t N)(size_t[N] length...)
 {
-  return inits!E(1, length);
+  return slice!E(length, 1);
 }
 
 ///
@@ -103,7 +91,7 @@ auto ones_like(S)(S slice)
 ///
 auto zeros(E=double, size_t N)(size_t[N] length...)
 {
-  return inits!E(0, length);
+  return slice!E(length, 0);
 }
 
 ///
@@ -195,19 +183,52 @@ unittest
 }
 
 
+
+///
+auto arange(size_t size) {
+  return size.iota;
+}
+
+auto steppedIota(E)(size_t num, E step, E start=0) {
+  return num.iota.map!(i => i * step + start);
+}
+
+///
+auto arange(E)(E start, E end, E step=1) {
+  size_t num = to!size_t((end - start) / step) + 1;
+  return num.steppedIota!E(step, start);
+}
+
+///
+auto linspace(E=double)(double start, double stop, size_t num=50) {
+  auto step = to!E((stop - start) / (num - 1));
+  return num.steppedIota!E(step, start);
+}
+
+///
+auto logspace(E=double)(double start, double stop, size_t num=50, E base=10) {
+  return linspace(start, stop, num).slice.map!(x => base ^^ x);
+}
+
+///
 unittest
 {
   /* Numerical Ranges
 
      numpy                | numir
      ---------------------+--------
-     np.arange(10)        |
-     np.arange(2, 3, 0.1) |
-     np.linspace(1, 4, 6) |
-     np.logspace          |
+     np.arange(10)        | arange(10)
+     np.arange(2, 3, 0.1) | arange(2, 3, 0.1)
+     np.linspace(1, 4, 6) | linspace(1, 4, 6)
+     np.logspace          | logspace
 
-     memo: iotaSlice, iota?
+     see also: http://mir.dlang.io/mir_ndslice_topology.html#.iota
   */
+
+  assert(arange(3) == [0, 1, 2]);
+  assert(arange(2, 3, 0.3) == [2.0, 2.3, 2.6, 2.9]);
+  assert(linspace(1, 2, 3) == [1.0, 1.5, 2.0]);
+  assert(logspace(1, 2, 3, 10) == [10. ^^ 1.0, 10. ^^ 1.5, 10. ^^ 2.0]);
 }
 
 /++ return diagonal slice +/
@@ -233,7 +254,7 @@ unittest
   // | 0 1 2 |
   // | 3 4 5 |
   //  -------
-  auto a = iota(2, 3).canonical;
+  auto a = iota(2, 3);
   assert(a.diag == [0, 4]);
   assert(a.diag(1) == [1, 5]);
   assert(a.diag(-1) == [3]);
@@ -245,7 +266,7 @@ auto dtype(S)(S s)
   return typeid(DeepElementType!S);
 }
 
-/// return 
+/// return
 size_t ndim(S)(S s)
 {
   return s.shape.length;
@@ -253,7 +274,6 @@ size_t ndim(S)(S s)
 
 /// return strides of byte size
 size_t[] byteStrides(S)(S s) {
-  import mir.ndslice.topology : map;
   enum b = DeepElementType!S.sizeof;
   return s.strides.sliced.map!(n => n * b).array;
 }

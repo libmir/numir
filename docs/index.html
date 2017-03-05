@@ -490,7 +490,7 @@
         <li><code class="code"><span class="comment">/*
   Types
 
-  np.ndarray | D
+  np.ndarray | mir
   -----------+--------
   np.float32 | float
   np.float64 | double
@@ -499,6 +499,7 @@
   np.int16   | short
   np.int32   | int
   np.int64   | long
+  np.astype  | as
 
   see also https://dlang.org/spec/type.html
 */</span>
@@ -672,81 +673,6 @@
 </div>
 <div class="ddoc_decl">
   
-
-</div>
-
-</li><li class="ddoc_member">
-  <div class="ddoc_member_header">
-  <div class="ddoc_header_anchor">
-  <a href="#inits" id="inits"><code class="code">inits</code></a>
-</div>
-</div><div class="ddoc_decl">
-  <section class="section">
-    <div class="declaration">
-      <h4>Declaration</h4>
-      <div class="dlang">
-        <p class="para">
-          <code class="code">
-            <span class="ddoc_anchor" id="inits"></span>auto <code class="code">inits</code>(E, size_t N)(E <code class="code">init</code>, size_t[N] <code class="code">length</code>...);
-
-          </code>
-        </p>
-      </div>
-    </div>
-  </section>
-</div>
-<div class="ddoc_decl">
-  <section class="section ddoc_sections">
-  <div class="ddoc_summary">
-  <p class="para">
-    construct new slice initialized all the values with <code class="code">init</code>
-
-  </p>
-</div>
-<div class="ddoc_params">
-  <h4>Parameters</h4>
-  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
-    <tbody>
-      <tr class="ddoc_param_row">
-  <td scope="ddoc_param_id">
-  <code class="code">
-    <em class="term">E <code class="code">init</code></em>
-  </code>
-</td>
-<td>
-  <div class="ddoc_param_desc">
-    <p class="para">
-      a value to initialize all elements
-    </p>
-  </div>
-</td>
-</tr>
-<tr class="ddoc_param_row">
-  <td scope="ddoc_param_id">
-  <code class="code">
-    <em class="term">size_t[N] <code class="code">length</code></em>
-  </code>
-</td>
-<td>
-  <div class="ddoc_param_desc">
-    <p class="para">
-      elements of shape
-    </p>
-  </div>
-</td>
-</tr>
-
-    </tbody>
-  </table>
-</div>
-<div class="ddoc_returns">
-  <h4>Return Value</h4>
-  <p class="para">
-    initialized slice
-  </p>
-</div>
-
-</section>
 
 </div>
 
@@ -966,6 +892,139 @@
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
+  <a href="#arange" id="arange"><code class="code">arange</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="arange"></span>auto <code class="code">arange</code>(size_t <code class="code">size</code>);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#arange" id="arange"><code class="code">arange</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="arange.2"></span>auto <code class="code">arange</code>(E)(E <code class="code">start</code>, E <code class="code">end</code>, E <code class="code">step</code> = 1);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#linspace" id="linspace"><code class="code">linspace</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="linspace"></span>auto <code class="code">linspace</code>(E = double)(double <code class="code">start</code>, double <code class="code">stop</code>, size_t <code class="code">num</code> = 50);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#logspace" id="logspace"><code class="code">logspace</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="logspace"></span>auto <code class="code">logspace</code>(E = double)(double <code class="code">start</code>, double <code class="code">stop</code>, size_t <code class="code">num</code> = 50, E <code class="code">base</code> = 10);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="comment">/* Numerical Ranges
+
+   numpy                | numir
+   ---------------------+--------
+   np.arange(10)        | arange(10)
+   np.arange(2, 3, 0.1) | arange(2, 3, 0.1)
+   np.linspace(1, 4, 6) | linspace(1, 4, 6)
+   np.logspace          | logspace
+
+   see also: http://mir.dlang.io/mir_ndslice_topology.html#.iota
+*/</span>
+
+<span class="keyword">assert</span>(arange(3) == [0, 1, 2]);
+<span class="keyword">assert</span>(arange(2, 3, 0.3) == [2.0, 2.3, 2.6, 2.9]);
+<span class="keyword">assert</span>(linspace(1, 2, 3) == [1.0, 1.5, 2.0]);
+<span class="keyword">assert</span>(<span class="psymbol">logspace</span>(1, 2, 3, 10) == [10. ^^ 1.0, 10. ^^ 1.5, 10. ^^ 2.0]);
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div>
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
   <a href="#diag" id="diag"><code class="code">diag</code></a>
 </div>
 </div><div class="ddoc_decl">
@@ -1011,7 +1070,7 @@
 </span><span class="comment">// | 0 1 2 |
 </span><span class="comment">// | 3 4 5 |
 </span><span class="comment">//  -------
-</span><span class="keyword">auto</span> a = iota(2, 3).canonical;
+</span><span class="keyword">auto</span> a = iota(2, 3);
 <span class="keyword">assert</span>(a.<span class="psymbol">diag</span> == [0, 4]);
 <span class="keyword">assert</span>(a.<span class="psymbol">diag</span>(1) == [1, 5]);
 <span class="keyword">assert</span>(a.<span class="psymbol">diag</span>(-1) == [3]);
