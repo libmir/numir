@@ -169,6 +169,7 @@ unittest
 import std.traits : isArray;
 import std.range : ElementType, isInputRange;
 
+///
 template rank(R) {
   static if (isInputRange!R || isArray!R)
     enum size_t rank = 1 + rank!(ElementType!R);
@@ -176,6 +177,7 @@ template rank(R) {
     enum size_t rank = 0;
 }
 
+///
 template NestedElementType(T) {
   static if (isArray!T) {
     alias NestedElementType = NestedElementType!(ElementType!T);
@@ -184,6 +186,7 @@ template NestedElementType(T) {
   }
 }
 
+///
 size_t[rank!T] shapeNested(T)(T array) {
   static if (rank!T == 0) {
     return [];
@@ -202,6 +205,7 @@ unittest
   static assert(is(NestedElementType!(int[][]) == int));
 }
 
+///
 auto nparray(T)(T a) {
   alias E = NestedElementType!T;
   auto m = slice!E(a.shapeNested);
@@ -209,28 +213,38 @@ auto nparray(T)(T a) {
   return m;
 }
 
-import std.algorithm : maxElement;
+import std.algorithm : maxElement, maxIndex;
 import std.meta : staticMap;
 import std.traits : CommonType;
 
-auto concatenate(S1, S2)(S1 s1, S2 s2) {
-  return concatenate!0(s1, s2);
-}
+///
+auto concatenate(int axis=0, Slices...)(Slices slices) {
+  // get dst slice
+  alias E = CommonType!(staticMap!(DeepElementType, Slices));
+  enum I = maxIndex([staticMap!(Ndim, Slices)]);
+  size_t[] shape = slices[I].shape;
+  shape[axis] = 0;
+  foreach (s; slices) {
+    shape[axis] += s.shape[axis];
+  }
+  enum N = Ndim!(Slices[I]);
+  auto m = shape.to!(size_t[N]).slice!E;
 
-auto concatenate(int axis, S1, S2)(S1 s1, S2 s2) {
-  alias E = CommonType!(staticMap!(DeepElementType, S1, S2));
-  // auto ndim = maxElement!(s => s.ndim)([s1, s2]);
-  enum N = Ndim!S1; // maxElement([Ndim, s2.ndim]);
-  size_t[] s = s1.ndim > s2.ndim ? s1.shape : s2.shape;
-  s[axis] = s1.shape[axis] + s2.shape[axis];
-  auto m = slice!E(s.to!(size_t[N]));
-  // auto ma = m.pack!axis;
-  const a1 = s1.shape[axis];
-  m[0 .. a1][] = s1;
-  m[a1 .. $][] = s2;
+  // set values
+  auto sw(S)(S s) {
+    return s.universal.swapped!(0, axis);
+  }
+
+  size_t a = 0;
+  foreach (s; slices) {
+    const b = a + s.shape[axis];
+    sw(m)[a .. b][] = sw(s);
+    a = b;
+  }
   return m;
 }
 
+///
 unittest
 {
   /* From existing data
@@ -241,7 +255,7 @@ unittest
      np.ascontiguousarray(x)   | x.assumeContiguous
      np.copy(x)                | ????
      np.fromfile(file)         | ????
-     np.concatenate            | <WIP>
+     np.concatenate            | concatenate
    */
 
   auto s = [[1,2],[3,4]].sliced; // mir's sliced
@@ -256,8 +270,14 @@ unittest
   assert(v == [1, -2]);
 
   auto u = nparray([[5, 6]]);
-  auto c = concatenate(m, u);
-  assert(c == [[-1, 2], [3, 4], [5, 6]]);
+  assert(concatenate(m, u) == [[-1, 2], [3, 4], [5, 6]]);
+  assert(concatenate(u, m) == [[5, 6], [-1, 2], [3, 4]]);
+
+  auto uT = u.universal.transposed;
+  assert(concatenate!1(m, uT) == [[-1, 2, 5], [3, 4, 6]]);
+
+  assert(concatenate!0([[0,1]].nparray, [[2,3]].nparray, [[4,5]].nparray) == iota(3, 2));
+  assert(concatenate!1([[0,1]].nparray, [[2,3]].nparray, [[4,5]].nparray) == [iota(6)]);
 }
 
 

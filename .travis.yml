@@ -10,6 +10,10 @@ d:
   - ldc-1.1.0
   - dmd
 
+matrix:
+  allow_failues:
+    - d: ldc-1.1.0
+
 env:
   - ARCH="x86_64"
 

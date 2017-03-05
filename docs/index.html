@@ -844,7 +844,7 @@
    np.zeros         | numir.zeros
    np.zeros_like    | numir.zeros_like
 
-   see also https://dlang.org/phobos/std_experimental_ndslice_slice.html
+   see also http://mir.dlang.io/mir_ndslice_allocation.html
 */</span>
 
 <span class="comment">// np.empty, empty_like
@@ -853,6 +853,7 @@
 <span class="keyword">auto</span> e0 = empty!<span class="keyword">int</span>(2, 3);
 <span class="keyword">auto</span> e1 = empty_like(e0);
 <span class="keyword">assert</span>(e1.shape == e0.shape);
+e0[0, 0] += 1;
 <span class="keyword">assert</span>(e1 != e0);
 <span class="keyword">alias</span> E0 = DeepElementType!(<span class="keyword">typeof</span>(e0));
 <span class="keyword">alias</span> E1 = DeepElementType!(<span class="keyword">typeof</span>(e1));
@@ -877,6 +878,177 @@
                         [0.0, 0.0, 1.0]]);
 <span class="keyword">assert</span>(<span class="psymbol">identity</span>(2) == [[1.0, 0.0],
                        [0.0, 1.0]]);
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div>
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#rank" id="rank"><code class="code">rank</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="rank"></span>template <code class="code">rank</code>(R)
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#NestedElementType" id="NestedElementType"><code class="code">NestedElementType</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="NestedElementType"></span>template <code class="code">NestedElementType</code>(T)
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#shapeNested" id="shapeNested"><code class="code">shapeNested</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="shapeNested"></span>size_t[rank!T] <code class="code">shapeNested</code>(T)(T <code class="code">array</code>);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#nparray" id="nparray"><code class="code">nparray</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="nparray"></span>auto <code class="code">nparray</code>(T)(T <code class="code">a</code>);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#concatenate" id="concatenate"><code class="code">concatenate</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="concatenate"></span>auto <code class="code">concatenate</code>(int axis = 0, Slices...)(Slices <code class="code">slices</code>);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="comment">/* From existing data
+
+   numpy                     | numir
+   --------------------------+------------------------
+   np.array([ [1,2],[3,4] ]) | nparray([ [1,2],[3,4] ])
+   np.ascontiguousarray(x)   | x.assumeContiguous
+   np.copy(x)                | ????
+   np.fromfile(file)         | ????
+   np.concatenate            | concatenate
+ */</span>
+
+<span class="keyword">auto</span> s = [[1,2],[3,4]].sliced; <span class="comment">// mir's sliced
+</span><span class="comment">// error: s[0, 0] = -1;
+</span>
+<span class="keyword">auto</span> m = nparray([[1,2],[3,4]]);
+m[0, 0] = -1;
+<span class="keyword">assert</span>(m == [[-1,2], [3,4]]);
+
+<span class="keyword">auto</span> v = nparray([1, 2]);
+v[1] = -2;
+<span class="keyword">assert</span>(v == [1, -2]);
+
+<span class="keyword">auto</span> u = nparray([[5, 6]]);
+<span class="keyword">assert</span>(<span class="psymbol">concatenate</span>(m, u) == [[-1, 2], [3, 4], [5, 6]]);
+<span class="keyword">assert</span>(<span class="psymbol">concatenate</span>(u, m) == [[5, 6], [-1, 2], [3, 4]]);
+
+<span class="keyword">auto</span> uT = u.universal.transposed;
+<span class="keyword">assert</span>(<span class="psymbol">concatenate</span>!1(m, uT) == [[-1, 2, 5], [3, 4, 6]]);
+
+<span class="keyword">assert</span>(<span class="psymbol">concatenate</span>!0([[0,1]].nparray, [[2,3]].nparray, [[4,5]].nparray) == iota(3, 2));
+<span class="keyword">assert</span>(<span class="psymbol">concatenate</span>!1([[0,1]].nparray, [[2,3]].nparray, [[4,5]].nparray) == [iota(6)]);
 </code></li>
       </ol>
     </div>
@@ -1121,7 +1293,7 @@
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
-  <a href="#ndim" id="ndim"><code class="code">ndim</code></a>
+  <a href="#Ndim" id="Ndim"><code class="code">Ndim</code></a>
 </div>
 </div><div class="ddoc_decl">
   <section class="section">
@@ -1130,7 +1302,7 @@
       <div class="dlang">
         <p class="para">
           <code class="code">
-            <span class="ddoc_anchor" id="ndim"></span>size_t <code class="code">ndim</code>(S)(S <code class="code">s</code>);
+            <span class="ddoc_anchor" id="Ndim"></span>enum auto <code class="code">Ndim</code>(S);
 
           </code>
         </p>
@@ -1139,14 +1311,7 @@
   </section>
 </div>
 <div class="ddoc_decl">
-  <section class="section ddoc_sections">
-  <div class="ddoc_summary">
-  <p class="para">
-    return
-  </p>
-</div>
-
-</section>
+  
 
 </div>
 
@@ -1222,7 +1387,7 @@
    numpy     | numir
    ----------+---------------
    x.shape   | x.shape
-   x.strides | x.byteStrides (!) already, strides defined in mir
+   x.strides | x.byteStrides (!) already &lt;strides&gt; function is defined in mir
    x.ndim    | x.ndim
    x.data    | ???
    x.size    | x.size
@@ -1238,6 +1403,11 @@
 <span class="keyword">assert</span>(e.ndim == 4);
 <span class="keyword">assert</span>(e.strides == [9, 3, 3, 1]);
 <span class="keyword">assert</span>(e.byteStrides == [72, 24, 24, 8]);
+
+
+<span class="keyword">auto</span> a = iota(3, 4, 5, 6);
+<span class="keyword">auto</span> b = a.pack!2;
+<span class="keyword">assert</span>(b.ndim == 4);
 </code></li>
       </ol>
     </div>
