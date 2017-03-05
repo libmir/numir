@@ -198,31 +198,15 @@ unittest
   assert(nested.shapeNested == [3, 2]);
   assert([1].shapeNested == [1]);
   assert([1, 2].shapeNested == [2]);
-
-  assert([[1,2],[3,4]].shapeNested == [2, 2]);
-  // assert([[1,2],[3,4],[5,6]].shapeNested == [3, 2]);
+  assert([[1,2],[3,4],[5,6]].shapeNested == [3, 2]);
   static assert(is(NestedElementType!(int[][]) == int));
 }
 
-// Slice!(cast(SliceKind)2, [rank!T], NestedElementType!T*)
 auto nparray(T)(T a) {
   alias E = NestedElementType!T;
-  enum N = rank!T;
-  // size_t[N] shape;
-  // for (size_t n = 0; n < N; ++n) {
-  //   shape[n] = 
-  // }
-
-  static if(N == 1) {
-    auto m = slice!E(a.length);
-    m[] = a;
-    return m;
-  }
-  static if (N  == 2) {
-    auto m = slice!E(a.length, a[0].length);
-    m[] = a;
-    return m;
-  }
+  auto m = slice!E(a.shapeNested);
+  m[] = a;
+  return m;
 }
 
 unittest
@@ -231,24 +215,23 @@ unittest
 
      numpy                     | numir
      --------------------------+------------------------
-     np.array([ [1,2],[3,4] ]) | <WIP>
+     np.array([ [1,2],[3,4] ]) | nparray([ [1,2],[3,4] ])
      np.ascontiguousarray(x)   | x.assumeContiguous
      np.copy(x)                | ????
      np.fromfile(file)         | <WIP>
      np.concatenate            | <WIP>
    */
 
-  auto s = [[1,2],[3,4]].sliced;
+  auto s = [[1,2],[3,4]].sliced; // mir's sliced
   // error: s[0, 0] = -1;
 
-  // auto m = nparray([[1,2],[3,4]]);
-  // m[0, 0] = -1;
-  // assert(m[0, 0] == -1);
-  // writeln(typeid(m));
+  auto m = nparray([[1,2],[3,4]]);
+  m[0, 0] = -1;
+  assert(m == [[-1,2], [3,4]]);
 
   auto v = nparray([1, 2]);
-  // v[1] = -2;
-  // assert(v == [1, -2]);
+  v[1] = -2;
+  assert(v == [1, -2]);
 }
 
 
