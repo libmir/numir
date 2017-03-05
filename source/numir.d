@@ -12,8 +12,8 @@ module numir;
  */
 
 import mir.ndslice;
-import mir.ndslice.algorithm : all;
-import mir.ndslice.topology : map;
+import mir.ndslice.algorithm : all, sum;
+import mir.ndslice.topology; // : map;
 
 import std.conv : to;
 import std.stdio;
@@ -209,6 +209,28 @@ auto nparray(T)(T a) {
   return m;
 }
 
+import std.algorithm : maxElement;
+import std.meta : staticMap;
+import std.traits : CommonType;
+
+auto concatenate(S1, S2)(S1 s1, S2 s2) {
+  return concatenate!0(s1, s2);
+}
+
+auto concatenate(int axis, S1, S2)(S1 s1, S2 s2) {
+  alias E = CommonType!(staticMap!(DeepElementType, S1, S2));
+  // auto ndim = maxElement!(s => s.ndim)([s1, s2]);
+  enum N = Ndim!S1; // maxElement([Ndim, s2.ndim]);
+  size_t[] s = s1.ndim > s2.ndim ? s1.shape : s2.shape;
+  s[axis] = s1.shape[axis] + s2.shape[axis];
+  auto m = slice!E(s.to!(size_t[N]));
+  // auto ma = m.pack!axis;
+  const a1 = s1.shape[axis];
+  m[0 .. a1][] = s1;
+  m[a1 .. $][] = s2;
+  return m;
+}
+
 unittest
 {
   /* From existing data
@@ -218,7 +240,7 @@ unittest
      np.array([ [1,2],[3,4] ]) | nparray([ [1,2],[3,4] ])
      np.ascontiguousarray(x)   | x.assumeContiguous
      np.copy(x)                | ????
-     np.fromfile(file)         | <WIP>
+     np.fromfile(file)         | ????
      np.concatenate            | <WIP>
    */
 
@@ -232,33 +254,42 @@ unittest
   auto v = nparray([1, 2]);
   v[1] = -2;
   assert(v == [1, -2]);
+
+  auto u = nparray([[5, 6]]);
+  auto c = concatenate(m, u);
+  assert(c == [[-1, 2], [3, 4], [5, 6]]);
 }
 
 
 
 ///
-auto arange(size_t size) {
+auto arange(size_t size)
+{
   return size.iota;
 }
 
-auto steppedIota(E)(size_t num, E step, E start=0) {
+auto steppedIota(E)(size_t num, E step, E start=0)
+{
   return num.iota.map!(i => i * step + start);
 }
 
 ///
-auto arange(E)(E start, E end, E step=1) {
+auto arange(E)(E start, E end, E step=1)
+{
   size_t num = to!size_t((end - start) / step) + 1;
   return num.steppedIota!E(step, start);
 }
 
 ///
-auto linspace(E=double)(double start, double stop, size_t num=50) {
+auto linspace(E=double)(double start, double stop, size_t num=50)
+{
   auto step = to!E((stop - start) / (num - 1));
   return num.steppedIota!E(step, start);
 }
 
 ///
-auto logspace(E=double)(double start, double stop, size_t num=50, E base=10) {
+auto logspace(E=double)(double start, double stop, size_t num=50, E base=10)
+{
   return linspace(start, stop, num).slice.map!(x => base ^^ x);
 }
 
@@ -318,11 +349,19 @@ auto dtype(S)(S s)
   return typeid(DeepElementType!S);
 }
 
-/// return
-size_t ndim(S)(S s)
-{
-  return s.shape.length;
+///
+template Ndim(S) {
+  enum Ndim = ndim(S());
 }
+
+size_t ndim(SliceKind kind, size_t[] packs, Iterator)(Slice!(kind, packs, Iterator) s) {
+  return packs.sum;
+}
+
+// size_t ndim(S)(S s)
+// {
+//   return s.shape.length;
+// }
 
 /// return strides of byte size
 size_t[] byteStrides(S)(S s) {
@@ -360,6 +399,11 @@ unittest
   assert(e.ndim == 4);
   assert(e.strides == [9, 3, 3, 1]);
   assert(e.byteStrides == [72, 24, 24, 8]);
+
+
+  auto a = iota(3, 4, 5, 6);
+  auto b = a.pack!2;
+  assert(b.ndim == 4);
 }
 
 
