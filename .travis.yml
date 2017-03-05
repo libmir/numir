@@ -11,6 +11,8 @@ d:
   - dmd
 
 matrix:
+  include:
+    - d: ldc-1.1.0
   allow_failues:
     - d: ldc-1.1.0
 
