@@ -19,9 +19,21 @@ import mir.ndslice.topology; // : map;
 import std.array : array;
 import std.algorithm : stdmap = map, stdreduce = reduce;
 import std.conv : to;
+import std.meta : staticMap;
 import std.range : ElementType, isInputRange;
 import std.stdio : writeln;
+import std.traits : CommonType;
 import std.traits : isArray;
+
+
+version (LDC)
+{
+    import old : maxIndex; // not supported yet (2.071)
+}
+else
+{
+    import std.algorithm : maxElement, maxIndex;
+}
 
 
 ///
@@ -171,27 +183,40 @@ unittest
 
 
 ///
-template rank(R) {
+template rank(R)
+{
     static if (isInputRange!R || isArray!R)
+    {
         enum size_t rank = 1 + rank!(ElementType!R);
+    }
     else
+    {
         enum size_t rank = 0;
+    }
 }
 
 ///
-template NestedElementType(T) {
-    static if (isArray!T) {
+template NestedElementType(T)
+{
+    static if (isArray!T)
+    {
         alias NestedElementType = NestedElementType!(ElementType!T);
-    } else {
+    }
+    else
+    {
         alias NestedElementType = T;
     }
 }
 
 ///
-size_t[rank!T] shapeNested(T)(T array) {
-    static if (rank!T == 0) {
+size_t[rank!T] shapeNested(T)(T array)
+{
+    static if (rank!T == 0)
+    {
         return [];
-    } else {
+    }
+    else
+    {
         return to!(size_t[rank!T])(array.length ~ shapeNested(array[0]));
     }
 }
@@ -207,43 +232,38 @@ unittest
 }
 
 ///
-auto nparray(T)(T a) {
+auto nparray(T)(T a)
+{
     alias E = NestedElementType!T;
     auto m = slice!E(a.shapeNested);
     m[] = a;
     return m;
 }
 
-
-version (LDC) {
-    import old : maxIndex;
-} else {
-    import std.algorithm : maxElement, maxIndex;
-}
-import std.meta : staticMap;
-import std.traits : CommonType;
-
-
 ///
-auto concatenate(int axis=0, Slices...)(Slices slices) {
+auto concatenate(int axis=0, Slices...)(Slices slices)
+{
     // get dst slice
     alias E = CommonType!(staticMap!(DeepElementType, Slices));
     enum I = maxIndex([staticMap!(Ndim, Slices)]);
     size_t[] shape = slices[I].shape;
     shape[axis] = 0;
-    foreach (s; slices) {
+    foreach (s; slices)
+    {
         shape[axis] += s.shape[axis];
     }
     enum N = Ndim!(Slices[I]);
     auto m = shape.to!(size_t[N]).slice!E;
 
     // set values
-    auto sw(S)(S s) {
+    auto sw(S)(S s)
+    {
         return s.universal.swapped!(0, axis);
     }
 
     size_t a = 0;
-    foreach (s; slices) {
+    foreach (s; slices)
+    {
         const b = a + s.shape[axis];
         sw(m)[a .. b][] = sw(s);
         a = b;
@@ -382,11 +402,13 @@ auto dtype(S)(S s)
 }
 
 ///
-template Ndim(S) {
+template Ndim(S)
+{
     enum Ndim = ndim(S());
 }
 
-size_t ndim(SliceKind kind, size_t[] packs, Iterator)(Slice!(kind, packs, Iterator) s) {
+size_t ndim(SliceKind kind, size_t[] packs, Iterator)(Slice!(kind, packs, Iterator) s)
+{
     return packs.sum;
 }
 
@@ -396,13 +418,15 @@ size_t ndim(SliceKind kind, size_t[] packs, Iterator)(Slice!(kind, packs, Iterat
 // }
 
 /// return strides of byte size
-size_t[] byteStrides(S)(S s) {
+size_t[] byteStrides(S)(S s)
+{
     enum b = DeepElementType!S.sizeof;
     return s.strides.sliced.map!(n => n * b).array;
 }
 
 /// return size of raveled array
-auto size(S)(S s) {
+auto size(S)(S s)
+{
     return s.shape.array.stdreduce!"a * b";
 }
 
@@ -431,7 +455,6 @@ unittest
     assert(e.strides == [9, 3, 3, 1]);
     assert(e.byteStrides == [72, 24, 24, 8]);
 
-
     auto a = iota(3, 4, 5, 6);
     auto b = a.pack!2;
     assert(b.ndim == 4);
@@ -439,6 +462,10 @@ unittest
 
 
 /// Shape Manipulation
+unittest
+{
+
+}
 
 /// Item selection and manipulation
 
