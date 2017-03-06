@@ -14,4 +14,4 @@ basically support all operations in [Torch for Numpy users](https://github.com/t
 
 ## issues
 
-+ linspace, logspace failed to compile in LDC
++ linspace, logspace failed to compile in LDC (1.1.0) because old compiler front-end (2.071).
