@@ -11,3 +11,7 @@
 ## roadmaps
 
 basically support all operations in [Torch for Numpy users](https://github.com/torch/torch7/wiki/Torch-for-Numpy-users)
+
+## issues
+
++ linspace, logspace failed to compile in LDC

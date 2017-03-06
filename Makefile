@@ -5,13 +5,16 @@ clean:
 	dub clean
 	rm -rf *.lst docs  __* *.a
 
-docs/index.html: source/numir.d
-	dub build --build=docs
+doc:
+	rm -rf docs
+	dub run -b=docs --compiler=dmd
 	cd docs
 	find ./docs -name "*.html" -not -path "./docs/numir.html" -exec rm {} \;
-	mv docs/numir.html $@
+	mv docs/numir.html docs/index.html
 
-doc: docs/index.html
+ddox:
+	rm -rf docs
+	dub run -b=ddox --compiler=dmd
 
 test:
 	dub test --build=unittest-cov
