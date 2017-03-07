@@ -17,7 +17,6 @@ import mir.ndslice.algorithm : all, sum;
 import mir.ndslice.topology; // : map;
 
 import std.array : array;
-import std.algorithm : stdmap = map, stdreduce = reduce;
 import std.conv : to;
 import std.meta : staticMap;
 import std.range : ElementType, isInputRange;
@@ -26,13 +25,13 @@ import std.traits : CommonType;
 import std.traits : isArray;
 
 
-version (LDC)
+static if (__VERSION__ < 2073)
 {
     import old : maxIndex; // not supported yet (2.071)
 }
 else
 {
-    import std.algorithm : maxElement, maxIndex;
+    import std.algorithm.searching: maxIndex;
 }
 
 
@@ -427,7 +426,7 @@ size_t[] byteStrides(S)(S s)
 /// return size of raveled array
 auto size(S)(S s)
 {
-    return s.shape.array.stdreduce!"a * b";
+    return s.elementsCount;
 }
 
 ///
