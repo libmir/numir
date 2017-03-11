@@ -5,7 +5,7 @@
     ],
     "description": "numpy-like API wrappers of mir",
     "dependencies": {
-        "mir-algorithm": "~>0.0.32"
+        "mir-algorithm": "~>0.1.1"
     },
     "copyright": "Copyright © 2017, karita",
     "license": "Boost",

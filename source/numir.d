@@ -13,8 +13,6 @@ module numir;
 
 
 import mir.ndslice;
-import mir.ndslice.algorithm : all, sum;
-import mir.ndslice.topology; // : map;
 
 import std.array : array;
 import std.conv : to;
@@ -314,6 +312,12 @@ auto arange(size_t size)
     return size.iota;
 }
 
+///
+auto linspace(E=double)(E start, E stop, size_t num=50)
+{
+    return mir.ndslice.linspace([num], [start, stop]);
+}
+
 
 version (DMD) // FIXME: LDC fails
 {
@@ -331,16 +335,9 @@ version (DMD) // FIXME: LDC fails
     }
 
     ///
-    auto linspace(E=double)(double start, double stop, size_t num=50)
+    auto logspace(E=double)(E start, E stop, size_t num=50, E base=10)
     {
-        auto step = to!E((stop - start) / (num - 1));
-        return num.steppedIota!E(step, start);
-    }
-
-    ///
-    auto logspace(E=double)(double start, double stop, size_t num=50, E base=10)
-    {
-        return linspace(start, stop, num).slice.map!(x => base ^^ x);
+        return linspace(start, stop, num).map!(x => base ^^ x);
     }
 
     ///
@@ -408,6 +405,7 @@ template Ndim(S)
 
 size_t ndim(SliceKind kind, size_t[] packs, Iterator)(Slice!(kind, packs, Iterator) s)
 {
+    import mir.ndslice.internal: sum;
     return packs.sum;
 }
 
