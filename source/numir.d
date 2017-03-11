@@ -16,6 +16,7 @@ import mir.ndslice;
 
 import std.array : array;
 import std.conv : to;
+import std.format : format;
 import std.meta : staticMap;
 import std.range : ElementType, isInputRange;
 import std.stdio : writeln;
@@ -240,32 +241,21 @@ auto nparray(T)(T a)
 ///
 auto concatenate(int axis=0, Slices...)(Slices slices)
 {
-    // get dst slice
-    alias E = CommonType!(staticMap!(DeepElementType, Slices));
-    enum I = maxIndex([staticMap!(Ndim, Slices)]);
-    size_t[] shape = slices[I].shape;
-    shape[axis] = 0;
-    foreach (s; slices)
-    {
-        shape[axis] += s.shape[axis];
-    }
-    enum N = Ndim!(Slices[I]);
-    auto m = shape.to!(size_t[N]).slice!E;
-
-    // set values
-    auto sw(S)(S s)
-    {
-        return s.universal.swapped!(0, axis);
+    enum int N = Ndim!(Slices[0]);
+    static assert(-N <= axis, "out of bounds: axis(=%s) < %s".format(axis, -N));
+    static assert(axis < N, "out of bounds: %s <= axis(=%s)".format(N, axis));
+    static if (axis < 0) {
+        enum axis = axis + N;
     }
 
-    size_t a = 0;
-    foreach (s; slices)
-    {
-        const b = a + s.shape[axis];
-        sw(m)[a .. b][] = sw(s);
-        a = b;
+    foreach (S; Slices) {
+        static assert(Ndim!S == N,
+                      "all the input arrays must have same number of dimensions: %s"
+                      .format([staticMap!(Ndim, Slices)]));
     }
-    return m;
+
+    import mir.ndslice.concatenation: concatenation;
+    return concatenation!axis(slices).slice;
 }
 
 ///
@@ -301,7 +291,9 @@ unittest
     assert(concatenate!1(m, uT) == [[-1, 2, 5], [3, 4, 6]]);
 
     assert(concatenate!0([[0,1]].nparray, [[2,3]].nparray, [[4,5]].nparray) == iota(3, 2));
-    assert(concatenate!1([[0,1]].nparray, [[2,3]].nparray, [[4,5]].nparray) == [iota(6)]);
+    // axis=-1 is the same to axis=$-1
+    assert(concatenate!(-1)([[0,1]].nparray, [[2,3]].nparray, [[4,5]].nparray) == [iota(6)]);
+    assert(concatenate!(-1)([[0,1]].nparray, [[2]].nparray) == [[0, 1, 2]]);
 }
 
 
