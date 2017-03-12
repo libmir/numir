@@ -20,8 +20,7 @@ import std.format : format;
 import std.meta : staticMap;
 import std.range : ElementType, isInputRange;
 import std.stdio : writeln;
-import std.traits : CommonType;
-import std.traits : isArray;
+import std.traits : CommonType, isArray, isFloatingPoint;
 
 
 static if (__VERSION__ < 2073)
@@ -307,11 +306,14 @@ auto arange(size_t size)
 ///
 auto linspace(E=double)(E start, E stop, size_t num=50)
 {
-    return mir.ndslice.linspace([num], [start, stop]);
+    static if (!isFloatingPoint!E) {
+        alias E = double;
+    }
+    return mir.ndslice.linspace([num].to!(size_t[1]), [[start, stop]].to!(E[2][1]));
 }
 
 
-version (DMD) // FIXME: LDC fails
+version (DigitalMars) // FIXME: LDC fails
 {
     ///
     auto steppedIota(E)(size_t num, E step, E start=0)
@@ -346,13 +348,13 @@ version (DMD) // FIXME: LDC fails
 
            see also: http://mir.dlang.io/mir_ndslice_topology.html#.iota
         */
-
         assert(arange(3) == [0, 1, 2]);
         assert(arange(2, 3, 0.3) == [2.0, 2.3, 2.6, 2.9]);
         assert(linspace(1, 2, 3) == [1.0, 1.5, 2.0]);
         assert(logspace(1, 2, 3, 10) == [10. ^^ 1.0, 10. ^^ 1.5, 10. ^^ 2.0]);
     }
 }
+
 
 /++ return diagonal slice +/
 auto diag(S)(S s, long k=0)
@@ -395,16 +397,12 @@ template Ndim(S)
     enum Ndim = ndim(S());
 }
 
+///
 size_t ndim(SliceKind kind, size_t[] packs, Iterator)(Slice!(kind, packs, Iterator) s)
 {
     import mir.ndslice.internal: sum;
     return packs.sum;
 }
-
-// size_t ndim(S)(S s)
-// {
-//   return s.shape.length;
-// }
 
 /// return strides of byte size
 size_t[] byteStrides(S)(S s)

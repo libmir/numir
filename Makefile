@@ -17,5 +17,5 @@ ddox:
 	dub run -b=ddox --compiler=dmd
 
 test:
-	dub test --build=unittest-cov
-	tail -n 1 source-numir.d
+	dub test --build=unittest-cov --compiler=dmd
+	tail -n 1 source-numir.lst
