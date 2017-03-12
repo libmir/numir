@@ -229,9 +229,12 @@ unittest
 }
 
 ///
-auto nparray(T)(T a)
+auto nparray(E=void, T)(T a)
 {
-    alias E = NestedElementType!T;
+    static if (is(E == void))
+    {
+        alias E = NestedElementType!T;
+    }
     auto m = slice!E(a.shapeNested);
     m[] = a;
     return m;
@@ -277,6 +280,7 @@ unittest
     auto m = nparray([[1,2],[3,4]]);
     m[0, 0] = -1;
     assert(m == [[-1,2], [3,4]]);
+    static assert(is(DeepElementType!(typeof(m)) == int)); // maybe double?
 
     auto v = nparray([1, 2]);
     v[1] = -2;
