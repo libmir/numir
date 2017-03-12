@@ -1048,7 +1048,9 @@ v[1] = -2;
 <span class="keyword">assert</span>(<span class="psymbol">concatenate</span>!1(m, uT) == [[-1, 2, 5], [3, 4, 6]]);
 
 <span class="keyword">assert</span>(<span class="psymbol">concatenate</span>!0([[0,1]].nparray, [[2,3]].nparray, [[4,5]].nparray) == iota(3, 2));
-<span class="keyword">assert</span>(<span class="psymbol">concatenate</span>!1([[0,1]].nparray, [[2,3]].nparray, [[4,5]].nparray) == [iota(6)]);
+<span class="comment">// axis=-1 is the same to axis=$-1
+</span><span class="keyword">assert</span>(<span class="psymbol">concatenate</span>!(-1)([[0,1]].nparray, [[2,3]].nparray, [[4,5]].nparray) == [iota(6)]);
+<span class="keyword">assert</span>(<span class="psymbol">concatenate</span>!(-1)([[0,1]].nparray, [[2]].nparray) == [[0, 1, 2]]);
 </code></li>
       </ol>
     </div>
@@ -1083,6 +1085,138 @@ v[1] = -2;
 </div>
 <div class="ddoc_decl">
   
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#linspace" id="linspace"><code class="code">linspace</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="linspace"></span>auto <code class="code">linspace</code>(E = double)(E <code class="code">start</code>, E <code class="code">stop</code>, size_t <code class="code">num</code> = 50);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#steppedIota" id="steppedIota"><code class="code">steppedIota</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="steppedIota"></span>auto <code class="code">steppedIota</code>(E)(size_t <code class="code">num</code>, E <code class="code">step</code>, E <code class="code">start</code> = 0);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#arange" id="arange"><code class="code">arange</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="arange.2"></span>auto <code class="code">arange</code>(E)(E <code class="code">start</code>, E <code class="code">end</code>, E <code class="code">step</code> = 1);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#logspace" id="logspace"><code class="code">logspace</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="logspace"></span>auto <code class="code">logspace</code>(E = double)(E <code class="code">start</code>, E <code class="code">stop</code>, size_t <code class="code">num</code> = 50, E <code class="code">base</code> = 10);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="comment">/* Numerical Ranges
+
+   numpy                | numir
+   ---------------------+--------
+   np.arange(10)        | arange(10)
+   np.arange(2, 3, 0.1) | arange(2, 3, 0.1)
+   np.linspace(1, 4, 6) | linspace(1, 4, 6)
+   np.logspace          | logspace
+
+   see also: http://mir.dlang.io/mir_ndslice_topology.html#.iota
+*/</span>
+<span class="keyword">assert</span>(arange(3) == [0, 1, 2]);
+<span class="keyword">assert</span>(arange(2, 3, 0.3) == [2.0, 2.3, 2.6, 2.9]);
+<span class="keyword">assert</span>(linspace(1, 2, 3) == [1.0, 1.5, 2.0]);
+<span class="keyword">assert</span>(<span class="psymbol">logspace</span>(1, 2, 3, 10) == [10. ^^ 1.0, 10. ^^ 1.5, 10. ^^ 2.0]);
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div>
+</section>
 
 </div>
 
@@ -1210,6 +1344,31 @@ v[1] = -2;
 </li><li class="ddoc_member">
   <div class="ddoc_member_header">
   <div class="ddoc_header_anchor">
+  <a href="#ndim" id="ndim"><code class="code">ndim</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="ndim"></span>size_t <code class="code">ndim</code>(SliceKind kind, size_t[] packs, Iterator)(Slice!(kind, packs, Iterator) <code class="code">s</code>);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
   <a href="#byteStrides" id="byteStrides"><code class="code">byteStrides</code></a>
 </div>
 </div><div class="ddoc_decl">
@@ -1296,7 +1455,6 @@ v[1] = -2;
 <span class="keyword">assert</span>(e.strides == [9, 3, 3, 1]);
 <span class="keyword">assert</span>(e.byteStrides == [72, 24, 24, 8]);
 
-
 <span class="keyword">auto</span> a = iota(3, 4, 5, 6);
 <span class="keyword">auto</span> b = a.pack!2;
 <span class="keyword">assert</span>(b.ndim == 4);
@@ -1305,6 +1463,12 @@ v[1] = -2;
     </div>
   </div>
 </section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Shape Manipulation
 
   </p>
 </div>
