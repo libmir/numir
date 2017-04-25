@@ -66,7 +66,7 @@ unittest
  Returns:
  new uninitialized slice
  +/
-auto empty(E=double, size_t N)(size_t[N] length...)
+auto empty(E=double, size_t N)(size_t[N] length...) pure
 {
     return uninitializedSlice!E(length);
 }
@@ -80,43 +80,43 @@ auto empty(E=double, size_t N)(size_t[N] length...)
  Returns:
  new uninitialized slice
  +/
-auto like(alias initializer, S)(S slice)
+auto like(alias initializer, S)(S slice) pure
 {
     return initializer!(DeepElementType!S)(slice.shape);
 }
 
 ///
-auto empty_like(S)(S slice)
+auto empty_like(S)(S slice) pure
 {
     return slice.like!empty;
 }
 
 ///
-auto ones(E=double, size_t N)(size_t[N] length...)
+auto ones(E=double, size_t N)(size_t[N] length...) pure
 {
     return slice!E(length, 1);
 }
 
 ///
-auto ones_like(S)(S slice)
+auto ones_like(S)(S slice) pure
 {
     return slice.like!ones;
 }
 
 ///
-auto zeros(E=double, size_t N)(size_t[N] length...)
+auto zeros(E=double, size_t N)(size_t[N] length...) pure
 {
     return slice!E(length, 0);
 }
 
 ///
-auto zeros_like(S)(S slice)
+auto zeros_like(S)(S slice) pure
 {
     return slice.like!zeros;
 }
 
 ///
-auto eye(E=double)(size_t m, size_t n=0, long k=0)
+auto eye(E=double)(size_t m, size_t n=0, long k=0) pure
 {
     if (n == 0) n = m;
     auto z = zeros!E(m, n);
@@ -125,7 +125,8 @@ auto eye(E=double)(size_t m, size_t n=0, long k=0)
 }
 
 ///
-auto identity(E=double)(size_t n) {
+auto identity(E=double)(size_t n) pure
+{
     return eye!E(n);
 }
 
@@ -209,7 +210,7 @@ template NestedElementType(T)
 }
 
 ///
-size_t[rank!T] shapeNested(T)(T array)
+size_t[rank!T] shapeNested(T)(T array) pure
 {
     static if (rank!T == 0)
     {
@@ -232,7 +233,7 @@ unittest
 }
 
 ///
-auto nparray(T)(T a)
+auto nparray(T)(T a) pure
 {
     alias E = NestedElementType!T;
     auto m = slice!E(a.shapeNested);
@@ -240,8 +241,8 @@ auto nparray(T)(T a)
     return m;
 }
 
-///
-auto concatenate(int axis=0, Slices...)(Slices slices)
+/// think about mir.ndlice.stack (I didn't know that)
+auto concatenate(int axis=0, Slices...)(Slices slices) pure
 {
     // get dst slice
     alias E = CommonType!(staticMap!(DeepElementType, Slices));
@@ -308,38 +309,36 @@ unittest
 }
 
 
-
-///
-auto arange(size_t size)
-{
-    return size.iota;
-}
-
-
 version (DMD) // FIXME: LDC fails
 {
     ///
-    auto steppedIota(E)(size_t num, E step, E start=0)
+    auto steppedIota(E)(size_t num, E step, E start=0) pure
     {
         return iota(num).map!(i => E(i * step + start));
     }
 
     ///
-    auto arange(E)(E start, E end, E step=1)
+    auto arange(E)(E start, E end, E step=1) pure
     {
         size_t num = to!size_t((end - start) / step) + 1;
         return num.steppedIota!E(step, start);
     }
 
     ///
-    auto linspace(E=double)(double start, double stop, size_t num=50)
+    auto arange(size_t size) pure
+    {
+        return size.iota;
+    }
+
+    ///
+    auto linspace(E=double)(double start, double stop, size_t num=50) pure
     {
         auto step = to!E((stop - start) / (num - 1));
         return num.steppedIota!E(step, start);
     }
 
     ///
-    auto logspace(E=double)(double start, double stop, size_t num=50, E base=10)
+    auto logspace(E=double)(double start, double stop, size_t num=50, E base=10) pure
     {
         return linspace(start, stop, num).slice.map!(x => base ^^ x);
     }
@@ -367,7 +366,7 @@ version (DMD) // FIXME: LDC fails
 }
 
 /++ return diagonal slice +/
-auto diag(S)(S s, long k=0)
+auto diag(S)(S s, long k=0) pure
 {
     auto sk = k >= 0 ?  s[0 .. $, k .. $] : s[-k .. $, 0 .. $];
     return sk.diagonal;
@@ -396,10 +395,18 @@ unittest
 }
 
 /// return
-auto dtype(S)(S s)
+auto dtype(S)(S s) pure
 {
     return typeid(DeepElementType!S);
 }
+
+
+///
+size_t ndim(SliceKind kind, size_t[] packs, Iterator)(Slice!(kind, packs, Iterator) s) pure
+{
+    return packs.sum;
+}
+
 
 ///
 template Ndim(S)
@@ -407,25 +414,16 @@ template Ndim(S)
     enum Ndim = ndim(S());
 }
 
-size_t ndim(SliceKind kind, size_t[] packs, Iterator)(Slice!(kind, packs, Iterator) s)
-{
-    return packs.sum;
-}
-
-// size_t ndim(S)(S s)
-// {
-//   return s.shape.length;
-// }
 
 /// return strides of byte size
-size_t[] byteStrides(S)(S s)
+size_t[] byteStrides(S)(S s) pure
 {
     enum b = DeepElementType!S.sizeof;
     return s.strides.sliced.map!(n => n * b).array;
 }
 
 /// return size of raveled array
-auto size(S)(S s)
+auto size(S)(S s) pure
 {
     return s.shape.array.stdreduce!"a * b";
 }
@@ -461,10 +459,116 @@ unittest
 }
 
 
+///
+auto view(S, size_t N)(S sl, ptrdiff_t[N] length...) pure
+{
+    static if (kindOf!S != Universal) {
+        auto s = sl.universal;
+    } else {
+        auto s = sl;
+    }
+
+    int err;
+    auto r = s.reshape(length, err);
+    if (!err)
+    {
+        return r;
+    }
+    else if (err == ReshapeError.incompatible)
+    {
+        for (size_t n = 0; n < N; ++n)
+        {
+            if (length[n] == -1)
+            {
+                size_t remained = 1;
+                for (size_t m = 0; m < N; ++m)
+                {
+                    if (m != n)
+                    {
+                        remained *= length[m];
+                    }
+                }
+                length[n] = sl.size / remained;
+            }
+        }
+
+        // allocates, flattens, reshapes with `sliced`, converts to universal kind
+        return s.slice.flattened.sliced(cast(size_t[N])length).universal;
+    }
+
+    import std.format : format;
+    string msg = "ReshapeError: ";
+    string vs = "%s vs %s".format(s.shape, length);
+    final switch (err) {
+    case ReshapeError.empty:
+        msg ~= "Slice should not be empty";
+        break;
+    case ReshapeError.total:
+        msg ~= "Total element count should be the same" ~ vs;
+        break;
+    }
+    throw new Exception(msg);
+}
+
+
+///
+auto unsqueeze(long axis, S)(S s) pure
+{
+    enum long n = Ndim!S;
+    enum a = axis < 0 ? n + axis + 1 : axis;
+    ptrdiff_t[n + 1] shape = cast(ptrdiff_t[a]) s.shape[0 .. a]
+        ~ [1L] ~ cast(ptrdiff_t[n - a]) s.shape[a .. n];
+    return s.view(shape);
+}
+
+
+auto squeeze(long axis, S)(S s) pure
+{
+    enum long n = Ndim!S;
+    enum a = axis < 0 ? n + axis : axis;
+    assert(s.shape[a] == 1);
+
+    ptrdiff_t[n - 1] shape = cast(ptrdiff_t[a]) s.shape[0 .. a]
+        ~ cast(ptrdiff_t[n - a - 1]) s.shape[a + 1 .. n];
+    return s.view(shape);
+}
+
+
 /// Shape Manipulation
 unittest
 {
+    import std.string;
+    /* Shape Manipulation
+       numpy       | numir
+       ------------+------------------
+       x.reshape   | x.view(-1,2), x.reshape([-1, 2], error) (from mir)
+       x.resize    | <WIP>
+       x.transpose | x.transposed (from mir)
+       x.flatten   | <WIP>
+       x.squeeze   | <WIP>
+     */
 
+    assert(iota(3, 4).slice.view(-1, 1).shape == [12, 1]);
+    assert(iota(3, 4).slice.universal.transposed.view(-1, 6).shape == [2, 6]);
+
+    try {
+        iota(3, 4).slice.view(2, 1);
+    } catch (Exception e) {
+        assert(e.msg.split(":")[0] == "ReshapeError");
+    }
+    try {
+        iota(0).slice.view(2, 1);
+    } catch (Exception e) {
+        assert(e.msg.split(":")[0] == "ReshapeError");
+    }
+
+    assert(iota(3, 4).slice.unsqueeze!0.shape == [1, 3, 4]);
+    assert(iota(3, 4).slice.unsqueeze!1.shape == [3, 1, 4]);
+    assert(iota(3, 4).slice.unsqueeze!(-1).shape == [3, 4, 1]);
+
+    assert(iota(1, 3, 4).slice.squeeze!0.shape == [3, 4]);
+    assert(iota(3, 1, 4).slice.squeeze!1.shape == [3, 4]);
+    assert(iota(3, 4, 1).slice.squeeze!(-1).shape == [3, 4]);
 }
 
 /// Item selection and manipulation
