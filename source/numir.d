@@ -11,28 +11,36 @@ module numir;
   https://github.com/torch/torch7/wiki/Torch-for-Numpy-users
 */
 
+/*
+
+  TODO:
+  1. bring random ndarray (normal, uniform, binomial, multinomial) from d-svm
+  1. implement Selection, Calculation, Comparison operations
+  1. check linalg operations in mir
+     https://github.com/ShigekiKarita/numir/commit/08de747b7b51ffd03e1cf0d7e35c83fe287fc20d
+  1. add more linalg operations (LU, SVD)
+  1. CUDA array from d-nvrtc
+
+*/
 
 import mir.ndslice;
-import mir.ndslice.algorithm : all, sum;
-import mir.ndslice.topology; // : map;
 
 import std.array : array;
-import std.algorithm : stdmap = map, stdreduce = reduce;
 import std.conv : to;
+import std.format : format;
 import std.meta : staticMap;
 import std.range : ElementType, isInputRange;
 import std.stdio : writeln;
-import std.traits : CommonType;
-import std.traits : isArray;
+import std.traits : CommonType, isArray, isFloatingPoint;
 
 
-version (LDC)
+static if (__VERSION__ < 2073)
 {
     import old : maxIndex; // not supported yet (2.071)
 }
 else
 {
-    import std.algorithm : maxElement, maxIndex;
+    import std.algorithm.searching: maxIndex;
 }
 
 
@@ -232,45 +240,40 @@ unittest
     static assert(is(NestedElementType!(int[][]) == int));
 }
 
+
 ///
-auto nparray(T)(T a) pure
+auto nparray(E=void, T)(T a)
 {
-    alias E = NestedElementType!T;
+    static if (is(E == void))
+    {
+        alias E = NestedElementType!T;
+    }
     auto m = slice!E(a.shapeNested);
     m[] = a;
     return m;
 }
 
-/// think about mir.ndlice.stack (I didn't know that)
+
+///
 auto concatenate(int axis=0, Slices...)(Slices slices) pure
 {
-    // get dst slice
-    alias E = CommonType!(staticMap!(DeepElementType, Slices));
-    enum I = maxIndex([staticMap!(Ndim, Slices)]);
-    size_t[] shape = slices[I].shape;
-    shape[axis] = 0;
-    foreach (s; slices)
-    {
-        shape[axis] += s.shape[axis];
-    }
-    enum N = Ndim!(Slices[I]);
-    auto m = shape.to!(size_t[N]).slice!E;
-
-    // set values
-    auto sw(S)(S s)
-    {
-        return s.universal.swapped!(0, axis);
+    enum int N = Ndim!(Slices[0]);
+    static assert(-N <= axis, "out of bounds: axis(=%s) < %s".format(axis, -N));
+    static assert(axis < N, "out of bounds: %s <= axis(=%s)".format(N, axis));
+    static if (axis < 0) {
+        enum axis = axis + N;
     }
 
-    size_t a = 0;
-    foreach (s; slices)
-    {
-        const b = a + s.shape[axis];
-        sw(m)[a .. b][] = sw(s);
-        a = b;
+    foreach (S; Slices) {
+        static assert(Ndim!S == N,
+                      "all the input arrays must have same number of dimensions: %s"
+                      .format([staticMap!(Ndim, Slices)]));
     }
-    return m;
+
+    import mir.ndslice.concatenation: concatenation;
+    return concatenation!axis(slices).slice;
 }
+
 
 ///
 unittest
@@ -292,6 +295,7 @@ unittest
     auto m = nparray([[1,2],[3,4]]);
     m[0, 0] = -1;
     assert(m == [[-1,2], [3,4]]);
+    static assert(is(DeepElementType!(typeof(m)) == int)); // maybe double?
 
     auto v = nparray([1, 2]);
     v[1] = -2;
@@ -305,11 +309,29 @@ unittest
     assert(concatenate!1(m, uT) == [[-1, 2, 5], [3, 4, 6]]);
 
     assert(concatenate!0([[0,1]].nparray, [[2,3]].nparray, [[4,5]].nparray) == iota(3, 2));
-    assert(concatenate!1([[0,1]].nparray, [[2,3]].nparray, [[4,5]].nparray) == [iota(6)]);
+    // axis=-1 is the same to axis=$-1
+    assert(concatenate!(-1)([[0,1]].nparray, [[2,3]].nparray, [[4,5]].nparray) == [iota(6)]);
+    assert(concatenate!(-1)([[0,1]].nparray, [[2]].nparray) == [[0, 1, 2]]);
 }
 
 
-version (DMD) // FIXME: LDC fails
+///
+auto arange(size_t size)
+{
+    return size.iota;
+}
+
+///
+auto linspace(E=double)(E start, E stop, size_t num=50)
+{
+    static if (!isFloatingPoint!E) {
+        alias E = double;
+    }
+    return mir.ndslice.linspace([num].to!(size_t[1]), [[start, stop]].to!(E[2][1]));
+}
+
+
+version (DigitalMars) // FIXME: check if LDC still fails.
 {
     ///
     auto steppedIota(E)(size_t num, E step, E start=0) pure
@@ -325,22 +347,9 @@ version (DMD) // FIXME: LDC fails
     }
 
     ///
-    auto arange(size_t size) pure
+    auto logspace(E=double)(E start, E stop, size_t num=50, E base=10)
     {
-        return size.iota;
-    }
-
-    ///
-    auto linspace(E=double)(double start, double stop, size_t num=50) pure
-    {
-        auto step = to!E((stop - start) / (num - 1));
-        return num.steppedIota!E(step, start);
-    }
-
-    ///
-    auto logspace(E=double)(double start, double stop, size_t num=50, E base=10) pure
-    {
-        return linspace(start, stop, num).slice.map!(x => base ^^ x);
+        return linspace(start, stop, num).map!(x => base ^^ x);
     }
 
     ///
@@ -357,13 +366,13 @@ version (DMD) // FIXME: LDC fails
 
            see also: http://mir.dlang.io/mir_ndslice_topology.html#.iota
         */
-
         assert(arange(3) == [0, 1, 2]);
         assert(arange(2, 3, 0.3) == [2.0, 2.3, 2.6, 2.9]);
         assert(linspace(1, 2, 3) == [1.0, 1.5, 2.0]);
         assert(logspace(1, 2, 3, 10) == [10. ^^ 1.0, 10. ^^ 1.5, 10. ^^ 2.0]);
     }
 }
+
 
 /++ return diagonal slice +/
 auto diag(S)(S s, long k=0) pure
@@ -400,20 +409,18 @@ auto dtype(S)(S s) pure
     return typeid(DeepElementType!S);
 }
 
-
-///
-size_t ndim(SliceKind kind, size_t[] packs, Iterator)(Slice!(kind, packs, Iterator) s) pure
-{
-    return packs.sum;
-}
-
-
 ///
 template Ndim(S)
 {
     enum Ndim = ndim(S());
 }
 
+///
+size_t ndim(SliceKind kind, size_t[] packs, Iterator)(Slice!(kind, packs, Iterator) s)
+{
+    import mir.ndslice.internal: sum;
+    return packs.sum;
+}
 
 /// return strides of byte size
 size_t[] byteStrides(S)(S s) pure
@@ -425,7 +432,7 @@ size_t[] byteStrides(S)(S s) pure
 /// return size of raveled array
 auto size(S)(S s) pure
 {
-    return s.shape.array.stdreduce!"a * b";
+    return s.elementsCount;
 }
 
 ///
@@ -495,19 +502,21 @@ auto view(S, size_t N)(S sl, ptrdiff_t[N] length...) pure
         // allocates, flattens, reshapes with `sliced`, converts to universal kind
         return s.slice.flattened.sliced(cast(size_t[N])length).universal;
     }
-
-    import std.format : format;
-    string msg = "ReshapeError: ";
-    string vs = "%s vs %s".format(s.shape, length);
-    final switch (err) {
-    case ReshapeError.empty:
-        msg ~= "Slice should not be empty";
-        break;
-    case ReshapeError.total:
-        msg ~= "Total element count should be the same" ~ vs;
-        break;
+    else
+    {
+        import std.format : format;
+        string msg = "ReshapeError: ";
+        string vs = "%s vs %s".format(s.shape, length);
+        final switch (err) {
+        case ReshapeError.empty:
+            msg ~= "Slice should not be empty";
+            break;
+        case ReshapeError.total:
+            msg ~= "Total element count should be the same" ~ vs;
+            break;
+        }
+        throw new Exception(msg);
     }
-    throw new Exception(msg);
 }
 
 
@@ -521,7 +530,7 @@ auto unsqueeze(long axis, S)(S s) pure
     return s.view(shape);
 }
 
-
+///
 auto squeeze(long axis, S)(S s) pure
 {
     enum long n = Ndim!S;
@@ -533,7 +542,6 @@ auto squeeze(long axis, S)(S s) pure
     return s.view(shape);
 }
 
-
 /// Shape Manipulation
 unittest
 {
@@ -542,10 +550,10 @@ unittest
        numpy       | numir
        ------------+------------------
        x.reshape   | x.view(-1,2), x.reshape([-1, 2], error) (from mir)
-       x.resize    | <WIP>
+       x.resize    | None
        x.transpose | x.transposed (from mir)
-       x.flatten   | <WIP>
-       x.squeeze   | <WIP>
+       x.flatten   | x.flattened (from mir)
+       x.squeeze   | x.squeeze, x.unsqueeze
      */
 
     assert(iota(3, 4).slice.view(-1, 1).shape == [12, 1]);

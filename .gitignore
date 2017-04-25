@@ -8,3 +8,5 @@ __test__*__
 *.a
 numir-test-library
 *.lst
+dub.selections.json
+trace*
