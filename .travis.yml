@@ -10,6 +10,12 @@ d:
   - ldc-1.2.0-beta1
   - dmd
 
+
+matrix:
+  include:
+    - {os: linux, d: ldc-1.2.0-beta1, env: ARCH="x86", addons: {apt: {packages: [[gcc-multilib]]}}}
+    - {os: linux, d: dmd, env: ARCH="x86", addons: {apt: {packages: [[gcc-multilib]]}}}
+
 env:
   - ARCH="x86_64"
 
@@ -17,5 +23,5 @@ install:
   - dub fetch doveralls
 
 script:
-  - dub test -b unittest-cov
+  - dub test --arch "$ARCH" --build=unittest-cov
   - dub run doveralls
