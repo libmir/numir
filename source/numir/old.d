@@ -1,3 +1,5 @@
+module numir.old;
+
 import std.algorithm;
 import std.functional;
 import std.range; // : isInfinite, isForwardRange, isRandomAccessRange;

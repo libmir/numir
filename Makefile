@@ -16,6 +16,11 @@ ddox:
 	rm -rf docs
 	dub run -b=ddox --compiler=dmd
 
+hmod:
+	# https://github.com/nemanja-boric-sociomantic/harbored-mod
+	hmod --exclude numir.old ./source
+	mv doc docs
+
 test:
 	dub test --build=unittest-cov --compiler=dmd
-	tail -n 1 source-numir.lst
+	tail -n 1 source-numir*.lst
