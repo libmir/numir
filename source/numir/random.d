@@ -8,11 +8,13 @@ import mir.ndslice: slicedField, slice;
 import mir.random.algorithm: field;
 
 
+///
 class RNG
 {
     private static this() {}
     private __gshared Random* _rng = null;
 
+    ///
     static ref get()
     {
         synchronized(RNG.classinfo)
@@ -25,6 +27,7 @@ class RNG
         return *_rng;
     }
 
+    ///
     static ref setSeed(ulong seed)
     {
         synchronized(RNG.classinfo)
@@ -45,6 +48,7 @@ auto randn(E=double, size_t N)(size_t[N] length...)
         .slicedField(length);
 }
 
+///
 bool approxEqual(double eps=1e-10, S1, S2)(S1 s1, S2 s2)
 {
     import mir.ndslice : equal;

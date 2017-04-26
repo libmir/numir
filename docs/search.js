@@ -30,7 +30,11 @@ var items = [
 {"numir.core.unsqueeze" : "numir/core.html#unsqueeze"},
 {"numir.core.squeeze" : "numir/core.html#squeeze"},
 {"numir.random" : "numir/random.html"},
+{"numir.random.RNG" : "numir/random/RNG.html"},
+{"numir.random.RNG.get" : "numir/random/RNG.html#get"},
+{"numir.random.RNG.setSeed" : "numir/random/RNG.html#setSeed"},
 {"numir.random.randn" : "numir/random.html#randn"},
+{"numir.random.approxEqual" : "numir/random.html#approxEqual"},
 {"numir" : "numir.html"},
 ];
 function search(str) {
