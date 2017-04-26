@@ -7,14 +7,8 @@ os:
 language: d
 
 d:
-  - ldc-1.1.0
+  - ldc-1.2.0-beta1
   - dmd
-
-matrix:
-  include:
-    - d: ldc-1.1.0
-  allow_failues:
-    - d: ldc-1.1.0
 
 env:
   - ARCH="x86_64"
