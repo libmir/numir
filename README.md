@@ -12,6 +12,8 @@
 
 basically support all operations in [Torch for Numpy users](https://github.com/torch/torch7/wiki/Torch-for-Numpy-users)
 
-## issues
+## Compiler
 
-+ linspace, logspace failed to compile in LDC (1.1.0) because old compiler front-end (2.071).
++ dmd 2.072.2 -
++ [LDC 1.2.0](https://github.com/ldc-developers/ldc/releases/tag/v1.2.0) -
+

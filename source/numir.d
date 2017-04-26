@@ -322,6 +322,13 @@ auto arange(size_t size)
 }
 
 ///
+auto arange(E)(E start, E end, E step=1) pure
+{
+    size_t num = to!size_t((end - start) / step) + 1;
+    return num.steppedIota!E(step, start);
+}
+
+///
 auto linspace(E=double)(E start, E stop, size_t num=50)
 {
     static if (!isFloatingPoint!E) {
@@ -330,48 +337,38 @@ auto linspace(E=double)(E start, E stop, size_t num=50)
     return mir.ndslice.linspace([num].to!(size_t[1]), [[start, stop]].to!(E[2][1]));
 }
 
-
-version (DigitalMars) // FIXME: check if LDC still fails.
+///
+auto steppedIota(E)(size_t num, E step, E start=0) pure
 {
-    ///
-    auto steppedIota(E)(size_t num, E step, E start=0) pure
-    {
-        return iota(num).map!(i => E(i * step + start));
-    }
-
-    ///
-    auto arange(E)(E start, E end, E step=1) pure
-    {
-        size_t num = to!size_t((end - start) / step) + 1;
-        return num.steppedIota!E(step, start);
-    }
-
-    ///
-    auto logspace(E=double)(E start, E stop, size_t num=50, E base=10)
-    {
-        return linspace(start, stop, num).map!(x => base ^^ x);
-    }
-
-    ///
-    unittest
-    {
-        /* Numerical Ranges
-
-           numpy                | numir
-           ---------------------+--------
-           np.arange(10)        | arange(10)
-           np.arange(2, 3, 0.1) | arange(2, 3, 0.1)
-           np.linspace(1, 4, 6) | linspace(1, 4, 6)
-           np.logspace          | logspace
-
-           see also: http://mir.dlang.io/mir_ndslice_topology.html#.iota
-        */
-        assert(arange(3) == [0, 1, 2]);
-        assert(arange(2, 3, 0.3) == [2.0, 2.3, 2.6, 2.9]);
-        assert(linspace(1, 2, 3) == [1.0, 1.5, 2.0]);
-        assert(logspace(1, 2, 3, 10) == [10. ^^ 1.0, 10. ^^ 1.5, 10. ^^ 2.0]);
-    }
+    return iota(num).map!(i => E(i * step + start));
 }
+
+///
+auto logspace(E=double)(E start, E stop, size_t num=50, E base=10)
+{
+    return linspace(start, stop, num).map!(x => base ^^ x);
+}
+
+///
+unittest
+{
+    /* Numerical Ranges
+
+       numpy                | numir
+       ---------------------+--------
+       np.arange(10)        | arange(10)
+       np.arange(2, 3, 0.1) | arange(2, 3, 0.1)
+       np.linspace(1, 4, 6) | linspace(1, 4, 6)
+       np.logspace          | logspace
+
+       see also: http://mir.dlang.io/mir_ndslice_topology.html#.iota
+    */
+    assert(arange(3) == [0, 1, 2]);
+    assert(arange(2, 3, 0.3) == [2.0, 2.3, 2.6, 2.9]);
+    assert(linspace(1, 2, 3) == [1.0, 1.5, 2.0]);
+    assert(logspace(1, 2, 3, 10) == [10. ^^ 1.0, 10. ^^ 1.5, 10. ^^ 2.0]);
+}
+
 
 
 /++ return diagonal slice +/
