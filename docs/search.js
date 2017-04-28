@@ -33,7 +33,9 @@ var items = [
 {"numir.random.RNG" : "numir/random/RNG.html"},
 {"numir.random.RNG.get" : "numir/random/RNG.html#get"},
 {"numir.random.RNG.setSeed" : "numir/random/RNG.html#setSeed"},
-{"numir.random.randn" : "numir/random.html#randn"},
+{"numir.random.rand" : "numir/random.html#rand"},
+{"numir.random.normal" : "numir/random.html#normal"},
+{"numir.random.uniform" : "numir/random.html#uniform"},
 {"numir.random.approxEqual" : "numir/random.html#approxEqual"},
 {"numir" : "numir.html"},
 ];

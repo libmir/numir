@@ -18,6 +18,7 @@ ddox:
 
 hmod:
 	# https://github.com/nemanja-boric-sociomantic/harbored-mod
+	rm -rf docs
 	hmod --exclude numir.old ./source
 	mv doc docs
 
