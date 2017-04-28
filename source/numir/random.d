@@ -1,9 +1,9 @@
 module numir.random;
 
+import std.algorithm : fold;
 import mir.random : unpredictableSeed, Random;
 import mir.random.algorithm : range;
 import mir.random.variable : UniformVariable, NormalVariable;
-import std.algorithm : fold;
 import mir.ndslice: slicedField, slice;
 import mir.random.algorithm: field;
 

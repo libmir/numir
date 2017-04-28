@@ -13,7 +13,7 @@ import std.traits : CommonType, isArray, isFloatingPoint;
 
 static if (__VERSION__ < 2073)
 {
-    import old : maxIndex; // not supported yet (2.071)
+    import numir.old : maxIndex; // not supported yet (2.071)
 }
 else
 {

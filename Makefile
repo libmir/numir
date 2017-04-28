@@ -24,3 +24,7 @@ hmod:
 test:
 	dub test --build=unittest-cov --compiler=dmd
 	tail -n 1 source-numir*.lst
+
+test-ldc:
+	dub test --build=unittest-cov --compiler=ldc2
+	tail -n 1 source-numir*.lst
