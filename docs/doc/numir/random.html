@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<link rel="stylesheet" type="text/css" href="../style.css"/>
+<script src="../highlight.pack.js"></script>
+<title>numir.random</title>
+<base href="../"/>
+<script src="search.js"></script>
+<script src="show_hide.js"></script>
+</head>
+<body>
+<div class="main">
+<div class="breadcrumbs">
+<table id="results"></table>
+<a href="index.html" class="home">⌂</a><input type="search" id="search" placeholder="Search" onkeyup="searchSubmit(this.value, event)"/>
+<small>numir.random</small>
+</div>
+<div class="sidebar">
+<a href="numir/random.html#hide-toc" class="hide" id="hide-toc">&#171;</a>
+<a href="numir/random.html#show-toc" class="show" id="show-toc">&#187;</a>
+<div id="toc-id" class="toc">
+<ul><li><span class="package" onclick="show_hide('numir');"><a href="numir.html">numir</a></span>
+<ul id="numir" style='display:block'>
+<li>numir.<a href="numir/core.html">core</a></li>
+<li><span class=" selected">numir.<a href="numir/random.html">random</a></span>
+</li>
+</ul>
+</li>
+
+</ul>
+</div></div>
+<div class="content">
+<div class="aggregate-symbol"><a class="anchor" id="rand"></a><div class="symbol"><div class="description"><pre><code>public auto <a href="numir/random.html#rand">rand</a>(V, size_t N)(
+    V var, 
+    size_t[N] length...)
+</code></pre>
+</div></div><a class="anchor" id="normal"></a><div class="symbol"><div class="description"><pre><code>public auto <a href="numir/random.html#normal">normal</a>(E = <a href="http://dlang.org/type.html#basic-data-types">double</a>, size_t N)(size_t[N] length...)
+</code></pre>
+</div></div><a class="anchor" id="uniform"></a><div class="symbol"><div class="description"><pre><code>public auto <a href="numir/random.html#uniform">uniform</a>(E = <a href="http://dlang.org/type.html#basic-data-types">double</a>, size_t N)(size_t[N] length...)
+</code></pre>
+</div></div><a class="anchor" id="approxEqual"></a><div class="symbol"><div class="description"><pre><code>public <a href="http://dlang.org/type.html#basic-data-types">bool</a> <a href="numir/random.html#approxEqual">approxEqual</a>(<a href="http://dlang.org/type.html#basic-data-types">double</a> eps = 1e-10, S1, S2)(
+    S1 s1, 
+    S2 s2)
+</code></pre>
+<div class="section "><h2>Example</h2>
+<pre><code>import mir.ndslice : all;
+
+auto r0 = <a href="numir/random.html#normal">normal</a>(3, 4);
+assert(r0.shape == [3, 4]);
+<a href="numir/random/RNG.html#setSeed">RNG.setSeed</a>(0);
+auto r1 = <a href="numir/random.html#normal">normal</a>(3, 4);
+assert(r0 != r1);
+
+<a href="numir/random/RNG.html#setSeed">RNG.setSeed</a>(0);
+auto r2 = <a href="numir/random.html#normal">normal</a>(3, 4);
+assert(r1 == r2);
+assert(<a href="numir/random.html#approxEqual">approxEqual</a>(r1, r2));
+
+auto u = <a href="numir/random.html#uniform">uniform</a>(3, 4);
+assert(u.shape == [3, 4]);
+assert(u.all!(a => (0 <= a && a < 1)));
+
+</code></pre>
+
+</div>
+</div></div><div class="description"></div><div class="section members"><h2>Functions</h2><table><tr><td><span class="extrainfo"><span class="attribs"><span class="attr-auto">auto</span></span></span><a href="numir/random.html#rand">rand</a><span class="extrainfo"></span></td><td></td><td></td></tr><tr><td><span class="extrainfo"><span class="attribs"><span class="attr-auto">auto</span></span></span><a href="numir/random.html#normal">normal</a><span class="extrainfo"></span></td><td></td><td></td></tr><tr><td><span class="extrainfo"><span class="attribs"><span class="attr-auto">auto</span></span></span><a href="numir/random.html#uniform">uniform</a><span class="extrainfo"></span></td><td></td><td></td></tr><tr><td><a href="numir/random.html#approxEqual">approxEqual</a><span class="extrainfo"></span></td><td></td><td></td></tr></table><h2>Classes</h2><table><tr><td><a href="numir/random/RNG.html">RNG</a></td><td></td><td></td></tr></table>
+</div>
+</div><script>hljs.initHighlightingOnLoad();</script>
+
+</div>
+<footer>
+Generated with <a href="https://github.com/kiith-sa/harbored-mod">harbored-mod</a>
+</footer>
+</div>
+</body>
+</html>
