@@ -17,29 +17,44 @@ class RNG
     ///
     static auto get(V)(V var)
     {
-        synchronized(RNG.classinfo)
+        if (!_rng)
         {
-            if (!_rng)
+            synchronized(RNG.classinfo)
             {
                 _rng = new Random(unpredictableSeed);
             }
-            return field(*_rng, var);
         }
+        return field(*_rng, var);
     }
 
     ///
     static void setSeed(ulong seed)
     {
-        synchronized(RNG.classinfo)
-        {
-            _rng = new Random(seed);
-        }
+        _rng = new Random(seed);
     }
 }
 
 
+/* 
+// FIXME: this test won't finish
+unittest
+{
+    import std.parallelism;
+    import std.range;
+    import std.stdio;
+
+    auto pool = new TaskPool();
+
+    RNG.setSeed(1);
+    foreach (i, p; iota(4).parallel)
+    {
+        uniform(3).writeln;
+    }
+}
+*/
+
 ///
-auto rand(V, size_t N)(V var, size_t[N] length...)
+auto generate(V, size_t N)(V var, size_t[N] length...)
 {
     return RNG.get(var)
         .slicedField(length).slice;
@@ -49,14 +64,14 @@ auto rand(V, size_t N)(V var, size_t[N] length...)
 auto normal(E=double, size_t N)(size_t[N] length...)
 {
     auto var = NormalVariable!E(0, 1);
-    return rand(var, length);
+    return generate(var, length);
 }
 
 ///
 auto uniform(E=double, size_t N)(size_t[N] length...)
 {
     auto var = UniformVariable!E(0, 1);
-    return rand(var, length);
+    return generate(var, length);
 }
 
 ///
