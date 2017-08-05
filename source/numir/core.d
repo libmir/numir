@@ -1,6 +1,8 @@
 module numir.core;
 
 import mir.ndslice;
+import mir.ndslice.slice : Slice, SliceKind;
+import mir.ndslice.traits : isMatrix;
 
 import std.array : array;
 import std.conv : to;
@@ -101,12 +103,20 @@ auto zeros_like(S)(S slice) pure
 }
 
 ///
-auto eye(E=double)(size_t m, size_t n=0, long k=0) pure
+template eye(E = double, size_t dimension = 1)
 {
-    if (n == 0) n = m;
-    auto z = zeros!E(m, n);
-    z.diag(k)[] = 1;
-    return z;
+    auto eye(size_t m, size_t n=0, size_t k=0) pure
+    {
+        if (n == 0) n = m;
+        auto z = zeros!E(m, n);
+        z.diag!(dimension)(k)[] = 1;
+        return z;
+    }
+}
+
+auto eye(size_t dimension)(size_t m, size_t n=0, size_t k=0) pure
+{
+    return eye!(double, dimension)(m, n, k);
 }
 
 ///
@@ -346,13 +356,16 @@ unittest
     assert(logspace(1, 2, 3, 10) == [10. ^^ 1.0, 10. ^^ 1.5, 10. ^^ 2.0]);
 }
 
-
-
 /++ return diagonal slice +/
-auto diag(S)(S s, long k=0) pure
+template diag(size_t dimension = 1)
 {
-    auto sk = k >= 0 ?  s[0 .. $, k .. $] : s[-k .. $, 0 .. $];
-    return sk.diagonal;
+    auto diag(SliceKind kind, size_t[] packs, Iterator)
+                           (Slice!(kind, packs, Iterator) s, size_t k = 0) pure
+        if (isMatrix!(Slice!(kind, packs, Iterator)))
+    {
+        auto sk = s.select!dimension(k, s.length!dimension);
+        return sk.diagonal;
+    }
 }
 
 ///
@@ -373,8 +386,8 @@ unittest
     //  -------
     auto a = iota(2, 3);
     assert(a.diag == [0, 4]);
-    assert(a.diag(1) == [1, 5]);
-    assert(a.diag(-1) == [3]);
+    assert(a.diag!(1)(1) == [1, 5]);
+    assert(a.diag!(0)(1) == [3]);
 }
 
 /// return
@@ -500,7 +513,7 @@ auto unsqueeze(long axis, S)(S s) pure
     enum long n = Ndim!S;
     enum a = axis < 0 ? n + axis + 1 : axis;
     ptrdiff_t[n + 1] shape = cast(ptrdiff_t[a]) s.shape[0 .. a]
-        ~ [1L] ~ cast(ptrdiff_t[n - a]) s.shape[a .. n];
+        ~ [1] ~ cast(ptrdiff_t[n - a]) s.shape[a .. n];
     return s.view(shape);
 }
 
