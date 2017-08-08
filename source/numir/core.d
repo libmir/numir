@@ -511,9 +511,10 @@ auto view(S, size_t N)(S sl, ptrdiff_t[N] length...) pure
 auto unsqueeze(long axis, S)(S s) pure
 {
     enum long n = Ndim!S;
+    enum size_t[1] input = [1];
     enum a = axis < 0 ? n + axis + 1 : axis;
     ptrdiff_t[n + 1] shape = cast(ptrdiff_t[a]) s.shape[0 .. a]
-        ~ [1] ~ cast(ptrdiff_t[n - a]) s.shape[a .. n];
+        ~ input ~ cast(ptrdiff_t[n - a]) s.shape[a .. n];
     return s.view(shape);
 }
 
