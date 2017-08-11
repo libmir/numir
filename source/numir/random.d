@@ -28,7 +28,7 @@ class RNG
     }
 
     ///
-    static void setSeed(ulong seed)
+    static void setSeed(uint seed)
     {
         _rng = new Random(seed);
     }
