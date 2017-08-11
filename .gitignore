@@ -10,3 +10,4 @@ numir-test-library
 *.lst
 dub.selections.json
 trace*
+*.exe
