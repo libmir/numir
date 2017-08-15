@@ -585,14 +585,16 @@ unittest
         assert(e.msg.split(":")[0] == "ReshapeError");
     }
 
-    assert(iota(3, 4).slice.unsqueeze!0.shape == [1, 3, 4]);
-    assert(iota(3, 4).slice.unsqueeze!1.shape == [3, 1, 4]);
-    assert(iota(3, 4).slice.unsqueeze!(-1).shape == [3, 4, 1]);
+    assert(iota(2, 3).slice.unsqueeze!0 == [[[0,1,2], [3,4,5]]]);
+    assert(iota(2, 3).slice.unsqueeze!1 == [[[0,1,2]], [[3,4,5]]]);
+    assert(iota(2, 3).slice.unsqueeze!2 == [[[0],[1],[2]], [[3],[4],[5]]]);
+    assert(iota(2, 3).slice.unsqueeze!(-1) == [[[0],[1],[2]], [[3],[4],[5]]]);
 
     assert(iota(1, 3, 4).slice.squeeze!0.shape == [3, 4]);
     assert(iota(3, 1, 4).slice.squeeze!1.shape == [3, 4]);
     assert(iota(3, 4, 1).slice.squeeze!(-1).shape == [3, 4]);
 }
+
 
 /// Item selection and manipulation
 
