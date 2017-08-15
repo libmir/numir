@@ -2,7 +2,7 @@ module numir.core;
 
 import mir.ndslice;
 import mir.ndslice.slice : Slice, SliceKind;
-import mir.ndslice.traits : isMatrix;
+import mir.ndslice.traits : isMatrix, isVector;
 
 import std.array : array;
 import std.conv : to;
@@ -388,6 +388,33 @@ unittest
     assert(a.diag == [0, 4]);
     assert(a.diag!(1)(1) == [1, 5]);
     assert(a.diag!(0)(1) == [3]);
+}
+
+/++ create new diagonal matrix +/
+auto diag(SliceKind kind, size_t[] packs, Iterator)
+                       (Slice!(kind, packs, Iterator) s) pure
+    if (isVector!(Slice!(kind, packs, Iterator)))
+{
+     import mir.ndslice : diagonal;
+
+     auto result = zeros([s.length, s.length]);
+     result.diagonal[] = s;
+     return result;
+}
+
+///
+unittest
+{
+    import mir.ndslice.topology : iota;
+    import mir.ndslice.slice : sliced;
+
+    auto a = iota(3).diag;
+    auto result = [[0.0, 0.0, 0.0], 
+                   [0.0, 1.0, 0.0], 
+                   [0.0, 0.0, 2.0]].sliced;
+    assert(a[0] == result[0]);
+    assert(a[1] == result[1]);
+    assert(a[2] == result[2]);
 }
 
 /// return
