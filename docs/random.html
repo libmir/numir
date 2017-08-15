@@ -3,7 +3,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>numir</title>
+    <title>numir.random</title>
     <style type="text/css" media="screen">
       html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p,
       blockquote, pre, a, abbr, address, cite, code, del, dfn, em, figure,
@@ -463,31 +463,225 @@
   <body id="ddoc_main" class="ddoc dlang">
     <div class="content_wrapper">
       <article class="module">
-        <h1 class="module_name">numir</h1>
-        <section id="module_content"><section class="section ddoc_sections">
-  <div class="ddoc_summary">
+        <h1 class="module_name">numir.random</h1>
+        <section id="module_content">
+<section class="section ddoc_module_members_section">
+  <div class="ddoc_module_members">
+    <ul class="ddoc_members">
+  <li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#RNG" id="RNG"><code class="code">RNG</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="RNG"></span>class <code class="code">RNG</code>;
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+<ul class="ddoc_members">
+  <li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#RNG.get" id="RNG.get"><code class="code">get</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="RNG.get"></span>auto <code class="code">get</code>(V)(V <code class="code">var</code>);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#RNG.setSeed" id="RNG.setSeed"><code class="code">setSeed</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="RNG.setSeed"></span>static void <code class="code">setSeed</code>(uint <code class="code">seed</code>);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li>
+</ul>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#generate" id="generate"><code class="code">generate</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="generate"></span>auto <code class="code">generate</code>(V, size_t N)(V <code class="code">var</code>, size_t[N] <code class="code">length</code>...);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#normal" id="normal"><code class="code">normal</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="normal"></span>auto <code class="code">normal</code>(E = double, size_t N)(size_t[N] <code class="code">length</code>...);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#uniform" id="uniform"><code class="code">uniform</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="uniform"></span>auto <code class="code">uniform</code>(E = double, size_t N)(size_t[N] <code class="code">length</code>...);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#approxEqual" id="approxEqual"><code class="code">approxEqual</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="approxEqual"></span>bool <code class="code">approxEqual</code>(double eps = 1e-10, S1, S2)(S1 <code class="code">s1</code>, S2 <code class="code">s2</code>);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_examples">
+  <h4>Examples</h4>
   <p class="para">
-    <span class="font_big"><a href="core.html"><code class="code">numir</code>.core</a></span>
-   <br>
-   <span class="font_big"><a href="random.html"><code class="code">numir</code>.random</a></span>
+    
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice : all;
+
+<span class="keyword">auto</span> r0 = normal(3, 4);
+<span class="keyword">assert</span>(r0.shape == [3, 4]);
+RNG.setSeed(0);
+<span class="keyword">auto</span> r1 = normal(3, 4);
+<span class="keyword">assert</span>(r0 != r1);
+
+RNG.setSeed(0);
+<span class="keyword">auto</span> r2 = normal(3, 4);
+<span class="keyword">assert</span>(r1 == r2);
+<span class="keyword">assert</span>(<span class="psymbol">approxEqual</span>(r1, r2));
+
+<span class="keyword">auto</span> u = uniform(3, 4);
+<span class="keyword">assert</span>(u.shape == [3, 4]);
+<span class="keyword">assert</span>(u.all!(a =&gt; (0 &lt;= a &amp;&amp; a &lt; 1)));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
 
   </p>
 </div>
-<div class="ddoc_license">
-  <h4>License</h4>
-  <p class="para">
-    <a href="http://boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
+</section>
 
-
-  </p>
-</div>
-<div class="ddoc_authors">
-  <h4>Authors</h4>
-  <p class="para">
-    <a href="http://shigekikarita.github.io">karita</a>
-  </p>
 </div>
 
+</li>
+</ul>
+  </div>
 </section>
 </section>
       </article>

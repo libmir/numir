@@ -1,4 +1,10 @@
 /**
+   $(BIG $(LINK2 core.html, numir.core))
+   $(BR)
+   $(BIG $(LINK2 random.html, numir.random))
+ */
+
+/**
    License: $(LINK2 http://boost.org/LICENSE_1_0.txt, Boost License 1.0).
 
    Authors: $(LINK2 http://shigekikarita.github.io, karita)

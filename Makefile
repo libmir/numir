@@ -8,9 +8,7 @@ clean:
 doc:
 	rm -rf docs
 	dub run -b=docs --compiler=dmd
-	cd docs
-	find ./docs -name "*.html" -not -path "./docs/numir.html" -exec rm {} \;
-	mv docs/numir.html docs/index.html
+	mv docs/package.html docs/index.html
 
 ddox:
 	rm -rf docs
