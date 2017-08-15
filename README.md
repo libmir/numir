@@ -6,7 +6,7 @@
 
 [numpy](http://www.numpy.org)-like [mir](https://github.com/libmir) helper functions
 
-+ [API doc](https://shigekikarita.github.io/numir/numir.html)
++ [API doc](https://shigekikarita.github.io/numir/index.html)
 
 ## roadmaps
 
