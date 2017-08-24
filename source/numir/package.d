@@ -31,3 +31,4 @@ module numir;
 
 public import numir.core;
 public import numir.random;
+public import numir.format;

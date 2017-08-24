@@ -5,7 +5,7 @@
     ],
     "description": "numpy-like API wrappers of mir",
     "dependencies": {
-        "mir-algorithm": ">=0.4.3 <0.7.0",
+        "mir-algorithm": ">=0.6.9 <0.7.0",
         "mir-random": ">=0.2.2 <0.3.0"
     },
     "copyright": "Copyright © 2017, karita",
