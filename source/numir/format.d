@@ -23,7 +23,7 @@ enum hasTypeOfAppender = hasFeatureAvailable!(
                             "import std.format : formattedWrite;\n" ~
                             "auto x = appender!(string);\n" ~
                             "typeof(x) y;\n" ~
-                            `formattedWrite!"%2s"(y, [0, 1]);\n` ~
+                            `formattedWrite!"%2s"(y, [0, 1]);` ~ "\n" ~
                             `assert(y.data == "[ 0,  1]");`);
 
 @safe nothrow pure
@@ -220,16 +220,20 @@ unittest
 }
 
 @safe nothrow @nogc pure
-private template formattedWriteRowString(alias fmt)
+private typeof(fmt) formattedWriteRowString(alias fmt)()
+    if (isSomeString!(typeof(fmt)))
 {
-    enum typeof(fmt) formattedWriteRowString = "|%( " ~ fmt ~ "%) |";
+    return "|%( " ~ fmt ~ "%) |";
 }
 
 @safe nothrow pure
-private auto formattedWriteRowString(Char)(in Char[] fmt)
+private auto formattedWriteRowString(Writer, Char)(Writer w, in Char[] fmt)
     if (isSomeChar!Char)
 {
-    return "|%( " ~ fmt ~ "%) |";
+    w.put("|%( ");
+    w.put(fmt);
+    w.put("%) |");
+    return w.data;
 }
 
 @safe nothrow @nogc pure
@@ -238,10 +242,14 @@ unittest
     assert(formattedWriteRowString!"%s" == "|%( " ~ "%s" ~ "%) |");
 }
 
+static if(hasTypeOfAppender)
 @safe nothrow pure
 unittest
 {
-    assert(formattedWriteRowString("%s") == "|%( " ~ "%s" ~ "%) |");
+    import std.array : appender;
+    auto w = appender!(string);
+    
+    assert(formattedWriteRowString(w, "%s") == "|%( " ~ "%s" ~ "%) |");
 }
 
 static if (hasCtFormat)
@@ -252,10 +260,12 @@ private uint formattedWriteRow(alias fmt, Writer, SliceKind kind, Iterator)
     if(isSomeString!(typeof(fmt)))
 {
     import std.format : formattedWrite;
-
-    return formattedWrite!(formattedWriteRowString!(fmt))(w, sl);
+    
+    enum typeof(fmt) rowFmt = formattedWriteRowString!(fmt);
+    return formattedWrite!(rowFmt)(w, sl);
 }
 
+static if(hasTypeOfAppender)
 @safe
 private uint formattedWriteRow(Writer, Char, SliceKind kind, Iterator)
                                 (auto ref Writer w, in Char[] fmt,
@@ -263,8 +273,10 @@ private uint formattedWriteRow(Writer, Char, SliceKind kind, Iterator)
     if (isSomeChar!Char)
 {
     import std.format : formattedWrite;
-
-    return formattedWrite(w, formattedWriteRowString(fmt), sl);
+    
+    Writer wGenRowFmt;
+    auto rowFmt = formattedWriteRowString(wGenRowFmt, fmt);
+    return formattedWrite(w, rowFmt, sl);
 }
 
 static if (hasCtFormat)
@@ -302,6 +314,7 @@ unittest
     assert(wAlt3.data == "|   1  20 300 |");
 }
 
+static if(hasTypeOfAppender)
 @safe pure
 unittest
 {
@@ -364,6 +377,7 @@ private size_t getRowWidth(alias fmt, Writer, SliceKind kind,
     return w.data.length;
 }
 
+static if(hasTypeOfAppender)
 @safe
 private size_t getRowWidth(Writer, Char, SliceKind kind, size_t[] packs,
                                                                        Iterator)
@@ -403,6 +417,7 @@ unittest
     assert(getRowWidth!"%2s"(w432, data) == 9);
 }
 
+static if(hasTypeOfAppender)
 @safe pure
 unittest
 {
@@ -422,11 +437,16 @@ private template formattedWriteRowsString(alias fmt)
                          "%(" ~ formattedWriteRowString!fmt ~ "\n%) |";
 }
 
+static if(hasTypeOfAppender)
 @safe nothrow pure
-private auto formattedWriteRowsString(Char)(in Char[] fmt)
+private auto formattedWriteRowsString(Writer, Char)(Writer w, in Char[] fmt)
     if (isSomeChar!Char)
 {
-    return "%(" ~ formattedWriteRowString(fmt) ~ "\n%) |";
+    w.put("%(");
+    Writer wGenRowsFmt;
+    w.put(formattedWriteRowString(wGenRowsFmt, fmt));
+    w.put("\n%) |");
+    return w.data;
 }
 
 static if (hasCtFormat)
@@ -489,6 +509,7 @@ private uint formattedWriteRowsImpl(alias fmt, Writer, SliceKind kind,
     }
 }
 
+static if(hasTypeOfAppender)
 @safe pure
 private uint formattedWriteRowsImpl(Writer, Char, SliceKind kind,
                                                       size_t[1] packs, Iterator)
@@ -501,7 +522,9 @@ private uint formattedWriteRowsImpl(Writer, Char, SliceKind kind,
 
     static if (packs == [2])
     {
-        return formattedWrite(w, formattedWriteRowsString(fmt), sl);
+        Writer wGenRowsFmt;
+        auto rowsFmt = formattedWriteRowsString(wGenRowsFmt, fmt);
+        return formattedWrite(w, rowsFmt, sl);
     }
     else static if (hasTypeOfAppender)
     {
@@ -583,6 +606,7 @@ unittest
     }
 }
 
+static if(hasTypeOfAppender)
 @safe pure
 unittest
 {
@@ -603,16 +627,13 @@ unittest
     formattedWriteRowsImpl(w43, "%2s", [4, 3].iota);
     assert(w43.data == testIota43);
 
-    static if (hasTypeOfAppender)
-    {
-        auto w432 = appender!(string);
-        formattedWriteRowsImpl(w432, "%2s", [4, 3, 2].iota);
-        assert(w432.data == testIota432);
+    auto w432 = appender!(string);
+    formattedWriteRowsImpl(w432, "%2s", [4, 3, 2].iota);
+    assert(w432.data == testIota432);
 
-        auto w5432 = appender!(string);
-        formattedWriteRowsImpl(w5432, "%3s", [5, 4, 3, 2].iota);
-        assert(w5432.data == testIota5432);
-    }
+    auto w5432 = appender!(string);
+    formattedWriteRowsImpl(w5432, "%3s", [5, 4, 3, 2].iota);
+    assert(w5432.data == testIota5432);
 }
 
 static if(hasCtFormat)
@@ -652,6 +673,7 @@ private uint formattedWriteRows(alias fmt, Writer, SliceKind kind,
     }
 }
 
+static if(hasTypeOfAppender)
 @safe
 private uint formattedWriteRows(Writer, Char, SliceKind kind,
                                                        size_t[] packs, Iterator)
@@ -733,6 +755,7 @@ unittest
     }
 }
 
+static if(hasTypeOfAppender)
 @safe pure
 unittest
 {
@@ -765,16 +788,13 @@ unittest
     formattedWriteRows(w43, "%2s", [4, 3].iota);
     assert(w43.data == testIota43);
     
-    static if(hasTypeOfAppender)
-    {
-        auto w432 = appender!(string);
-        formattedWriteRows(w432, "%2s", [4, 3, 2].iota);
-        assert(w432.data == testIota432);
+    auto w432 = appender!(string);
+    formattedWriteRows(w432, "%2s", [4, 3, 2].iota);
+    assert(w432.data == testIota432);
 
-        auto w5432 = appender!(string);
-        formattedWriteRows(w5432, "%3s", [5, 4, 3, 2].iota);
-        assert(w5432.data == testIota5432);
-    }
+    auto w5432 = appender!(string);
+    formattedWriteRows(w5432, "%3s", [5, 4, 3, 2].iota);
+    assert(w5432.data == testIota5432);
 }
 
 /++
