@@ -24,8 +24,13 @@ enum np2d = [
     "f8": "double",
     "i4": "int",
     "i8": "long"
-];
+    ];
 
+version (DigitalMars) {
+    enum supportStaticForeach = __VERSION__ >= 2076;
+} else {
+    enum supportStaticForeach = false;
+}
 
 /// read bytes from file with dtype and size
 auto readBytes(Dtype)(ref File file, string dtype, size_t size)
@@ -36,20 +41,29 @@ auto readBytes(Dtype)(ref File file, string dtype, size_t size)
     bool littleEndian = dtype[0] == '<';
     bool bigEndian = dtype[0] == '>';
 
-    // FIXME: make this generic and support more types
     auto dsize = (littleEndian || bigEndian) ? dtype[1 .. $] : dtype;
     Dtype[] result;
+
+    /*
+    static if (supportStaticForeach) /// FIXME: not work because of syntax-check
+    {
+        bool found = false;
+        static foreach (npT, dT; np2d)
+        {
+            if (dsize == npT)
+            {
+                mixin ("result = cast(Dtype[]) file.rawRead(new " ~ dT ~ "[size]);");
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            throw new FileException("dtype(%s) is not supported yet: %s".format(dtype, file.name));
+        }
+    }
+    */
     switch (dsize)
     {
-        /*
-        static foreach(npT, dT; np2d)
-        {
-        case npT:
-            result = cast(Dtype[]) file.rawRead(new dT[size]);
-            break;
-        }
-        */
-
     case "i4":
         result = cast(Dtype[]) file.rawRead(new int[size]);
         break;
@@ -126,7 +140,19 @@ template toDtype(D)
 {
     enum endianMark = endian == Endian.littleEndian ? "<" : ">";
 
-    // FIXME: make this generic and support more types
+    /*
+    static if (supportStaticForeach) /// FIXME: not work because of syntax-check
+    {
+        static foreach (npT, dT; np2d)
+        {
+            static if (D.stringof == dT)
+            {
+                enum toDtype = endianMark ~ npT;
+            }
+        }
+    }
+    */
+
     static if (is(D == float))
     {
         enum toDtype = endianMark ~ "f4";

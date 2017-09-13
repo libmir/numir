@@ -7,7 +7,7 @@ os:
 language: d
 
 d:
-  - ldc-1.2.0
+  - ldc-1.4.0
   - dmd
 
 env:
