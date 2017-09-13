@@ -13,6 +13,10 @@ d:
 env:
   - ARCH="x86_64"
 
+before_install:
+  - sudo apt-get install -qq python-numpy
+  - cd test && python test_npy_fileio.py && cd ..
+
 install:
   - dub fetch doveralls
 

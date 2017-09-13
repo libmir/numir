@@ -11,3 +11,4 @@ numir-test-library
 dub.selections.json
 trace*
 *.exe
+*.npy
