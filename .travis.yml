@@ -23,6 +23,7 @@ install:
 script:
   - dub test --arch "$ARCH" --build=unittest-cov
   - dub run doveralls
+  - if [ $DC = dmd ]; then make doc; fi
 
 deploy:
   d: dmd
@@ -32,4 +33,4 @@ deploy:
   local_dir: docs
   on:
     branch: master
-    condition: if [[ $DC = dmd ]]; then make doc; fi
+    condition: $DC = dmd
