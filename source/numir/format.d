@@ -11,13 +11,10 @@ module numir.format;
 import mir.ndslice : SliceKind, Slice;
 import std.traits : isSomeChar, isSomeString;
 
-enum hasFeatureAvailable(string code) = __traits(compiles,
-{
-    mixin (code);
-});
-
-enum hasCtFormat = hasFeatureAvailable!("import std.format : format;\n" ~ 
-                                        `format!"%s is %s"("Pi", 3.14);`);
+static if (__VERSION__ >= 2076)
+    enum hasCtFormat = true;
+else
+    enum hasCtFormat = false;
 
 @safe nothrow pure
 private void formattedWriteHyphenline(alias fmt, Writer)
