@@ -19,7 +19,7 @@ else
 @safe nothrow pure
 private void formattedWriteHyphenline(alias fmt, Writer)
                                                  (auto ref Writer w, size_t len)
-    if(isSomeString!(typeof(fmt)))
+    if (isSomeString!(typeof(fmt)))
 {
     alias String = typeof(fmt);
     enum String space = " ";
@@ -36,7 +36,7 @@ private void formattedWriteHyphenline(alias fmt, Writer)
 @safe nothrow pure
 private void formattedWriteHyphenline(Char, Writer)(auto ref Writer w,
                                                                      size_t len)
-    if(isSomeChar!Char)
+    if (isSomeChar!Char)
 {
     enum Char space = ' ';
     enum Char hyphen = '-';
@@ -80,7 +80,7 @@ unittest
 @safe nothrow pure
 private void formattedWriteDashline(alias fmt, Writer)
                                                  (auto ref Writer w, size_t len)
-    if(isSomeString!(typeof(fmt)))
+    if (isSomeString!(typeof(fmt)))
 {
     alias String = typeof(fmt);
     enum String space = " ";
@@ -100,7 +100,7 @@ private void formattedWriteDashline(alias fmt, Writer)
 
 @safe nothrow pure
 private void formattedWriteDashline(Char, Writer)(auto ref Writer w, size_t len)
-    if(isSomeChar!Char)
+    if (isSomeChar!Char)
 {
     enum Char space = ' ';
     enum Char dash = '-';
@@ -237,7 +237,7 @@ unittest
 {
     import std.array : appender;
     auto w = appender!(string);
-    
+
     assert(formattedWriteRowString(w, "%s") == "|%( " ~ "%s" ~ "%) |");
 }
 
@@ -246,10 +246,10 @@ static if (hasCtFormat)
 private uint formattedWriteRow(alias fmt, Writer, SliceKind kind, Iterator)
                                 (auto ref Writer w,
                                                  Slice!(kind, [1], Iterator) sl)
-    if(isSomeString!(typeof(fmt)))
+    if (isSomeString!(typeof(fmt)))
 {
     import std.format : formattedWrite;
-    
+
     enum typeof(fmt) rowFmt = formattedWriteRowString!(fmt);
     return formattedWrite!(rowFmt)(w, sl);
 }
@@ -261,7 +261,7 @@ private uint formattedWriteRow(Writer, Char, SliceKind kind, Iterator)
     if (isSomeChar!Char)
 {
     import std.format : formattedWrite;
-    
+
     Writer wGenRowFmt;
     auto rowFmt = formattedWriteRowString(wGenRowFmt, fmt);
     return formattedWrite(w, rowFmt, sl);
@@ -342,7 +342,7 @@ private size_t getRowWidth(alias fmt, Writer, SliceKind kind,
                                                        size_t[] packs, Iterator)
                             (auto ref Writer w,
                                                Slice!(kind, packs, Iterator) sl)
-    if(isSomeString!(typeof(fmt)))
+    if (isSomeString!(typeof(fmt)))
 {
     import mir.ndslice.topology : byDim;
 
@@ -391,7 +391,7 @@ private size_t getRowWidth(Writer, Char, SliceKind kind, size_t[] packs,
     return w.data.length;
 }
 
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe pure
 unittest
 {
@@ -416,7 +416,7 @@ unittest
 
 @safe nothrow @nogc pure
 private template formattedWriteRowsString(alias fmt)
-    if(isSomeString!(typeof(fmt)))
+    if (isSomeString!(typeof(fmt)))
 {
     enum typeof(fmt) formattedWriteRowsString =
                          "%(" ~ formattedWriteRowString!fmt ~ "\n%) |";
@@ -452,7 +452,7 @@ private uint formattedWriteRowsImpl(alias fmt, Writer, SliceKind kind,
         @safe nothrow pure
         void formattedWriteDashes(alias fmt, Writer)
                                        (auto ref Writer w, size_t N, size_t len)
-            if(isSomeString!(typeof(fmt)))
+            if (isSomeString!(typeof(fmt)))
         {
             while (N > 2)
             {
@@ -510,7 +510,7 @@ private uint formattedWriteRowsImpl(Writer, Char, SliceKind kind,
         @safe nothrow pure
         void formattedWriteDashes(Char, Writer)
                                      (auto ref Writer w, size_t N, size_t len)
-            if(isSomeChar!Char)
+            if (isSomeChar!Char)
         {
             while (N > 2)
             {
@@ -607,7 +607,7 @@ unittest
     assert(w5432.data == testIota5432);
 }
 
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe
 private uint formattedWriteRows(alias fmt, Writer, SliceKind kind,
                                                        size_t[] packs, Iterator)
@@ -680,7 +680,7 @@ private uint formattedWriteRows(Writer, Char, SliceKind kind,
     }
 }
 
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe pure
 unittest
 {
@@ -753,7 +753,7 @@ unittest
     auto w43 = appender!(string);
     formattedWriteRows(w43, "%2s", [4, 3].iota);
     assert(w43.data == testIota43);
-    
+
     auto w432 = appender!(string);
     formattedWriteRows(w432, "%2s", [4, 3, 2].iota);
     assert(w432.data == testIota432);
@@ -775,7 +775,7 @@ Params:
 See_also:
     std.format
 +/
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe
 uint formattedWrite(alias fmt, Writer, SliceKind kind, size_t[] packs,
                                                                        Iterator)
@@ -814,7 +814,7 @@ uint formattedWrite(Writer, Char, SliceKind kind, size_t[] packs, Iterator)
 }
 
 ///
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe pure
 unittest
 {
@@ -1082,7 +1082,7 @@ unittest
     );
 }
 
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe pure
 unittest
 {
@@ -1166,7 +1166,7 @@ unittest
 }
 
 ///
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe
 unittest
 {
@@ -1261,7 +1261,7 @@ unittest
 }
 
 //testing packed versions
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe pure
 unittest
 {
@@ -1304,7 +1304,7 @@ unittest
 }
 
 //testing packed versions
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe pure
 unittest
 {
@@ -1431,7 +1431,7 @@ Returns:
 See_also:
     std.format
 +/
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe
 typeof(fmt) format(alias fmt, SliceKind kind, size_t[] packs, Iterator)
                                               (Slice!(kind, packs, Iterator) sl)
@@ -1458,7 +1458,7 @@ immutable(Char)[] format(Char, SliceKind kind, size_t[] packs, Iterator)
 }
 
 ///
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe pure
 unittest
 {
@@ -1702,7 +1702,7 @@ unittest
     );
 }
 
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe pure
 unittest
 {
@@ -1736,7 +1736,7 @@ unittest
 }
 
 ///
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe
 unittest
 {
@@ -1811,7 +1811,7 @@ unittest
 }
 
 // Testing packed versions
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe pure
 unittest
 {
@@ -1834,7 +1834,7 @@ unittest
     assert([5, 4, 3, 2].iota.ipack!3.format!("%3s") == testIota5432Final);
 }
 
-static if(hasCtFormat)
+static if (hasCtFormat)
 @safe pure
 unittest
 {
