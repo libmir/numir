@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/ShigekiKarita/numir.svg?branch=master)](https://travis-ci.org/ShigekiKarita/numir)
 [![Coverage Status](https://coveralls.io/repos/github/ShigekiKarita/numir/badge.svg?branch=master)](https://coveralls.io/github/ShigekiKarita/numir?branch=master)
 <a href="https://code.dlang.org/packages/numir" title="Go to numir"><img src="https://img.shields.io/dub/v/numir.svg" alt="Dub version"></a>
+[![Build status](https://ci.appveyor.com/api/projects/status/f0l4b1ncqa2v2367?svg=true)](https://ci.appveyor.com/project/ShigekiKarita/numir)
 
 [numpy](http://www.numpy.org)-like [mir](https://github.com/libmir) helper functions
 
