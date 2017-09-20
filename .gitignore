@@ -12,3 +12,6 @@ dub.selections.json
 trace*
 *.exe
 *.npy
+
+docs/*
+

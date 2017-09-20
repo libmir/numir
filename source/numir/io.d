@@ -12,13 +12,16 @@ import std.file : FileException;
 import numir;
 import mir.ndslice : sliced, universal, ndarray, flattened, shape, DeepElementType;
 
-/**
-   Information
-   + numpy file spec http://pyopengl.sourceforge.net/pydoc/numpy.lib.format.html
-   + dlang type spec https://dlang.org/spec/type.html
-*/
 
-// numpy -> dlang type conversion dictionary
+/**
+   numpy -> dlang type conversion dictionary
+
+   $(BR)
+   $(BIG $(LINK2 http://pyopengl.sourceforge.net/pydoc/numpy.lib.format.html, numpy format spec))
+   $(BR)
+   $(BIG $(LINK2 https://dlang.org/spec/type.html, dlang type spec))
+   $(BR)
+*/
 enum np2d = [
     "f4": "float",
     "f8": "double",

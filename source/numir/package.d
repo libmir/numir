@@ -2,6 +2,8 @@
    $(BIG $(LINK2 core.html, numir.core))
    $(BR)
    $(BIG $(LINK2 random.html, numir.random))
+   $(BR)
+   $(BIG $(LINK2 io.html, numir.io))
  */
 
 /**
