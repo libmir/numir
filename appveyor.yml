@@ -23,7 +23,6 @@ install:
   - conda update -q conda
   - conda info -a
   - conda config --add channels bashtage
-  - conda install arch
   - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy"
   - activate test-environment
   - ps: function ResolveLatestDMD
