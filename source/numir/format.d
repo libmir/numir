@@ -11,7 +11,7 @@ module numir.format;
 import mir.ndslice : SliceKind, Slice;
 import std.traits : isSomeChar, isSomeString;
 
-static if (__VERSION__ >= 2076)
+static if (__VERSION__ >= 2074)
     enum hasCtFormat = true;
 else
     enum hasCtFormat = false;
