@@ -5,7 +5,6 @@ import mir.random : unpredictableSeed, Random;
 import mir.random.algorithm : range;
 import mir.random.variable : UniformVariable, NormalVariable;
 import mir.ndslice: slicedField, slice;
-import mir.random.algorithm: field;
 
 
 ///
@@ -14,8 +13,8 @@ class RNG
     private static this() {}
     private __gshared Random* _rng = null;
 
-    ///
-    static auto get(V)(V var)
+    /// 
+    @property static ref get()
     {
         if (!_rng)
         {
@@ -24,7 +23,14 @@ class RNG
                 _rng = new Random(unpredictableSeed);
             }
         }
-        return field(*_rng, var);
+        return *_rng;
+    }
+
+    ///
+    static auto field(V)(V var)
+    {
+        import mir.random.algorithm : field;
+        return field(this.get, var);
     }
 
     ///
@@ -56,7 +62,7 @@ unittest
 ///
 auto generate(V, size_t N)(V var, size_t[N] length...)
 {
-    return RNG.get(var)
+    return RNG.field(var)
         .slicedField(length).slice;
 }
 
@@ -102,4 +108,33 @@ unittest
     auto u = uniform(3, 4);
     assert(u.shape == [3, 4]);
     assert(u.all!(a => (0 <= a && a < 1)));
+}
+
+
+
+/// generate a sequence as same as numir.core.arange
+auto permutation(T...)(T t) {
+    import numir.core : arange;
+    import mir.ndslice : slice;
+    import mir.random.algorithm : shuffle;
+    auto a = arange(t).slice;
+    shuffle(RNG.get, a);
+    return a;
+}
+
+
+///
+unittest {
+    import numir : arange;
+    import mir.ndslice.sorting : sort;
+    import std.stdio;
+    auto ps1 = permutation(100);
+    auto ps2 = permutation(100);
+    assert(ps1 != ps2);
+    assert(ps1.sort() == arange(100));
+
+    auto ps3 = permutation(1, 10, 0.1);
+    auto ps4 = permutation(1, 10, 0.1);
+    assert(ps3 != ps4);
+    assert(ps4.sort() == arange(1, 10, 0.1));
 }
