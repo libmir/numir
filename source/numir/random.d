@@ -59,28 +59,25 @@ unittest
 }
 */
 
-///
+/// general function for random slice generation with global RNG
 auto generate(V, size_t N)(V var, size_t[N] length...)
 {
-    return RNG.field(var)
-        .slicedField(length).slice;
+    return RNG.field(var).slicedField(length);
 }
 
 ///
 auto normal(E=double, size_t N)(size_t[N] length...)
 {
-    auto var = NormalVariable!E(0, 1);
-    return generate(var, length);
+    return NormalVariable!E(0, 1).generate(length);
 }
 
 ///
 auto uniform(E=double, size_t N)(size_t[N] length...)
 {
-    auto var = UniformVariable!E(0, 1);
-    return generate(var, length);
+    return UniformVariable!E(0, 1).generate(length);
 }
 
-///
+/// testing function for float-point slices [WIP]
 bool approxEqual(double eps=1e-10, S1, S2)(S1 s1, S2 s2)
 {
     import mir.ndslice : equal;
@@ -93,26 +90,32 @@ bool approxEqual(double eps=1e-10, S1, S2)(S1 s1, S2 s2)
 unittest
 {
     import mir.ndslice : all;
+    import std.algorithm : sum;
+    import mir.random.variable : BernoulliVariable;
+    auto bs = BernoulliVariable!double(0.25).generate(100).sum;
+    assert(0 < bs && bs < 50, "maybe fail");
 
-    auto r0 = normal(3, 4);
+    // pre-defined random variables (normal and uniform)
+    RNG.setSeed(1);
+    auto r0 = normal(3, 4).slice;
     assert(r0.shape == [3, 4]);
     RNG.setSeed(0);
-    auto r1 = normal(3, 4);
+    auto r1 = normal(3, 4).slice;
     assert(r0 != r1);
 
     RNG.setSeed(0);
-    auto r2 = normal(3, 4);
+    auto r2 = normal(3, 4).slice;
     assert(r1 == r2);
     assert(approxEqual(r1, r2));
 
-    auto u = uniform(3, 4);
+    auto u = uniform(3, 4).slice;
     assert(u.shape == [3, 4]);
     assert(u.all!(a => (0 <= a && a < 1)));
 }
 
 
 
-/// generate a sequence as same as numir.core.arange
+/// generate a sequence as same as numir.core.arange but shuffled
 auto permutation(T...)(T t) {
     import numir.core : arange;
     import mir.ndslice : slice;
@@ -130,7 +133,7 @@ unittest {
     import std.stdio;
     auto ps1 = permutation(100);
     auto ps2 = permutation(100);
-    assert(ps1 != ps2);
+    assert(ps1 != ps2, "maybe fail at 1%");
     assert(ps1.sort() == arange(100));
 
     auto ps3 = permutation(1, 10, 0.1);
