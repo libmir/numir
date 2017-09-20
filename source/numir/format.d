@@ -18,13 +18,6 @@ enum hasFeatureAvailable(string code) = __traits(compiles,
 
 enum hasCtFormat = hasFeatureAvailable!("import std.format : format;\n" ~ 
                                         `format!"%s is %s"("Pi", 3.14);`);
-enum hasTypeOfAppender = hasFeatureAvailable!(
-                            "import std.array : appender;\n" ~
-                            "import std.format : formattedWrite;\n" ~
-                            "auto x = appender!(string);\n" ~
-                            "typeof(x) y;\n" ~
-                            `formattedWrite!"%2s"(y, [0, 1]);` ~ "\n" ~
-                            `assert(y.data == "[ 0,  1]");`);
 
 @safe nothrow pure
 private void formattedWriteHyphenline(alias fmt, Writer)
@@ -242,7 +235,6 @@ unittest
     assert(formattedWriteRowString!"%s" == "|%( " ~ "%s" ~ "%) |");
 }
 
-static if(hasTypeOfAppender)
 @safe nothrow pure
 unittest
 {
@@ -265,7 +257,6 @@ private uint formattedWriteRow(alias fmt, Writer, SliceKind kind, Iterator)
     return formattedWrite!(rowFmt)(w, sl);
 }
 
-static if(hasTypeOfAppender)
 @safe
 private uint formattedWriteRow(Writer, Char, SliceKind kind, Iterator)
                                 (auto ref Writer w, in Char[] fmt,
@@ -314,7 +305,6 @@ unittest
     assert(wAlt3.data == "|   1  20 300 |");
 }
 
-static if(hasTypeOfAppender)
 @safe pure
 unittest
 {
@@ -377,7 +367,6 @@ private size_t getRowWidth(alias fmt, Writer, SliceKind kind,
     return w.data.length;
 }
 
-static if(hasTypeOfAppender)
 @safe
 private size_t getRowWidth(Writer, Char, SliceKind kind, size_t[] packs,
                                                                        Iterator)
@@ -417,7 +406,6 @@ unittest
     assert(getRowWidth!"%2s"(w432, data) == 9);
 }
 
-static if(hasTypeOfAppender)
 @safe pure
 unittest
 {
@@ -437,7 +425,6 @@ private template formattedWriteRowsString(alias fmt)
                          "%(" ~ formattedWriteRowString!fmt ~ "\n%) |";
 }
 
-static if(hasTypeOfAppender)
 @safe nothrow pure
 private auto formattedWriteRowsString(Writer, Char)(Writer w, in Char[] fmt)
     if (isSomeChar!Char)
@@ -463,7 +450,7 @@ private uint formattedWriteRowsImpl(alias fmt, Writer, SliceKind kind,
     {
         return formattedWrite!(formattedWriteRowsString!fmt)(w, sl);
     }
-    else static if (hasTypeOfAppender)
+    else
     {
         @safe nothrow pure
         void formattedWriteDashes(alias fmt, Writer)
@@ -503,13 +490,8 @@ private uint formattedWriteRowsImpl(alias fmt, Writer, SliceKind kind,
 
         return result;
     }
-    else
-    {
-        static assert(0);
-    }
 }
 
-static if(hasTypeOfAppender)
 @safe pure
 private uint formattedWriteRowsImpl(Writer, Char, SliceKind kind,
                                                       size_t[1] packs, Iterator)
@@ -526,7 +508,7 @@ private uint formattedWriteRowsImpl(Writer, Char, SliceKind kind,
         auto rowsFmt = formattedWriteRowsString(wGenRowsFmt, fmt);
         return formattedWrite(w, rowsFmt, sl);
     }
-    else static if (hasTypeOfAppender)
+    else
     {
         @safe nothrow pure
         void formattedWriteDashes(Char, Writer)
@@ -566,10 +548,6 @@ private uint formattedWriteRowsImpl(Writer, Char, SliceKind kind,
 
         return result;
     }
-    else
-    {
-        static assert(0);
-    }
 }
 
 
@@ -594,19 +572,15 @@ unittest
     formattedWriteRowsImpl!("%2s")(w43, [4, 3].iota);
     assert(w43.data == testIota43);
 
-    static if (hasTypeOfAppender)
-    {
-        auto w432 = appender!(string);
-        formattedWriteRowsImpl!("%2s")(w432, [4, 3, 2].iota);
-        assert(w432.data == testIota432);
+    auto w432 = appender!(string);
+    formattedWriteRowsImpl!("%2s")(w432, [4, 3, 2].iota);
+    assert(w432.data == testIota432);
 
-        auto w5432 = appender!(string);
-        formattedWriteRowsImpl!("%3s")(w5432, [5, 4, 3, 2].iota);
-        assert(w5432.data == testIota5432);
-    }
+    auto w5432 = appender!(string);
+    formattedWriteRowsImpl!("%3s")(w5432, [5, 4, 3, 2].iota);
+    assert(w5432.data == testIota5432);
 }
 
-static if(hasTypeOfAppender)
 @safe pure
 unittest
 {
@@ -673,7 +647,6 @@ private uint formattedWriteRows(alias fmt, Writer, SliceKind kind,
     }
 }
 
-static if(hasTypeOfAppender)
 @safe
 private uint formattedWriteRows(Writer, Char, SliceKind kind,
                                                        size_t[] packs, Iterator)
@@ -738,24 +711,20 @@ unittest
     auto w23 = appender!(string);
     formattedWriteRows!("%s")(w23, [2, 3].iota);
     assert(w23.data == testIota23);
-    
-    static if(hasTypeOfAppender)
-    {
-        auto w43 = appender!(string);
-        formattedWriteRows!("%2s")(w43, [4, 3].iota);
-        assert(w43.data == testIota43);
 
-        auto w432 = appender!(string);
-        formattedWriteRows!("%2s")(w432, [4, 3, 2].iota);
-        assert(w432.data == testIota432);
+    auto w43 = appender!(string);
+    formattedWriteRows!("%2s")(w43, [4, 3].iota);
+    assert(w43.data == testIota43);
 
-        auto w5432 = appender!(string);
-        formattedWriteRows!("%3s")(w5432, [5, 4, 3, 2].iota);
-        assert(w5432.data == testIota5432);
-    }
+    auto w432 = appender!(string);
+    formattedWriteRows!("%2s")(w432, [4, 3, 2].iota);
+    assert(w432.data == testIota432);
+
+    auto w5432 = appender!(string);
+    formattedWriteRows!("%3s")(w5432, [5, 4, 3, 2].iota);
+    assert(w5432.data == testIota5432);
 }
 
-static if(hasTypeOfAppender)
 @safe pure
 unittest
 {
@@ -809,7 +778,7 @@ Params:
 See_also:
     std.format
 +/
-static if(hasCtFormat && hasTypeOfAppender)
+static if(hasCtFormat)
 @safe
 uint formattedWrite(alias fmt, Writer, SliceKind kind, size_t[] packs,
                                                                        Iterator)
@@ -829,7 +798,6 @@ uint formattedWrite(alias fmt, Writer, SliceKind kind, size_t[] packs,
 }
 
 ///
-static if(hasTypeOfAppender)
 @safe
 uint formattedWrite(Writer, Char, SliceKind kind, size_t[] packs, Iterator)
                         (auto ref Writer w, in Char[] fmt,
@@ -849,7 +817,7 @@ uint formattedWrite(Writer, Char, SliceKind kind, size_t[] packs, Iterator)
 }
 
 ///
-static if(hasCtFormat && hasTypeOfAppender)
+static if(hasCtFormat)
 @safe pure
 unittest
 {
@@ -984,7 +952,6 @@ unittest
 }
 
 ///
-static if(hasTypeOfAppender)
 @safe pure
 unittest
 {
@@ -1118,7 +1085,7 @@ unittest
     );
 }
 
-static if(hasCtFormat && hasTypeOfAppender)
+static if(hasCtFormat)
 @safe pure
 unittest
 {
@@ -1160,7 +1127,6 @@ unittest
     assert(w5432.data == testIota5432Final);
 }
 
-static if(hasTypeOfAppender)
 @safe pure
 unittest
 {
@@ -1203,7 +1169,7 @@ unittest
 }
 
 ///
-static if(hasCtFormat && hasTypeOfAppender)
+static if(hasCtFormat)
 @safe
 unittest
 {
@@ -1251,7 +1217,6 @@ unittest
 }
 
 ///
-static if(hasTypeOfAppender)
 @safe
 unittest
 {
@@ -1299,7 +1264,7 @@ unittest
 }
 
 //testing packed versions
-static if(hasCtFormat && hasTypeOfAppender)
+static if(hasCtFormat)
 @safe pure
 unittest
 {
@@ -1342,7 +1307,7 @@ unittest
 }
 
 //testing packed versions
-static if(hasCtFormat && hasTypeOfAppender)
+static if(hasCtFormat)
 @safe pure
 unittest
 {
@@ -1400,7 +1365,6 @@ unittest
     assert(w5432Alt5.data == testIota5432Final);
 }
 
-static if(hasTypeOfAppender)
 @safe pure
 unittest
 {
@@ -1497,7 +1461,7 @@ immutable(Char)[] format(Char, SliceKind kind, size_t[] packs, Iterator)
 }
 
 ///
-static if(hasCtFormat && hasTypeOfAppender)
+static if(hasCtFormat)
 @safe pure
 unittest
 {
@@ -1620,7 +1584,6 @@ unittest
 }
 
 ///
-static if(hasTypeOfAppender)
 @safe pure
 unittest
 {
@@ -1742,7 +1705,7 @@ unittest
     );
 }
 
-static if(hasCtFormat && hasTypeOfAppender)
+static if(hasCtFormat)
 @safe pure
 unittest
 {
@@ -1759,7 +1722,6 @@ unittest
     assert([5, 4, 3, 2].iota.format!("%3s") == testIota5432Final);
 }
 
-static if(hasTypeOfAppender)
 @safe pure
 unittest
 {
@@ -1777,7 +1739,7 @@ unittest
 }
 
 ///
-static if(hasCtFormat && hasTypeOfAppender)
+static if(hasCtFormat)
 @safe
 unittest
 {
@@ -1815,7 +1777,6 @@ unittest
 }
 
 ///
-static if(hasTypeOfAppender)
 @safe
 unittest
 {
@@ -1853,7 +1814,7 @@ unittest
 }
 
 // Testing packed versions
-static if(hasCtFormat && hasTypeOfAppender)
+static if(hasCtFormat)
 @safe pure
 unittest
 {
@@ -1876,7 +1837,7 @@ unittest
     assert([5, 4, 3, 2].iota.ipack!3.format!("%3s") == testIota5432Final);
 }
 
-static if(hasCtFormat && hasTypeOfAppender)
+static if(hasCtFormat)
 @safe pure
 unittest
 {
