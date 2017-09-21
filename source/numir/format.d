@@ -5,8 +5,6 @@ Note: This relies on the formatting functionality from Phobos, the D standard
 library. As of this writing, parts of it rely on the Garbage Collector and
 potentially other non-Better C functionality in D.
 
-TODO: Remove DMD 2.076 and test on 2.075
-
 +/
 module numir.format;
 
@@ -483,9 +481,9 @@ unittest
 
     Counter w3;
     formattedWriteRow(w3, "%s", 3.iota);
-    //assert(w3.counter == testIota3.length);
+    assert(w3.counter == testIota3.length);
 }
-/*
+
 static if (hasDVersion2076)
 @safe
 private size_t getRowWidth(alias fmt, Writer, SliceKind kind,
@@ -2038,7 +2036,7 @@ unittest
         " --------------- "d
     );
 }
-*/
+
 version(unittest)
 {
     mixin template formatRowsTest()
