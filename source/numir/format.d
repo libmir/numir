@@ -5,6 +5,8 @@ Note: This relies on the formatting functionality from Phobos, the D standard
 library. As of this writing, parts of it rely on the Garbage Collector and
 potentially other non-Better C functionality in D.
 
+TODO: Remove DMD 2.076 and test on 2.075
+
 +/
 module numir.format;
 
@@ -12,9 +14,135 @@ import mir.ndslice : SliceKind, Slice;
 import std.traits : isSomeChar, isSomeString;
 
 static if (__VERSION__ >= 2074)
-    enum hasCtFormat = true;
+    enum hasDVersion2074 = true;
 else
-    enum hasCtFormat = false;
+    enum hasDVersion2074 = false;
+
+static if (__VERSION__ >= 2076)
+    enum hasDVersion2076 = true;
+else
+    enum hasDVersion2076 = false;
+
+private struct Counter
+{
+    size_t counter;
+
+    @safe nothrow @nogc pure
+    void put(E)(E e)
+        if(isSomeChar!E)
+    {
+        counter += e.sizeof;
+    }
+
+    @trusted nothrow @nogc pure
+    void put(E)(E e)
+        if(isSomeString!E)
+    {
+        import std.utf : count;
+
+        counter += e.count;
+    }
+}
+
+@safe nothrow @nogc pure
+unittest
+{
+    import std.utf : count;
+
+    Counter co;
+    char data = 'e';
+    co.put(data);
+    assert(co.counter == 1);
+}
+
+@safe nothrow @nogc pure
+unittest
+{
+    import std.utf : count;
+
+    Counter co;
+    const(char) data = 'e';
+    co.put(data);
+    assert(co.counter == 1);
+}
+
+@safe nothrow @nogc pure
+unittest
+{
+    import std.utf : count;
+
+    Counter co;
+    immutable(char) data = 'e';
+    co.put(data);
+    assert(co.counter == 1);
+}
+
+@safe nothrow @nogc pure
+unittest
+{
+    import std.utf : count;
+
+    Counter co;
+    wchar data = 0x03C0;
+    co.put(data);
+    assert(co.counter == 2);
+}
+
+@safe nothrow @nogc pure
+unittest
+{
+    import std.utf : count;
+
+    Counter co;
+    dchar data = 0x00010437;
+    co.put(data);
+    import std.stdio : writeln;
+    assert(co.counter == 4);
+}
+
+@trusted nothrow @nogc pure
+unittest
+{
+    import std.utf : count;
+
+    Counter co;
+    string data1 = "e";
+    co.put(data1);
+    assert(co.counter == data1.count);
+    string data2 = "sdfsdfs";
+    co.put(data2);
+    assert(co.counter == (data1.count + data2.count));
+}
+
+@trusted nothrow @nogc pure
+unittest
+{
+    import std.utf : count;
+
+    Counter co;
+    auto data1 = x"0858"w;
+    static assert(is(typeof(data1) == wstring));
+    co.put(data1);
+    assert(co.counter == data1.count);
+    wstring data2 = "sdfsdf"w;
+    co.put(data2);
+    assert(co.counter == (data1.count + data2.count));
+}
+
+@trusted nothrow @nogc pure
+unittest
+{
+    import std.utf : count;
+
+    Counter co;
+    auto data1 = x"00010437"d;
+    static assert(is(typeof(data1) == dstring));
+    co.put(data1);
+    assert(co.counter == data1.count);
+    dstring data2 = "sdfsdf"d;
+    co.put(data2);
+    assert(co.counter == (data1.count + data2.count));
+}
 
 @safe nothrow pure
 private void formattedWriteHyphenline(alias fmt, Writer)
@@ -217,13 +345,10 @@ private typeof(fmt) formattedWriteRowString(alias fmt)()
 }
 
 @safe nothrow pure
-private auto formattedWriteRowString(Writer, Char)(Writer w, in Char[] fmt)
+private auto formattedWriteRowString(Char)(in Char[] fmt)
     if (isSomeChar!Char)
 {
-    w.put("|%( ");
-    w.put(fmt);
-    w.put("%) |");
-    return w.data;
+    return "|%( " ~ fmt ~ "%) |";
 }
 
 @safe nothrow @nogc pure
@@ -238,10 +363,10 @@ unittest
     import std.array : appender;
     auto w = appender!(string);
 
-    assert(formattedWriteRowString(w, "%s") == "|%( " ~ "%s" ~ "%) |");
+    assert(formattedWriteRowString("%s") == "|%( " ~ "%s" ~ "%) |");
 }
 
-static if (hasCtFormat)
+static if (hasDVersion2074)
 @safe
 private uint formattedWriteRow(alias fmt, Writer, SliceKind kind, Iterator)
                                 (auto ref Writer w,
@@ -262,12 +387,11 @@ private uint formattedWriteRow(Writer, Char, SliceKind kind, Iterator)
 {
     import std.format : formattedWrite;
 
-    Writer wGenRowFmt;
-    auto rowFmt = formattedWriteRowString(wGenRowFmt, fmt);
+    auto rowFmt = formattedWriteRowString(fmt);
     return formattedWrite(w, rowFmt, sl);
 }
 
-static if (hasCtFormat)
+static if (hasDVersion2074)
 @safe pure
 unittest
 {
@@ -336,7 +460,33 @@ unittest
     assert(wAlt3.data == "|   1  20 300 |");
 }
 
-static if (hasCtFormat)
+static if (hasDVersion2076)
+@safe pure
+unittest
+{
+    import mir.ndslice.topology : iota;
+
+    mixin formatRowsTest;
+
+    Counter w3;
+    formattedWriteRow!"%s"(w3, 3.iota);
+    assert(w3.counter == testIota3.length);
+}
+
+static if (hasDVersion2076)
+@safe pure
+unittest
+{
+    import mir.ndslice.topology : iota;
+
+    mixin formatRowsTest;
+
+    Counter w3;
+    formattedWriteRow(w3, "%s", 3.iota);
+    //assert(w3.counter == testIota3.length);
+}
+/*
+static if (hasDVersion2076)
 @safe
 private size_t getRowWidth(alias fmt, Writer, SliceKind kind,
                                                        size_t[] packs, Iterator)
@@ -344,8 +494,6 @@ private size_t getRowWidth(alias fmt, Writer, SliceKind kind,
                                                Slice!(kind, packs, Iterator) sl)
     if (isSomeString!(typeof(fmt)))
 {
-    import mir.ndslice.topology : byDim;
-
     static if (packs.length == 1)
     {
         formattedWriteRow!fmt(w, sl.deepFront);
@@ -361,9 +509,10 @@ private size_t getRowWidth(alias fmt, Writer, SliceKind kind,
         static assert("Should not be here");
     }
 
-    return w.data.length;
+    return w.counter;
 }
 
+static if (hasDVersion2076)
 @safe
 private size_t getRowWidth(Writer, Char, SliceKind kind, size_t[] packs,
                                                                        Iterator)
@@ -371,8 +520,6 @@ private size_t getRowWidth(Writer, Char, SliceKind kind, size_t[] packs,
                                                Slice!(kind, packs, Iterator) sl)
     if (isSomeChar!Char)
 {
-    import mir.ndslice.topology : byDim;
-
     static if (packs.length == 1)
     {
         formattedWriteRow(w, fmt, sl.deepFront);
@@ -388,28 +535,27 @@ private size_t getRowWidth(Writer, Char, SliceKind kind, size_t[] packs,
         static assert("Should not be here");
     }
 
-    return w.data.length;
+    return w.counter;
 }
 
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
-    import std.array : appender;
     import mir.ndslice.topology : iota;
 
-    auto w432 = appender!(string);
+    Counter w432;
     auto data = [4, 3, 2].iota;
     assert(getRowWidth!"%2s"(w432, data) == 9);
 }
 
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
-    import std.array : appender;
     import mir.ndslice.topology : iota;
 
-    auto w432 = appender!(string);
+    Counter w432;
     auto data = [4, 3, 2].iota;
     assert(getRowWidth(w432, "%2s", data) == 9);
 }
@@ -423,17 +569,13 @@ private template formattedWriteRowsString(alias fmt)
 }
 
 @safe nothrow pure
-private auto formattedWriteRowsString(Writer, Char)(Writer w, in Char[] fmt)
+private auto formattedWriteRowsString(Char)(in Char[] fmt)
     if (isSomeChar!Char)
 {
-    w.put("%(");
-    Writer wGenRowsFmt;
-    w.put(formattedWriteRowString(wGenRowsFmt, fmt));
-    w.put("\n%) |");
-    return w.data;
+    return "%(" ~ formattedWriteRowString(fmt) ~ "\n%) |";
 }
 
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe pure
 private uint formattedWriteRowsImpl(alias fmt, Writer, SliceKind kind,
                                                       size_t[1] packs, Iterator)
@@ -468,7 +610,7 @@ private uint formattedWriteRowsImpl(alias fmt, Writer, SliceKind kind,
         size_t slByRowLen = slByRow.length;
 
         size_t N = packs[0];
-        Writer wDash;
+        Counter wDash;
         size_t len = getRowWidth!fmt(wDash, sl);
 
         uint result;
@@ -489,6 +631,7 @@ private uint formattedWriteRowsImpl(alias fmt, Writer, SliceKind kind,
     }
 }
 
+static if (hasDVersion2076)
 @safe pure
 private uint formattedWriteRowsImpl(Writer, Char, SliceKind kind,
                                                       size_t[1] packs, Iterator)
@@ -501,9 +644,7 @@ private uint formattedWriteRowsImpl(Writer, Char, SliceKind kind,
 
     static if (packs == [2])
     {
-        Writer wGenRowsFmt;
-        auto rowsFmt = formattedWriteRowsString(wGenRowsFmt, fmt);
-        return formattedWrite(w, rowsFmt, sl);
+        return formattedWrite(w, formattedWriteRowsString(fmt), sl);
     }
     else
     {
@@ -526,7 +667,7 @@ private uint formattedWriteRowsImpl(Writer, Char, SliceKind kind,
         size_t slByRowLen = slByRow.length;
 
         size_t N = packs[0];
-        Writer wDash;
+        Counter wDash;
         size_t len = getRowWidth(wDash, fmt, sl);
 
         uint result;
@@ -547,8 +688,7 @@ private uint formattedWriteRowsImpl(Writer, Char, SliceKind kind,
     }
 }
 
-
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -578,6 +718,7 @@ unittest
     assert(w5432.data == testIota5432);
 }
 
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -607,7 +748,7 @@ unittest
     assert(w5432.data == testIota5432);
 }
 
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe
 private uint formattedWriteRows(alias fmt, Writer, SliceKind kind,
                                                        size_t[] packs, Iterator)
@@ -644,6 +785,7 @@ private uint formattedWriteRows(alias fmt, Writer, SliceKind kind,
     }
 }
 
+static if (hasDVersion2076)
 @safe
 private uint formattedWriteRows(Writer, Char, SliceKind kind,
                                                        size_t[] packs, Iterator)
@@ -680,7 +822,7 @@ private uint formattedWriteRows(Writer, Char, SliceKind kind,
     }
 }
 
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -722,6 +864,7 @@ unittest
     assert(w5432.data == testIota5432);
 }
 
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -775,14 +918,14 @@ Params:
 See_also:
     std.format
 +/
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe
 uint formattedWrite(alias fmt, Writer, SliceKind kind, size_t[] packs,
                                                                        Iterator)
                         (auto ref Writer w, Slice!(kind, packs, Iterator) sl)
     if (isSomeString!(typeof(fmt)))
 {
-    Writer wDash;
+    Counter wDash;
     size_t rowWidth = getRowWidth!(fmt)(wDash, sl);
 
     w.formattedWriteHyphenline!fmt(rowWidth);
@@ -795,13 +938,14 @@ uint formattedWrite(alias fmt, Writer, SliceKind kind, size_t[] packs,
 }
 
 ///
+static if (hasDVersion2076)
 @safe
 uint formattedWrite(Writer, Char, SliceKind kind, size_t[] packs, Iterator)
                         (auto ref Writer w, in Char[] fmt,
                                                Slice!(kind, packs, Iterator) sl)
     if (isSomeChar!Char)
 {
-    Writer wDash;
+    Counter wDash;
     size_t rowWidth = getRowWidth(wDash, fmt, sl);
 
     w.formattedWriteHyphenline!Char(rowWidth);
@@ -814,7 +958,7 @@ uint formattedWrite(Writer, Char, SliceKind kind, size_t[] packs, Iterator)
 }
 
 ///
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -949,6 +1093,7 @@ unittest
 }
 
 ///
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -1082,7 +1227,7 @@ unittest
     );
 }
 
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -1124,6 +1269,7 @@ unittest
     assert(w5432.data == testIota5432Final);
 }
 
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -1166,7 +1312,7 @@ unittest
 }
 
 ///
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe
 unittest
 {
@@ -1214,6 +1360,7 @@ unittest
 }
 
 ///
+static if (hasDVersion2076)
 @safe
 unittest
 {
@@ -1261,7 +1408,7 @@ unittest
 }
 
 //testing packed versions
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -1304,7 +1451,7 @@ unittest
 }
 
 //testing packed versions
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -1362,6 +1509,7 @@ unittest
     assert(w5432Alt5.data == testIota5432Final);
 }
 
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -1431,7 +1579,7 @@ Returns:
 See_also:
     std.format
 +/
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe
 typeof(fmt) format(alias fmt, SliceKind kind, size_t[] packs, Iterator)
                                               (Slice!(kind, packs, Iterator) sl)
@@ -1445,6 +1593,7 @@ typeof(fmt) format(alias fmt, SliceKind kind, size_t[] packs, Iterator)
 }
 
 ///
+static if (hasDVersion2076)
 @safe
 immutable(Char)[] format(Char, SliceKind kind, size_t[] packs, Iterator)
                                (in Char[] fmt, Slice!(kind, packs, Iterator) sl)
@@ -1458,7 +1607,7 @@ immutable(Char)[] format(Char, SliceKind kind, size_t[] packs, Iterator)
 }
 
 ///
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -1581,6 +1730,7 @@ unittest
 }
 
 ///
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -1702,7 +1852,7 @@ unittest
     );
 }
 
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -1719,6 +1869,7 @@ unittest
     assert([5, 4, 3, 2].iota.format!("%3s") == testIota5432Final);
 }
 
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -1736,7 +1887,7 @@ unittest
 }
 
 ///
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe
 unittest
 {
@@ -1774,6 +1925,7 @@ unittest
 }
 
 ///
+static if (hasDVersion2076)
 @safe
 unittest
 {
@@ -1811,7 +1963,7 @@ unittest
 }
 
 // Testing packed versions
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -1834,7 +1986,7 @@ unittest
     assert([5, 4, 3, 2].iota.ipack!3.format!("%3s") == testIota5432Final);
 }
 
-static if (hasCtFormat)
+static if (hasDVersion2076)
 @safe pure
 unittest
 {
@@ -1857,6 +2009,36 @@ unittest
     assert(format("%3s", [5, 4, 3, 2].iota.ipack!3) == testIota5432Final);
 }
 
+static if (hasDVersion2076)
+@safe
+unittest
+{
+    import mir.ndslice.slice : sliced;
+
+    auto data = [0.12, 3.12, 6.40].sliced;
+
+    assert(format("%s"w, data) ==
+        " --------------- \n"w ~
+        "| 0.12 3.12 6.4 |\n"w ~
+        " --------------- "w
+    );
+}
+
+static if (hasDVersion2076)
+@safe
+unittest
+{
+    import mir.ndslice.slice : sliced;
+
+    auto data = [0.12, 3.12, 6.40].sliced;
+
+    assert(format("%s"d, data) ==
+        " --------------- \n"d ~
+        "| 0.12 3.12 6.4 |\n"d ~
+        " --------------- "d
+    );
+}
+*/
 version(unittest)
 {
     mixin template formatRowsTest()
