@@ -313,9 +313,9 @@ unittest
     }
     catch (FileException e)
     {
-        // NOTE: why ": Success" is appended?
-        auto expected = "dtype(%s) is not supported yet: %s: Success".format("x4", f.name);
-        assert(e.msg == expected);
+        // NOTE: why ": Success" is appended on Linux?
+        auto expected = "dtype(%s) is not supported yet: %s".format("x4", f.name);
+        assert(e.msg[0 .. expected.length] == expected);
     }
 
     auto fi8 = File("./test/b1_f8.npy", "rb");
@@ -327,8 +327,8 @@ unittest
     catch (FileException e)
     {
         // NOTE: why ": Success" is appended?
-        auto expected = "endian conversion (file %s) is not supported yet: %s: Success".format(es, fi8.name);
-        assert(e.msg == expected);
+        auto expected = "endian conversion (file %s) is not supported yet: %s".format(es, fi8.name);
+        assert(e.msg[0 .. expected.length] == expected);
     }
 
 
@@ -340,8 +340,8 @@ unittest
     catch (FileException e)
     {
         // NOTE: why ": Success" is appended?
-        auto expected = "Fortran ordered ndarray is not supported yet: %s: Success".format(fname);
-        assert(e.msg == expected);
+        auto expected = "Fortran ordered ndarray is not supported yet: %s".format(fname);
+        assert(e.msg[0 .. expected.length] == expected);
     }
 
     try
@@ -351,8 +351,8 @@ unittest
     catch (FileException e)
     {
         // NOTE: why ": Success" is appended?
-        auto expected = "your expected Ndim %s != %s in the actual npy: %s: Success".format(2, 1, fname);
-        assert(e.msg == expected);
+        auto expected = "your expected Ndim %s != %s in the actual npy: %s".format(2, 1, fname);
+        assert(e.msg[0 .. expected.length] == expected);
     }
 
     try
@@ -361,6 +361,7 @@ unittest
     }
     catch (FileException e)
     {
-        assert(e.msg == "invalid npy header: %s: Success".format(fname));
+        auto expected = "invalid npy header: %s".format(fname);
+        assert(e.msg[0 .. expected.length] == expected);
     }
 }
