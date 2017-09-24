@@ -77,15 +77,6 @@ auto uniform(E=double, size_t N)(size_t[N] length...)
     return UniformVariable!E(0, 1).generate(length);
 }
 
-/// testing function for float-point slices [WIP]
-bool approxEqual(double eps=1e-10, S1, S2)(S1 s1, S2 s2)
-{
-    import mir.ndslice : equal;
-    import std.math : abs;
-    assert(s1.shape == s2.shape);
-    return equal!((a, b) => abs(a - b) < eps)(s1, s2);
-}
-
 ///
 unittest
 {
@@ -106,7 +97,6 @@ unittest
     RNG.setSeed(0);
     auto r2 = normal(3, 4).slice;
     assert(r1 == r2);
-    assert(approxEqual(r1, r2));
 
     auto u = uniform(3, 4).slice;
     assert(u.shape == [3, 4]);

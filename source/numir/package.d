@@ -4,6 +4,8 @@
    $(BIG $(LINK2 random.html, numir.random))
    $(BR)
    $(BIG $(LINK2 io.html, numir.io))
+   $(BR)
+   $(BIG $(LINK2 testing.html, numir.testing))
  */
 
 /**
@@ -33,3 +35,5 @@ module numir;
 
 public import numir.core;
 public import numir.random;
+public import numir.io;
+public import numir.testing;

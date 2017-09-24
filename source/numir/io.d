@@ -94,23 +94,16 @@ auto readBytes(Dtype)(ref File file, string dtype, size_t size)
 
 immutable npyfmt = "{'descr': '%s', 'fortran_order': %s, 'shape': (%s), }";
 
-/// load numpy format file into mir.ndslice.Slice
-auto loadNpy(Dtype, size_t Ndim)(string path)
+
+struct NpyHeaderInfo(size_t N)
 {
-    auto f = File(path, "rb");
-    const magic = cast(string) f.rawRead(new ubyte[6]);
-    if (magic != "\x93NUMPY")
-    {
-        throw new FileException("invalid npy header: %s".format(path));
-    }
+    string descr;
+    long[N] shape;
+}
 
-    // TODO: check version compatibility
-    const majorVer = f.rawRead(new ubyte[1]);
-    const minorVer = f.rawRead(new ubyte[1]);
 
+auto parseHeader(size_t Ndim)(string header, string path) {
     // header parsing
-    const headerLength = f.rawRead(new ushort[1])[0];
-    auto header = cast(string) f.rawRead(new ubyte[headerLength]);
     string descrS, fortranS, shapeS;
     formattedRead(header, npyfmt, descrS, fortranS, shapeS);
     if (fortranS == "True")
@@ -133,9 +126,37 @@ auto loadNpy(Dtype, size_t Ndim)(string path)
     }
 
     auto shape = to!(ptrdiff_t[Ndim])(_shape);
-    auto size = shape.reduce!"a * b";
-    auto storage = readBytes!Dtype(f, descrS, size);
-    return storage.sliced.view(shape);
+    return NpyHeaderInfo!Ndim(descrS, shape);
+}
+
+
+auto enforceNPY(string magic, string path)
+{
+    if (magic != "\x93NUMPY")
+    {
+        throw new FileException("invalid npy header: %s".format(path));
+    }
+}
+
+
+/// load numpy format file into mir.ndslice.Slice
+auto loadNpy(Dtype, size_t Ndim)(string path)
+{
+    auto f = File(path, "rb");
+    const magic = cast(string) f.rawRead(new ubyte[6]);
+    enforceNPY(magic, path);
+
+    // TODO: check version compatibility
+    const majorVer = f.rawRead(new ubyte[1]);
+    const minorVer = f.rawRead(new ubyte[1]);
+
+    // header parsing
+    const headerLength = f.rawRead(new ushort[1])[0];
+    auto header = cast(string) f.rawRead(new ubyte[headerLength]);
+    auto info = parseHeader!Ndim(header, path);
+    auto size = info.shape.reduce!"a * b";
+    auto storage = readBytes!Dtype(f, info.descr, size);
+    return storage.sliced.view(info.shape);
 }
 
 
@@ -280,4 +301,66 @@ unittest
     assert(b1_f8 == iota(6).map!(to!double));
     auto b2_f8 = loadNpy!(double, 2)("./test/b2_f8.npy");
     assert(b2_f8 == iota(2, 3).map!(to!double));
+}
+
+unittest
+{
+    // test exceptions
+    auto f = File("./test/b1_f8.npy", "rb");
+    try
+    {
+        readBytes!double(f, "x4", 1LU);
+    }
+    catch (FileException e)
+    {
+        // NOTE: why ": Success" is appended?
+        auto expected = "dtype(%s) is not supported yet: %s: Success".format("x4", f.name);
+        assert(e.msg == expected);
+    }
+
+    auto fi8 = File("./test/b1_f8.npy", "rb");
+    auto es = (endian == Endian.littleEndian ? ">" : "<") ~ "i8";
+    try
+    {
+        readBytes!double(fi8, es, 1LU);
+    }
+    catch (FileException e)
+    {
+        // NOTE: why ": Success" is appended?
+        auto expected = "endian conversion (file %s) is not supported yet: %s: Success".format(es, fi8.name);
+        assert(e.msg == expected);
+    }
+
+
+    auto fname = "foo.npy";
+    try
+    {
+        parseHeader!1("{'descr': '<f4', 'fortran_order': True, 'shape': (6,), }", fname);
+    }
+    catch (FileException e)
+    {
+        // NOTE: why ": Success" is appended?
+        auto expected = "Fortran ordered ndarray is not supported yet: %s: Success".format(fname);
+        assert(e.msg == expected);
+    }
+
+    try
+    {
+        parseHeader!2("{'descr': '<f4', 'fortran_order': False, 'shape': (6,), }", fname);
+    }
+    catch (FileException e)
+    {
+        // NOTE: why ": Success" is appended?
+        auto expected = "your expected Ndim %s != %s in the actual npy: %s: Success".format(2, 1, fname);
+        assert(e.msg == expected);
+    }
+
+    try
+    {
+        enforceNPY("foo", fname);
+    }
+    catch (FileException e)
+    {
+        assert(e.msg == "invalid npy header: %s: Success".format(fname));
+    }
 }
