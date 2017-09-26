@@ -1,10 +1,8 @@
 /++
 This is a submodule of numir to provide formatting for ndslices.
-
 Note: This relies on the formatting functionality from Phobos, the D standard
 library. As of this writing, parts of it rely on the Garbage Collector and
 potentially other non-Better C functionality in D.
-
 +/
 module numir.format;
 
@@ -23,123 +21,213 @@ else
 
 private struct Counter
 {
-    size_t counter;
+    import std.range.primitives : isInputRange;
+    import std.traits : isSomeChar, isSomeString;
 
+    size_t _data;
+    
+    @property size_t data() @safe nothrow @nogc pure
+    {
+        return _data;
+    }
+    
     @safe nothrow @nogc pure
     void put(E)(E e)
         if(isSomeChar!E)
     {
-        counter += e.sizeof;
+        _data += 1;
     }
 
-    @trusted nothrow @nogc pure
+    @safe
     void put(E)(E e)
         if(isSomeString!E)
     {
-        import std.utf : count;
+        import std.uni : byGrapheme;
+        import std.range.primitives : walkLength;
 
-        counter += e.count;
+        _data += e.byGrapheme.walkLength;
+    }
+
+    @safe
+    void put(Range)(Range items)
+        if(isInputRange!Range &&
+           is(typeof(Counter.init.put(Range.init.front))))
+    {
+        foreach(item; items)
+            put(item);
+    }
+    
+    void opOpAssign(string op : "~", U)(U rhs)
+        if (__traits(compiles, put(rhs)))
+    {
+        put(rhs);
+    }
+    
+    void clear() @safe nothrow @nogc pure
+    {
+        _data = 0;
     }
 }
 
 @safe nothrow @nogc pure
 unittest
 {
-    import std.utf : count;
-
     Counter co;
     char data = 'e';
     co.put(data);
-    assert(co.counter == 1);
+    assert(co.data == 1);
 }
 
 @safe nothrow @nogc pure
 unittest
 {
-    import std.utf : count;
-
     Counter co;
     const(char) data = 'e';
     co.put(data);
-    assert(co.counter == 1);
+    assert(co.data == 1);
 }
 
 @safe nothrow @nogc pure
 unittest
 {
-    import std.utf : count;
-
     Counter co;
     immutable(char) data = 'e';
     co.put(data);
-    assert(co.counter == 1);
+    assert(co.data == 1);
 }
 
 @safe nothrow @nogc pure
 unittest
 {
-    import std.utf : count;
-
     Counter co;
     wchar data = 0x03C0;
     co.put(data);
-    assert(co.counter == 2);
+    assert(co.data == 1);
 }
 
 @safe nothrow @nogc pure
 unittest
 {
-    import std.utf : count;
-
     Counter co;
     dchar data = 0x00010437;
     co.put(data);
-    import std.stdio : writeln;
-    assert(co.counter == 4);
+    assert(co.data == 1);
 }
 
-@trusted nothrow @nogc pure
+@safe
 unittest
 {
-    import std.utf : count;
-
     Counter co;
     string data1 = "e";
     co.put(data1);
-    assert(co.counter == data1.count);
+    assert(co.data == 1);
     string data2 = "sdfsdfs";
     co.put(data2);
-    assert(co.counter == (data1.count + data2.count));
+    assert(co.data == 8);
 }
 
-@trusted nothrow @nogc pure
+@safe
 unittest
 {
-    import std.utf : count;
+    import std.utf : count, byCodeUnit;
 
     Counter co;
-    auto data1 = x"0858"w;
-    static assert(is(typeof(data1) == wstring));
+    wchar data1 = 0x03C0;
     co.put(data1);
-    assert(co.counter == data1.count);
-    wstring data2 = "sdfsdf"w;
+    assert(co.data == 1);
+    wstring data2 = "sdfsdfs"w;
     co.put(data2);
-    assert(co.counter == (data1.count + data2.count));
+    assert(co.data == 8);
 }
 
-@trusted nothrow @nogc pure
+@safe
 unittest
 {
-    import std.utf : count;
-
     Counter co;
-    auto data1 = x"00010437"d;
-    static assert(is(typeof(data1) == dstring));
+    dchar data1 = 0x00010437;
     co.put(data1);
-    assert(co.counter == data1.count);
-    dstring data2 = "sdfsdf"d;
+    assert(co.data == 1);
+    dstring data2 = "sdfsdfs"d;
     co.put(data2);
-    assert(co.counter == (data1.count + data2.count));
+    assert(co.data == 8);
+}
+
+@safe
+unittest
+{
+    Counter co;
+    string data1 = "e";
+    co.put(data1);
+    assert(co.data == 1);
+    dstring data2 = "sdfsdfs"d;
+    co.put(data2);
+    assert(co.data == 8);
+}
+
+@safe
+unittest
+{
+    Counter co;
+    char data1 = 'e';
+    co.put(data1);
+    assert(co.data == 1);
+    wstring data2 = "sdfsdfs"w;
+    co.put(data2);
+    assert(co.data == 8);
+}
+
+@safe
+unittest
+{
+    Counter co;
+    auto data = 'Ĉ';
+    co.put(data);
+    assert(co.data == 1);
+}
+
+@safe
+unittest
+{
+    Counter co;
+    auto data = `Ma Chérie`;
+    co.put(data);
+    assert(co.data == 9);
+}
+
+@safe
+unittest
+{
+    Counter co;
+    dstring data = `さいごの果実 / ミツバチと科学者`d;
+    co.put(data);
+    assert(co.data == 17);
+}
+
+@safe
+unittest
+{
+    Counter co;
+    string data = "å ø ∑ 😦";
+    co.put(data);
+    assert(co.data == 7);
+}
+
+@safe
+unittest
+{
+    Counter co;
+    wstring data = "å ø ∑ 😦";
+    co.put(data);
+    assert(co.data == 7);
+}
+
+@safe
+unittest
+{
+    Counter co;
+    dstring data = "å ø ∑ 😦";
+    co.put(data);
+    assert(co.data == 7);
 }
 
 @safe nothrow pure
@@ -459,7 +547,7 @@ unittest
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -468,11 +556,11 @@ unittest
 
     Counter w3;
     formattedWriteRow!"%s"(w3, 3.iota);
-    assert(w3.counter == testIota3.length);
+    assert(w3.data == testIota3.length);
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -481,7 +569,7 @@ unittest
 
     Counter w3;
     formattedWriteRow(w3, "%s", 3.iota);
-    assert(w3.counter == testIota3.length);
+    assert(w3.data == testIota3.length);
 }
 
 static if (hasDVersion2076)
@@ -507,7 +595,7 @@ private size_t getRowWidth(alias fmt, Writer, SliceKind kind,
         static assert("Should not be here");
     }
 
-    return w.counter;
+    return w.data;
 }
 
 static if (hasDVersion2076)
@@ -533,11 +621,11 @@ private size_t getRowWidth(Writer, Char, SliceKind kind, size_t[] packs,
         static assert("Should not be here");
     }
 
-    return w.counter;
+    return w.data;
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -548,7 +636,7 @@ unittest
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -574,7 +662,7 @@ private auto formattedWriteRowsString(Char)(in Char[] fmt)
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 private uint formattedWriteRowsImpl(alias fmt, Writer, SliceKind kind,
                                                       size_t[1] packs, Iterator)
                                         (auto ref Writer w,
@@ -630,7 +718,7 @@ private uint formattedWriteRowsImpl(alias fmt, Writer, SliceKind kind,
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 private uint formattedWriteRowsImpl(Writer, Char, SliceKind kind,
                                                       size_t[1] packs, Iterator)
                                         (auto ref Writer w,
@@ -687,7 +775,7 @@ private uint formattedWriteRowsImpl(Writer, Char, SliceKind kind,
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -717,7 +805,7 @@ unittest
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -821,7 +909,7 @@ private uint formattedWriteRows(Writer, Char, SliceKind kind,
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -863,7 +951,7 @@ unittest
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -906,13 +994,11 @@ unittest
 
 /++
 Formatted write of slice.
-
 Params:
     fmt = string representing the format style (follows std.format style)
     w = Output is sent to this writer. Typical output writers include
            std.array.Appender!string and std.stdio.LockingTextWriter.
     sl = input slice
-
 See_also:
     std.format
 +/
@@ -957,7 +1043,7 @@ uint formattedWrite(Writer, Char, SliceKind kind, size_t[] packs, Iterator)
 
 ///
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -1092,7 +1178,7 @@ unittest
 
 ///
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -1226,7 +1312,7 @@ unittest
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -1268,7 +1354,7 @@ unittest
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -1407,7 +1493,7 @@ unittest
 
 //testing packed versions
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota, pack, ipack;
@@ -1450,7 +1536,7 @@ unittest
 
 //testing packed versions
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota, pack, ipack;
@@ -1508,7 +1594,7 @@ unittest
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota, pack, ipack;
@@ -1567,13 +1653,11 @@ unittest
 
 /++
 Formats ndslice to string
-
 Params:
     fmt = string representing the format style (follows std.format style)
     sl = input slice
 Returns:
     string of formatted slice
-
 See_also:
     std.format
 +/
@@ -1606,7 +1690,7 @@ immutable(Char)[] format(Char, SliceKind kind, size_t[] packs, Iterator)
 
 ///
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -1729,7 +1813,7 @@ unittest
 
 ///
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -1851,7 +1935,7 @@ unittest
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -1868,7 +1952,7 @@ unittest
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -1962,7 +2046,7 @@ unittest
 
 // Testing packed versions
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota, pack, ipack;
@@ -1985,7 +2069,7 @@ unittest
 }
 
 static if (hasDVersion2076)
-@safe pure
+@safe
 unittest
 {
     import mir.ndslice.topology : iota, pack, ipack;
