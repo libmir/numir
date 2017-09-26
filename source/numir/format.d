@@ -76,6 +76,8 @@ unittest
     char data = 'e';
     co.put(data);
     assert(co.data == 1);
+    co.clear;
+    assert(co.data == 0);
 }
 
 @safe nothrow @nogc pure
