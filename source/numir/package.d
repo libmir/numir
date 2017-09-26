@@ -2,12 +2,16 @@
    $(BIG $(LINK2 core.html, numir.core))
    $(BR)
    $(BIG $(LINK2 random.html, numir.random))
+   $(BR)
+   $(BIG $(LINK2 io.html, numir.io))
+   $(BR)
+   $(BIG $(LINK2 testing.html, numir.testing))
  */
 
 /**
    License: $(LINK2 http://boost.org/LICENSE_1_0.txt, Boost License 1.0).
 
-   Authors: $(LINK2 http://shigekikarita.github.io, karita)
+   Authors: $(LINK2 http://shigekikarita.github.io, Shigeki Karita)
 */
 
 module numir;
@@ -31,4 +35,6 @@ module numir;
 
 public import numir.core;
 public import numir.random;
+public import numir.io;
+public import numir.testing;
 public import numir.format;

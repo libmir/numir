@@ -1,12 +1,14 @@
 # numir
 
-[![Build Status](https://travis-ci.org/ShigekiKarita/numir.svg?branch=master)](https://travis-ci.org/ShigekiKarita/numir)
-[![Coverage Status](https://coveralls.io/repos/github/ShigekiKarita/numir/badge.svg?branch=master)](https://coveralls.io/github/ShigekiKarita/numir?branch=master)
-<a href="https://code.dlang.org/packages/numir" title="Go to numir"><img src="https://img.shields.io/dub/v/numir.svg" alt="Dub version"></a>
+[![Build Status](https://travis-ci.org/libmir/numir.svg?branch=v0.0.1)](https://travis-ci.org/libmir/numir)
+[![Build status](https://ci.appveyor.com/api/projects/status/0guw45u1c27coo4l?svg=true)](https://ci.appveyor.com/project/ShigekiKarita/numir-f7jog)
+[![Coverage Status](https://coveralls.io/repos/github/libmir/numir/badge.svg?branch=master)](https://coveralls.io/github/libmir/numir?branch=master)
+[![Dub version](https://img.shields.io/dub/v/numir.svg)](https://code.dlang.org/packages/numir)
+
 
 [numpy](http://www.numpy.org)-like [mir](https://github.com/libmir) helper functions
 
-+ [API doc](https://shigekikarita.github.io/numir/index.html)
++ [API doc](https://libmir.github.io/numir/index.html)
 
 ## roadmaps
 

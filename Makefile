@@ -20,6 +20,8 @@ hmod:
 	hmod --exclude numir.old ./source
 	mv doc docs
 
+test/a1_f4.npy: test/npy_test.py
+
 test:
 	dub test --build=unittest-cov --compiler=dmd
 	tail -n 1 source-numir*.lst
