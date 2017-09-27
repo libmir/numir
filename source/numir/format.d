@@ -19,219 +19,6 @@ static if (__VERSION__ >= 2076)
 else
     enum hasDVersion2076 = false;
 
-private struct Counter
-{
-    import std.range.primitives : isInputRange;
-    import std.traits : isSomeChar, isSomeString;
-
-    size_t _data;
-    
-    @property size_t data() @safe nothrow @nogc pure
-    {
-        return _data;
-    }
-    
-    @safe nothrow @nogc pure
-    void put(E)(E e)
-        if(isSomeChar!E)
-    {
-        _data += 1;
-    }
-
-    @safe
-    void put(E)(E e)
-        if(isSomeString!E)
-    {
-        import std.uni : byGrapheme;
-        import std.range.primitives : walkLength;
-
-        _data += e.byGrapheme.walkLength;
-    }
-
-    @safe
-    void put(Range)(Range items)
-        if(isInputRange!Range &&
-           is(typeof(Counter.init.put(Range.init.front))))
-    {
-        foreach(item; items)
-            put(item);
-    }
-    
-    void opOpAssign(string op : "~", U)(U rhs)
-        if (__traits(compiles, put(rhs)))
-    {
-        put(rhs);
-    }
-    
-    void clear() @safe nothrow @nogc pure
-    {
-        _data = 0;
-    }
-}
-
-@safe nothrow @nogc pure
-unittest
-{
-    Counter co;
-    char data = 'e';
-    co.put(data);
-    assert(co.data == 1);
-    co.clear;
-    assert(co.data == 0);
-}
-
-@safe nothrow @nogc pure
-unittest
-{
-    Counter co;
-    const(char) data = 'e';
-    co.put(data);
-    assert(co.data == 1);
-}
-
-@safe nothrow @nogc pure
-unittest
-{
-    Counter co;
-    immutable(char) data = 'e';
-    co.put(data);
-    assert(co.data == 1);
-}
-
-@safe nothrow @nogc pure
-unittest
-{
-    Counter co;
-    wchar data = 0x03C0;
-    co.put(data);
-    assert(co.data == 1);
-}
-
-@safe nothrow @nogc pure
-unittest
-{
-    Counter co;
-    dchar data = 0x00010437;
-    co.put(data);
-    assert(co.data == 1);
-}
-
-@safe
-unittest
-{
-    Counter co;
-    string data1 = "e";
-    co.put(data1);
-    assert(co.data == 1);
-    string data2 = "sdfsdfs";
-    co.put(data2);
-    assert(co.data == 8);
-}
-
-@safe
-unittest
-{
-    import std.utf : count, byCodeUnit;
-
-    Counter co;
-    wchar data1 = 0x03C0;
-    co.put(data1);
-    assert(co.data == 1);
-    wstring data2 = "sdfsdfs"w;
-    co.put(data2);
-    assert(co.data == 8);
-}
-
-@safe
-unittest
-{
-    Counter co;
-    dchar data1 = 0x00010437;
-    co.put(data1);
-    assert(co.data == 1);
-    dstring data2 = "sdfsdfs"d;
-    co.put(data2);
-    assert(co.data == 8);
-}
-
-@safe
-unittest
-{
-    Counter co;
-    string data1 = "e";
-    co.put(data1);
-    assert(co.data == 1);
-    dstring data2 = "sdfsdfs"d;
-    co.put(data2);
-    assert(co.data == 8);
-}
-
-@safe
-unittest
-{
-    Counter co;
-    char data1 = 'e';
-    co.put(data1);
-    assert(co.data == 1);
-    wstring data2 = "sdfsdfs"w;
-    co.put(data2);
-    assert(co.data == 8);
-}
-
-@safe
-unittest
-{
-    Counter co;
-    auto data = 'Ĉ';
-    co.put(data);
-    assert(co.data == 1);
-}
-
-@safe
-unittest
-{
-    Counter co;
-    auto data = `Ma Chérie`;
-    co.put(data);
-    assert(co.data == 9);
-}
-
-@safe
-unittest
-{
-    Counter co;
-    dstring data = `さいごの果実 / ミツバチと科学者`d;
-    co.put(data);
-    assert(co.data == 17);
-}
-
-@safe
-unittest
-{
-    Counter co;
-    string data = "å ø ∑ 😦";
-    co.put(data);
-    assert(co.data == 7);
-}
-
-@safe
-unittest
-{
-    Counter co;
-    wstring data = "å ø ∑ 😦";
-    co.put(data);
-    assert(co.data == 7);
-}
-
-@safe
-unittest
-{
-    Counter co;
-    dstring data = "å ø ∑ 😦";
-    co.put(data);
-    assert(co.data == 7);
-}
-
 @safe nothrow pure
 private void formattedWriteHyphenline(alias fmt, Writer)
                                                  (auto ref Writer w, size_t len)
@@ -553,12 +340,13 @@ static if (hasDVersion2076)
 unittest
 {
     import mir.ndslice.topology : iota;
-
+    import mir.range : Counter;
+    
     mixin formatRowsTest;
 
-    Counter w3;
+    Counter!char w3;
     formattedWriteRow!"%s"(w3, 3.iota);
-    assert(w3.data == testIota3.length);
+    assert(w3.count == testIota3.length);
 }
 
 static if (hasDVersion2076)
@@ -566,12 +354,13 @@ static if (hasDVersion2076)
 unittest
 {
     import mir.ndslice.topology : iota;
+    import mir.range : Counter;
 
     mixin formatRowsTest;
 
-    Counter w3;
+    Counter!char w3;
     formattedWriteRow(w3, "%s", 3.iota);
-    assert(w3.data == testIota3.length);
+    assert(w3.count == testIota3.length);
 }
 
 static if (hasDVersion2076)
@@ -597,7 +386,7 @@ private size_t getRowWidth(alias fmt, Writer, SliceKind kind,
         static assert("Should not be here");
     }
 
-    return w.data;
+    return w.count;
 }
 
 static if (hasDVersion2076)
@@ -623,7 +412,7 @@ private size_t getRowWidth(Writer, Char, SliceKind kind, size_t[] packs,
         static assert("Should not be here");
     }
 
-    return w.data;
+    return w.count;
 }
 
 static if (hasDVersion2076)
@@ -631,8 +420,9 @@ static if (hasDVersion2076)
 unittest
 {
     import mir.ndslice.topology : iota;
+    import mir.range : Counter;
 
-    Counter w432;
+    Counter!char w432;
     auto data = [4, 3, 2].iota;
     assert(getRowWidth!"%2s"(w432, data) == 9);
 }
@@ -642,8 +432,9 @@ static if (hasDVersion2076)
 unittest
 {
     import mir.ndslice.topology : iota;
+    import mir.range : Counter;
 
-    Counter w432;
+    Counter!char w432;
     auto data = [4, 3, 2].iota;
     assert(getRowWidth(w432, "%2s", data) == 9);
 }
@@ -661,6 +452,20 @@ private auto formattedWriteRowsString(Char)(in Char[] fmt)
     if (isSomeChar!Char)
 {
     return "%(" ~ formattedWriteRowString(fmt) ~ "\n%) |";
+}
+
+template writerUnderlyingType(Writer)
+{
+    import std.range.primitives : ElementEncodingType;
+    import std.traits : TemplateArgsOf, Unqual;
+    alias writerUnderlyingType = Unqual!(ElementEncodingType!(TemplateArgsOf!(Writer)[0]));
+}
+
+unittest
+{
+    import std.array : appender, Appender;
+    auto w = appender!string;
+    static assert(is(char == writerUnderlyingType!(typeof(w))));
 }
 
 static if (hasDVersion2076)
@@ -693,12 +498,13 @@ private uint formattedWriteRowsImpl(alias fmt, Writer, SliceKind kind,
         }
 
         import mir.ndslice.topology : byDim;
+        import mir.range : Counter;
 
         auto slByRow = sl.byDim!0;
         size_t slByRowLen = slByRow.length;
 
         size_t N = packs[0];
-        Counter wDash;
+        Counter!(writerUnderlyingType!Writer) wDash;
         size_t len = getRowWidth!fmt(wDash, sl);
 
         uint result;
@@ -750,12 +556,13 @@ private uint formattedWriteRowsImpl(Writer, Char, SliceKind kind,
         }
 
         import mir.ndslice.topology : byDim;
+        import mir.range : Counter;
 
         auto slByRow = sl.byDim!0;
         size_t slByRowLen = slByRow.length;
 
         size_t N = packs[0];
-        Counter wDash;
+        Counter!(writerUnderlyingType!Writer) wDash;
         size_t len = getRowWidth(wDash, fmt, sl);
 
         uint result;
@@ -1008,10 +815,12 @@ static if (hasDVersion2076)
 @safe
 uint formattedWrite(alias fmt, Writer, SliceKind kind, size_t[] packs,
                                                                        Iterator)
-                        (auto ref Writer w, Slice!(kind, packs, Iterator) sl)
+                           (auto ref Writer w, Slice!(kind, packs, Iterator) sl)
     if (isSomeString!(typeof(fmt)))
 {
-    Counter wDash;
+    import mir.range : Counter;
+
+    Counter!(writerUnderlyingType!Writer) wDash;
     size_t rowWidth = getRowWidth!(fmt)(wDash, sl);
 
     w.formattedWriteHyphenline!fmt(rowWidth);
@@ -1031,7 +840,9 @@ uint formattedWrite(Writer, Char, SliceKind kind, size_t[] packs, Iterator)
                                                Slice!(kind, packs, Iterator) sl)
     if (isSomeChar!Char)
 {
-    Counter wDash;
+    import mir.range : Counter;
+
+    Counter!(writerUnderlyingType!Writer) wDash;
     size_t rowWidth = getRowWidth(wDash, fmt, sl);
 
     w.formattedWriteHyphenline!Char(rowWidth);
