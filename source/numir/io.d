@@ -98,7 +98,7 @@ immutable npyfmt = "{'descr': '%s', 'fortran_order': %s, 'shape': (%s), }";
 struct NpyHeaderInfo(size_t N)
 {
     string descr;
-    long[N] shape;
+    ptrdiff_t[N] shape;
 }
 
 
