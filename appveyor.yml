@@ -11,6 +11,16 @@ environment:
     arch: x64
     PYTHON_VERSION: 3.6
     MINICONDA: C:\Miniconda3
+  - DC: dmd
+    DVersion: stable
+    arch: x86
+    PYTHON_VERSION: 3.6
+    MINICONDA: C:\Miniconda3
+  - DC: ldc
+    DVersion: stable
+    arch: x86
+    PYTHON_VERSION: 3.6
+    MINICONDA: C:\Miniconda3
 
 skip_tags: false
 branches:
