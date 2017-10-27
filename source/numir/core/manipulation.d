@@ -16,6 +16,27 @@ auto nparray(E=void, T)(T a)
 }
 
 ///
+unittest
+{
+    import mir.ndslice.slice : sliced, DeepElementType;
+
+    auto s = [[1, 2],[3, 4]].sliced; // mir's sliced
+    // error: s[0, 0] = -1;
+
+    auto m = nparray([[1, 2],[3, 4]]);
+    m[0, 0] = -1;
+    assert(m == [[-1, 2], [3, 4]]);
+    static assert(is(DeepElementType!(typeof(m)) == int));
+}
+
+unittest
+{
+    auto v = nparray([1, 2]);
+    v[1] = -2;
+    assert(v == [1, -2]);
+}
+
+///
 auto concatenate(int axis=0, Slices...)(Slices slices) pure
 {
     import mir.ndslice.concatenation : concatenation;
@@ -41,6 +62,41 @@ auto concatenate(int axis=0, Slices...)(Slices slices) pure
 }
 
 ///
+unittest
+{
+    import mir.ndslice.topology : universal;
+    import mir.ndslice.dynamic : transposed;
+
+    auto m = nparray([[1, 2],[3, 4]]);
+    auto u = nparray([[5, 6]]);
+
+    assert(concatenate(m, u) == [[1, 2], [3, 4], [5, 6]]);
+    assert(concatenate(u, m) == [[5, 6], [1, 2], [3, 4]]);
+
+    auto uT = u.universal.transposed;
+    assert(concatenate!1(m, uT) == [[1, 2, 5], [3, 4, 6]]);
+}
+
+///
+unittest
+{
+    import mir.ndslice.topology : iota;
+
+    assert(concatenate!0([[0, 1]].nparray, 
+                         [[2, 3]].nparray,
+                         [[4, 5]].nparray) == iota(3, 2));
+    assert(concatenate!1([[0, 1]].nparray, 
+                            [[2, 3]].nparray,
+                            [[4, 5]].nparray) == [iota(6)]);
+
+    // axis=-1 is the same to axis=$-1
+    assert(concatenate!(-1)([[0, 1]].nparray, 
+                            [[2, 3]].nparray,
+                            [[4, 5]].nparray) == [iota(6)]);
+    assert(concatenate!(-1)([[0, 1]].nparray, [[2]].nparray) == [[0, 1, 2]]);
+}
+
+///
 auto unsqueeze(long axis, S)(S s) pure
 {
     import numir.core.utility : Ndim, view;
@@ -51,6 +107,27 @@ auto unsqueeze(long axis, S)(S s) pure
     ptrdiff_t[n + 1] shape = cast(ptrdiff_t[a]) s.shape[0 .. a]
         ~ input ~ cast(ptrdiff_t[n - a]) s.shape[a .. n];
     return s.view(shape);
+}
+
+///
+unittest
+{
+    import mir.ndslice.topology : iota;
+    import mir.ndslice.allocation : slice;
+    
+    //  -------
+    // | 0 1 2 |
+    // | 3 4 5 |
+    //  -------
+    auto s = iota(2, 3);
+    assert(s.slice.unsqueeze!0 == [[[0, 1, 2],
+                                    [3, 4, 5]]]);
+    assert(s.slice.unsqueeze!1 == [[[0, 1, 2]],
+                                   [[3, 4, 5]]]);
+    assert(s.slice.unsqueeze!2 == [[[0], [1], [2]],
+                                   [[3], [4], [5]]]);
+    assert(s.slice.unsqueeze!(-1) == [[[0], [1], [2]],
+                                      [[3], [4], [5]]]);
 }
 
 ///
@@ -65,4 +142,15 @@ auto squeeze(long axis, S)(S s) pure
     ptrdiff_t[n - 1] shape = cast(ptrdiff_t[a]) s.shape[0 .. a]
         ~ cast(ptrdiff_t[n - a - 1]) s.shape[a + 1 .. n];
     return s.view(shape);
+}
+
+///
+unittest
+{
+    import mir.ndslice.topology : iota;
+    import mir.ndslice.allocation : slice;
+
+    assert(iota(1, 3, 4).slice.squeeze!0.shape == [3, 4]);
+    assert(iota(3, 1, 4).slice.squeeze!1.shape == [3, 4]);
+    assert(iota(3, 4, 1).slice.squeeze!(-1).shape == [3, 4]);
 }
