@@ -1,17 +1,41 @@
 {
     "name": "numir",
     "authors": [
-        "karita"
+        "Shigeki Karita",
+        "jmh520",
+        "Ilya Yaroshenko"
     ],
     "description": "numpy-like API wrappers of mir",
     "dependencies": {
         "mir-algorithm": ">=0.4.3 <0.7.0",
         "mir-random": ">=0.2.2 <0.3.0"
     },
-    "copyright": "Copyright © 2017, karita",
-    "license": "Boost",
+    "copyright": "Copyright © 2017, Shigeki Karita",
+    "license": "BSL-1.0",
     "-ddoxFilterArgs": [
         "--ex", "mir.",
         "--unittest-examples"
-    ]
+    ],
+    "buildTypes": {
+		"unittest": {
+			"buildOptions": ["unittests", "debugMode", "debugInfo"],
+			"versions": ["mir_test"],
+            "preBuildCommands": ["cd test && python test_npy_fileio.py ; cd .."]
+		},
+		"unittest-cov": {
+			"buildOptions": ["unittests", "coverage", "debugMode", "debugInfo"],
+			"versions": ["mir_test"],
+            "preBuildCommands": ["cd test && python test_npy_fileio.py ; cd .."]
+		}
+	},
+	"configurations": [
+		{
+			"name": "library",
+			"targetType": "library"
+		},
+		{
+			"name": "sourceLibrary",
+			"targetType": "sourceLibrary"
+		}
+	],
 }
