@@ -7,23 +7,27 @@ os:
 language: d
 
 d:
-  - ldc-1.4.0
+  - ldc
   - dmd
 
 env:
   - ARCH="x86_64"
 
+matrix:
+  include:
+    - {os: linux, d: ldc, env: ARCH="x86", addons: {apt: {packages: [[gcc-multilib]]}}}
+    - {os: linux, d: dmd, env: ARCH="x86", addons: {apt: {packages: [[gcc-multilib]]}}}
+
 before_install:
   - sudo apt-get install -qq python-numpy
   - cd test && python test_npy_fileio.py && cd ..
 
-install:
-  - dub fetch doveralls
-
 script:
   - dub test --arch "$ARCH" --build=unittest-cov
-  - dub run doveralls
   - if [ $DC = dmd ]; then make doc; fi
+
+after_success:
+ - bash <(curl -s https://codecov.io/bash)
 
 deploy:
   d: dmd

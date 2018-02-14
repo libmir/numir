@@ -1,4 +1,4 @@
-.PHONY: doc test clean
+.PHONY: doc test test-ldc clean
 
 
 clean:
@@ -20,12 +20,17 @@ hmod:
 	hmod --exclude numir.old ./source
 	mv doc docs
 
-test/a1_f4.npy: test/npy_test.py
+test/a1_f4.npy: test/test_npy_fileio.py
+	cd test && python test_npy_fileio.py && cd ..
 
-test:
-	dub test --build=unittest-cov --compiler=dmd
+test: test/a1_f4.npy
+	dub test --build=unittest-cov --compiler=dmd --arch=x86
+	tail -n 1 source-numir*.lst
+	dub test --build=unittest-cov --compiler=dmd --arch=x86
 	tail -n 1 source-numir*.lst
 
-test-ldc:
+test-ldc: test/a1_f4.npy
 	dub test --build=unittest-cov --compiler=ldc2
+	tail -n 1 source-numir*.lst
+	dub test --build=unittest-cov --compiler=dmd --arch=x86
 	tail -n 1 source-numir*.lst

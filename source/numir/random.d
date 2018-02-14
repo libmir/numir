@@ -120,6 +120,7 @@ auto permutation(T...)(T t) {
 unittest {
     import numir : arange;
     import mir.ndslice.sorting : sort;
+    import numir.testing : approxEqual;
     import std.stdio;
     auto ps1 = permutation(100);
     auto ps2 = permutation(100);
@@ -129,5 +130,5 @@ unittest {
     auto ps3 = permutation(1, 10, 0.1);
     auto ps4 = permutation(1, 10, 0.1);
     assert(ps3 != ps4);
-    assert(ps4.sort() == arange(1, 10, 0.1));
+    assert(ps4.sort.approxEqual(arange(1, 10, 0.1)));
 }

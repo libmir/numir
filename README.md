@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/libmir/numir.svg?branch=v0.0.1)](https://travis-ci.org/libmir/numir)
 [![Build status](https://ci.appveyor.com/api/projects/status/0guw45u1c27coo4l?svg=true)](https://ci.appveyor.com/project/ShigekiKarita/numir-f7jog)
-[![Coverage Status](https://coveralls.io/repos/github/libmir/numir/badge.svg?branch=master)](https://coveralls.io/github/libmir/numir?branch=master)
+[![codecov](https://codecov.io/gh/libmir/numir/branch/master/graph/badge.svg)](https://codecov.io/gh/libmir/numir)
 [![Dub version](https://img.shields.io/dub/v/numir.svg)](https://code.dlang.org/packages/numir)
 
 
