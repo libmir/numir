@@ -38,3 +38,4 @@ public import numir.random;
 public import numir.io;
 public import numir.testing;
 public import numir.format;
+public import numir.stats;

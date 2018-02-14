@@ -1,5 +1,8 @@
 module numir.core.manipulation;
 
+// TODO use more isSlice when template type T assumed to be Slice.
+import mir.ndslice.slice : isSlice;
+
 /++
 Create a slice of element type `E` with shape matching the shape of `a` and
 filled with its values. In other words, `nparray` retains the nested array
@@ -191,4 +194,55 @@ unittest
     assert(iota(1, 3, 4).slice.squeeze!0.shape == [3, 4]);
     assert(iota(3, 1, 4).slice.squeeze!1.shape == [3, 4]);
     assert(iota(3, 4, 1).slice.squeeze!(-1).shape == [3, 4]);
+}
+
+
+/++
+Returns a resized n-dimensional slice `s` with new size.
+When new size is larger, new slice is padded with 0.
+When new size is smaller, new slice is just a subslice of `s`.
+
+Params:
+    s = n-dimensional slice
+    size = new size of s
+
+Returns:
+    new slice with new length
+
+TODO:
+    support n-dimentional new shape
++/
+auto resize(S)(S s, size_t size) pure if (isSlice!S)
+out(ret) {
+    import mir.ndslice.algorithm : all;
+    assert(ret.length == size);
+    if (s.length < size) assert(ret[s.length .. $].all!"a == 0");
+} do {
+    import numir.core.creation : zeros;
+    import mir.ndslice.slice : DeepElementType;
+
+    if (s.length >= size) {
+        return s[0 .. size];
+    }
+    auto sh = s.shape;
+    sh[0] = size;
+    auto ret = zeros!(DeepElementType!S)(sh);
+    ret[0 .. s.length][] = s;
+    return ret;
+}
+
+///
+unittest {
+    import mir.ndslice.slice : sliced;
+
+    assert([1,2].sliced.resize(3) == [1, 2, 0]);
+    assert([1,2].sliced.resize(2) == [1, 2]);
+    assert([1,2].sliced.resize(1) == [1]);
+
+    assert([[1,2],[3,4]].nparray.resize(3) == [[1,2], [3,4], [0,0]]);
+    assert([[1,2],[3,4]].nparray.resize(2) == [[1,2], [3,4]]);
+    assert([[1,2],[3,4]].nparray.resize(1) == [[1,2]]);
+
+    assert([1,2].sliced.resize(0) == [].sliced!int);
+    assert([].sliced!int.resize(3) == [0,0,0]);
 }
