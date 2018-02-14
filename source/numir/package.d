@@ -11,6 +11,8 @@
    $(BR)
    $(BIG $(LINK2 io.html, numir.io))
    $(BR)
+   $(BIG $(LINK2 format.html, numir.format))
+   $(BR)
    $(BIG $(LINK2 testing.html, numir.testing))
  */
 
