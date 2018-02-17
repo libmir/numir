@@ -198,12 +198,15 @@ unittest
        [3,4,5]]
      */
     assert(iota(2, 3).mean!"fast" == (5.0 / 2.0));
-    // [(0.0+3.0)/2.0, (1.0+4.0)/2.0, (2.0+5.0)/2.0]);
-    assert(iota(2, 3).mean!0 == iota([3], 3, 2).as!double / 2.0);
-    assert(iota(2, 3).mean!(-2) == iota([3], 3, 2).as!double / 2.0);
-    // [(0.0+1.0+2.0)/3.0, (3.0+4.0+5.0)/3.0]);
-    assert(iota(2, 3).mean!1 == iota([2], 3, 9).as!double / 3.0);
-    assert(iota(2, 3).mean!(-1) == iota([2], 3, 9).as!double / 3.0);
+
+    static immutable m0 = [(0.0+3.0)/2.0, (1.0+4.0)/2.0, (2.0+5.0)/2.0];
+    assert(iota(2, 3).mean!0 == m0);
+    assert(iota(2, 3).mean!(-2) == m0);
+
+    static immutable m1 = [(0.0+1.0+2.0)/3.0, (3.0+4.0+5.0)/3.0];
+    assert(iota(2, 3).mean!1 == m1);
+    assert(iota(2, 3).mean!(-1) == m1);
+
     assert(iota(2, 3, 4, 5).mean!0 == iota([3, 4, 5], 3 * 4 * 5 / 2));
 }
 
@@ -268,9 +271,6 @@ Returns:
 See_Also:
     faster eq., https://wikimedia.org/api/rest_v1/media/math/render/svg/67c38600b240e9bf9479466f5f362792e4fc4fb8
     discussion, https://github.com/libmir/numir/pull/22
-
-TODO:
-    support @nogc
  +/
 pure auto var(ptrdiff_t axis, bool faster=false, Result=double, Xs)(Xs xs) if (isSlice!Xs)
 {
@@ -284,61 +284,35 @@ pure auto var(ptrdiff_t axis, bool faster=false, Result=double, Xs)(Xs xs) if (i
     }
     else
     {
-        // TODO make this @nogc
-        import numir.core.creation : zeros;
-        import mir.ndslice : swapped;
-        import numir.core : Ndim;
-        enum a = axis >= 0 ? axis : Ndim!Xs + axis;
-
-        auto m = xs.mean!(a, Result);
-        auto xt = xs.swapped!(0, a);
-        auto xm = zeros!Result(xt.shape);
-        foreach (i; 0 .. xt.length)
-        {
-            xm[i][] = xt[i] - m;
-        }
-        return (xm ^^ 2.0).mean!(0, Result);
+        import mir.ndslice.topology : map;
+        return xs.alongDim!axis.map!(x => x.var);
     }
 }
 
 
 ///
-pure @safe
-unittest
-{
-    import mir.ndslice : iota;
-    import numir : var;
-    /*
-      [[1, 2],
-       [3, 4]]
-     */
-    assert(iota([2, 2], 1).var!0 == [1.0, 1.0]);
-    assert(iota([2, 2], 1).var!1 == [0.25, 0.25]);
-    assert(iota([2, 2], 1).var!(-2) == [1.0, 1.0]);
-    assert(iota([2, 2], 1).var!(-1) == [0.25, 0.25]);
-    assert(iota([2, 3], 1).var!0 == [2.25, 2.25, 2.25]);
-    assert(iota([2, 3], 1).var!(-2) == [2.25, 2.25, 2.25]);
-}
-
-///
 pure @safe @nogc
 unittest
 {
-    import mir.ndslice : iota, as;
-    import numir : var;
+    import mir.ndslice : iota, sliced;
+    import numir : var, nparray;
     /*
       [[1, 2],
        [3, 4]]
      */
-    // [1.0, 1.0]
-    assert(iota([2, 2], 1).var!(0, true) == iota([2], 1, 0));
-    // [0.25, 0.25]
-    assert(iota([2, 2], 1).var!(1, true) == iota([2], 1, 0).as!double / 4.0);
-    // [1.0, 1.0]
-    assert(iota([2, 2], 1).var!(-2, true) == iota([2], 1, 0));
-    // [0.25, 0.25]
-    assert(iota([2, 2], 1).var!(-1, true) == iota([2], 1, 0).as!double / 4.0);
 
-    assert(iota([2, 3], 1).var!(0, true) == iota([3], 1, 0).as!double * 2.25);
-    assert(iota([2, 3], 1).var!(-2, true) == iota([3], 1, 0).as!double * 2.25);
+    static immutable v0 = [1.0, 1.0];
+    static immutable v1 = [0.25, 0.25];
+    static immutable v2 = [2.25, 2.25, 2.25];
+    static foreach (faster; [true, false])
+    {
+        assert(iota([2, 2], 1).var!(0, faster) == v0);
+        assert(iota([2, 2], 1).var!(-2, faster) == v0);
+
+        assert(iota([2, 2], 1).var!(1, faster) == v1);
+        assert(iota([2, 2], 1).var!(-1, faster) == v1);
+
+        assert(iota([2, 3], 1).var!(0, faster) == v2);
+        assert(iota([2, 3], 1).var!(-2, faster) == v2);
+    }
 }
