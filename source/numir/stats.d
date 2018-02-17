@@ -132,36 +132,12 @@ unittest
     assert(iota(2, 3).mean!"fast" == (5.0 / 2.0));
 }
 
-/++
-Similar to `mir.ndslice.topology.byDim` but `alongDim` does transposed and pack on the input slice along `dim`
-
-Params:
-    s = input slice
-
-Returns:
-    s.transposed(0 .. Ndim!S, dim).pack!1
- +/
-auto alongDim(ptrdiff_t dim, S)(S s) if (isSlice!S)
-{
-    import numir.core.utility : Ndim;
-    enum n = Ndim!S;
-    enum a = dim >= 0 ? dim : n + dim;
-    static assert(a < n);
-
-    import std.range : iota;
-    import std.array : array;
-    import mir.ndslice.dynamic : transposed;
-    import mir.ndslice.topology : pack;
-
-    enum size_t[n] ds = iota(0, a).array ~ iota(a+1, n).array ~ [a];
-    return s.transposed(ds).pack!1;
-}
 
 ///
 pure @safe @nogc
 unittest
 {
-    import numir : mean;
+    import numir : mean, alongDim;
     import mir.ndslice : iota, as, map;
     /*
       [[0,1,2],
@@ -232,8 +208,8 @@ pure @safe @nogc unittest
 pure @safe @nogc
 unittest
 {
-    import mir.ndslice : iota, sliced, map;
-    import numir : var, nparray;
+    import mir.ndslice : iota, map;
+    import numir : var, alongDim;
     /*
       [[1, 2],
        [3, 4]]
