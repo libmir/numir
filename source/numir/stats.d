@@ -157,42 +157,12 @@ auto alongDim(ptrdiff_t dim, S)(S s) if (isSlice!S)
     return s.transposed(ds).pack!1;
 }
 
-/++
-Compute mean of an input slice `xs` along `axis`.
-Note that `axis` can be negative: -n = xs.ndim-n
-
-Params:
-    xs = input slice
-
-Returns:
-    mean slice with the same shape to `xs` except for `axis` that has the element type of Result (default: double)
- +/
-auto mean(ptrdiff_t axis, Result=double, Xs)(Xs xs) pure
-out(ret)
-{
-    import numir.core : Ndim;
-    enum a = axis >= 0 ? axis : Ndim!Xs + axis;
-    static foreach (d; 0 .. a) {
-        assert(ret.length!d == xs.length!d);
-    }
-    static foreach (d; a+1 .. Ndim!Xs) {
-        assert(ret.length!(d-1) == xs.length!d);
-    }
-}
-do
-{
-    import mir.ndslice.algorithm : reduce;
-    import mir.ndslice.topology : map, as;
-
-    return xs.alongDim!axis.map!(x => reduce!((a, b) => a + b)(Result(0.0), x.as!Result) / x.length);
-}
-
 ///
 pure @safe @nogc
 unittest
 {
     import numir : mean;
-    import mir.ndslice : iota, as;
+    import mir.ndslice : iota, as, map;
     /*
       [[0,1,2],
        [3,4,5]]
@@ -200,14 +170,14 @@ unittest
     assert(iota(2, 3).mean!"fast" == (5.0 / 2.0));
 
     static immutable m0 = [(0.0+3.0)/2.0, (1.0+4.0)/2.0, (2.0+5.0)/2.0];
-    assert(iota(2, 3).mean!0 == m0);
-    assert(iota(2, 3).mean!(-2) == m0);
+    assert(iota(2, 3).alongDim!0.map!mean == m0);
+    assert(iota(2, 3).alongDim!(-2).map!mean == m0);
 
     static immutable m1 = [(0.0+1.0+2.0)/3.0, (3.0+4.0+5.0)/3.0];
-    assert(iota(2, 3).mean!1 == m1);
-    assert(iota(2, 3).mean!(-1) == m1);
+    assert(iota(2, 3).alongDim!1.map!mean == m1);
+    assert(iota(2, 3).alongDim!(-1).map!mean == m1);
 
-    assert(iota(2, 3, 4, 5).mean!0 == iota([3, 4, 5], 3 * 4 * 5 / 2));
+    assert(iota(2, 3, 4, 5).alongDim!0.map!mean == iota([3, 4, 5], 3 * 4 * 5 / 2));
 }
 
 
@@ -224,7 +194,7 @@ See_Also:
     faster eq., https://wikimedia.org/api/rest_v1/media/math/render/svg/67c38600b240e9bf9479466f5f362792e4fc4fb8
     discussion, https://github.com/libmir/numir/pull/22
  +/
-pure auto var(Summation algorithm=Summation.appropriate, bool faster=false, Result=double, X)(X x) if (isSlice!X)
+pure auto var(bool faster=false, Summation algorithm=Summation.appropriate, Result=double, X)(X x) if (isSlice!X)
 {
     static if (faster)
     {
@@ -238,9 +208,9 @@ pure auto var(Summation algorithm=Summation.appropriate, bool faster=false, Resu
 }
 
 ///ditto
-pure auto var(string algorithm, bool faster=false, Result=double, X)(X x) if (isSlice!X)
+pure auto var(bool faster=false, string algorithm, Result=double, X)(X x) if (isSlice!X)
 {
-    return x.var!(toSummation!algorithm, faster, Result);
+    return x.var!(faster, toSummation!algorithm, Result);
 }
 
 ///
@@ -253,40 +223,8 @@ pure @safe @nogc unittest
        [3, 4]]
      */
     assert(iota([2, 2], 1).var == 1.25);
-    assert(iota([2, 2], 1).var!"fast" == 1.25);
-    assert(iota([2, 2], 1).var!("fast", true) == 1.25);
-}
-
-
-/++
-Compute variance of an input slice `xs` along `axis`.
-Note that `axis` can be negative: -n = xs.ndim-n
-
-Params:
-    xs = input slice
-
-Returns:
-    variance slice with the same shape to `xs` except for `axis` that has the element type of Result (default: double)
-
-See_Also:
-    faster eq., https://wikimedia.org/api/rest_v1/media/math/render/svg/67c38600b240e9bf9479466f5f362792e4fc4fb8
-    discussion, https://github.com/libmir/numir/pull/22
- +/
-pure auto var(ptrdiff_t axis, bool faster=false, Result=double, Xs)(Xs xs) if (isSlice!Xs)
-{
-    import numir.core.creation : zeros;
-    import mir.ndslice : swapped, slice;
-
-    static if (faster)
-    {
-        // NOTE maybe unstable
-        return (xs ^^ 2.0).mean!(axis, Result) - xs.mean!(axis, Result) ^^ 2.0;
-    }
-    else
-    {
-        import mir.ndslice.topology : map;
-        return xs.alongDim!axis.map!(x => x.var);
-    }
+    assert(iota([2, 2], 1).var!(false, "fast") == 1.25);
+    assert(iota([2, 2], 1).var!(true, "fast") == 1.25);
 }
 
 
@@ -294,7 +232,7 @@ pure auto var(ptrdiff_t axis, bool faster=false, Result=double, Xs)(Xs xs) if (i
 pure @safe @nogc
 unittest
 {
-    import mir.ndslice : iota, sliced;
+    import mir.ndslice : iota, sliced, map;
     import numir : var, nparray;
     /*
       [[1, 2],
@@ -306,13 +244,13 @@ unittest
     static immutable v2 = [2.25, 2.25, 2.25];
     static foreach (faster; [true, false])
     {
-        assert(iota([2, 2], 1).var!(0, faster) == v0);
-        assert(iota([2, 2], 1).var!(-2, faster) == v0);
+        assert(iota([2, 2], 1).alongDim!0.map!(x => x.var!faster) == v0);
+        assert(iota([2, 2], 1).alongDim!(-2).map!(x => x.var!faster) == v0);
 
-        assert(iota([2, 2], 1).var!(1, faster) == v1);
-        assert(iota([2, 2], 1).var!(-1, faster) == v1);
+        assert(iota([2, 2], 1).alongDim!1.map!(x => x.var!faster) == v1);
+        assert(iota([2, 2], 1).alongDim!(-1).map!(x => x.var!faster) == v1);
 
-        assert(iota([2, 3], 1).var!(0, faster) == v2);
-        assert(iota([2, 3], 1).var!(-2, faster) == v2);
+        assert(iota([2, 3], 1).alongDim!0.map!(x => x.var!faster) == v2);
+        assert(iota([2, 3], 1).alongDim!(-2).map!(x => x.var!faster) == v2);
     }
 }
