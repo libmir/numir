@@ -132,6 +132,30 @@ unittest
     assert(iota(2, 3).mean!"fast" == (5.0 / 2.0));
 }
 
+/++
+Similar to `mir.ndslice.topology.byDim` but `alongDim` does transposed and pack on the input slice along `dim`
+
+Params:
+    s = input slice
+
+Returns:
+    s.transposed(0 .. Ndim!S, dim).pack!1
+ +/
+auto alongDim(ptrdiff_t dim, S)(S s) if (isSlice!S)
+{
+    import numir.core.utility : Ndim;
+    enum n = Ndim!S;
+    enum a = dim >= 0 ? dim : n + dim;
+    static assert(a < n);
+
+    import std.range : iota;
+    import std.array : array;
+    import mir.ndslice.dynamic : transposed;
+    import mir.ndslice.topology : pack;
+
+    enum size_t[n] ds = iota(0, a).array ~ iota(a+1, n).array ~ [a];
+    return s.transposed(ds).pack!1;
+}
 
 /++
 Compute mean of an input slice `xs` along `axis`.
@@ -142,9 +166,6 @@ Params:
 
 Returns:
     mean slice with the same shape to `xs` except for `axis` that has the element type of Result (default: double)
-
-TODO:
-    support @nogc
  +/
 auto mean(ptrdiff_t axis, Result=double, Xs)(Xs xs) pure
 out(ret)
@@ -160,35 +181,30 @@ out(ret)
 }
 do
 {
-    import numir.core : Ndim;
-    enum a = axis >= 0 ? axis : Ndim!Xs + axis;
-    static assert(a < Ndim!Xs);
+    import mir.ndslice.algorithm : reduce;
+    import mir.ndslice.topology : map, as;
 
-    import mir.ndslice : ipack, swapped, each;
-    import numir : size, zeros;
-    auto xt = xs.swapped!(0, a);
-    auto ret = zeros!Result(xt[0].shape);
-    xt.ipack!1.each!((x) {
-        ret[] += x;
-    });
-    ret[] /= xs.length!a;
-    return ret;
+    return xs.alongDim!axis.map!(x => reduce!((a, b) => a + b)(Result(0.0), x.as!Result) / x.length);
 }
 
 ///
-pure @safe
+pure @safe @nogc
 unittest
 {
     import numir : mean;
-    import mir.ndslice : iota;
+    import mir.ndslice : iota, as;
     /*
       [[0,1,2],
        [3,4,5]]
      */
     assert(iota(2, 3).mean!"fast" == (5.0 / 2.0));
-    assert(iota(2, 3).mean!0 == [(0.0+3.0)/2.0, (1.0+4.0)/2.0, (2.0+5.0)/2.0]);
-    assert(iota(2, 3).mean!1 == [(0.0+1.0+2.0)/3.0, (3.0+4.0+5.0)/3.0]);
-    assert(iota(2, 3).mean!(-1) == [(0.0+1.0+2.0)/3.0, (3.0+4.0+5.0)/3.0]);
+    // [(0.0+3.0)/2.0, (1.0+4.0)/2.0, (2.0+5.0)/2.0]);
+    assert(iota(2, 3).mean!0 == iota([3], 3, 2).as!double / 2.0);
+    assert(iota(2, 3).mean!(-2) == iota([3], 3, 2).as!double / 2.0);
+    // [(0.0+1.0+2.0)/3.0, (3.0+4.0+5.0)/3.0]);
+    assert(iota(2, 3).mean!1 == iota([2], 3, 9).as!double / 3.0);
+    assert(iota(2, 3).mean!(-1) == iota([2], 3, 9).as!double / 3.0);
+    assert(iota(2, 3, 4, 5).mean!0 == iota([3, 4, 5], 3 * 4 * 5 / 2));
 }
 
 
@@ -200,16 +216,28 @@ Params:
 
 Returns:
     Result (default: double) scalar variance
+
+See_Also:
+    faster eq., https://wikimedia.org/api/rest_v1/media/math/render/svg/67c38600b240e9bf9479466f5f362792e4fc4fb8
+    discussion, https://github.com/libmir/numir/pull/22
  +/
-pure auto var(Summation algorithm=Summation.appropriate, Result=double, X)(X x) if (isSlice!X)
+pure auto var(Summation algorithm=Summation.appropriate, bool faster=false, Result=double, X)(X x) if (isSlice!X)
 {
-    return ((x - x.mean!(algorithm, Result)) ^^ 2.0).mean!(algorithm, Result);
+    static if (faster)
+    {
+        // NOTE maybe unstable
+        return (x ^^ 2.0).mean!(algorithm, Result) - (x.mean!(algorithm, Result)) ^^ 2.0;
+    }
+    else
+    {
+        return ((x - x.mean!(algorithm, Result)) ^^ 2.0).mean!(algorithm, Result);
+    }
 }
 
 ///ditto
-pure auto var(string algorithm, Result=double, X)(X x) if (isSlice!X)
+pure auto var(string algorithm, bool faster=false, Result=double, X)(X x) if (isSlice!X)
 {
-    return x.var!(toSummation!algorithm, Result);
+    return x.var!(toSummation!algorithm, faster, Result);
 }
 
 ///
@@ -221,7 +249,9 @@ pure @safe @nogc unittest
       [[1, 2],
        [3, 4]]
      */
+    assert(iota([2, 2], 1).var == 1.25);
     assert(iota([2, 2], 1).var!"fast" == 1.25);
+    assert(iota([2, 2], 1).var!("fast", true) == 1.25);
 }
 
 
@@ -235,26 +265,46 @@ Params:
 Returns:
     variance slice with the same shape to `xs` except for `axis` that has the element type of Result (default: double)
 
+See_Also:
+    faster eq., https://wikimedia.org/api/rest_v1/media/math/render/svg/67c38600b240e9bf9479466f5f362792e4fc4fb8
+    discussion, https://github.com/libmir/numir/pull/22
+
 TODO:
     support @nogc
  +/
-pure auto var(ptrdiff_t axis, Result=double, Xs)(Xs xs) if (isSlice!Xs)
+pure auto var(ptrdiff_t axis, bool faster=false, Result=double, Xs)(Xs xs) if (isSlice!Xs)
 {
     import numir.core.creation : zeros;
-    import mir.ndslice : swapped;
+    import mir.ndslice : swapped, slice;
 
-    auto m = xs.mean!(axis, Result);
-    auto xt = xs.swapped!(0, axis);
-    auto xm = zeros!Result(xt.shape);
-    foreach (i; 0 .. xt.length) {
-        xm[i][] = xt[i] - m;
+    static if (faster)
+    {
+        // NOTE maybe unstable
+        return (xs ^^ 2.0).mean!(axis, Result) - xs.mean!(axis, Result) ^^ 2.0;
     }
-    return (xm ^^ 2.0).mean!(0, Result);
+    else
+    {
+        // TODO make this @nogc
+        import numir.core.creation : zeros;
+        import mir.ndslice : swapped;
+        import numir.core : Ndim;
+        enum a = axis >= 0 ? axis : Ndim!Xs + axis;
+
+        auto m = xs.mean!(a, Result);
+        auto xt = xs.swapped!(0, a);
+        auto xm = zeros!Result(xt.shape);
+        foreach (i; 0 .. xt.length)
+        {
+            xm[i][] = xt[i] - m;
+        }
+        return (xm ^^ 2.0).mean!(0, Result);
+    }
 }
 
 
 ///
-pure @safe unittest
+pure @safe
+unittest
 {
     import mir.ndslice : iota;
     import numir : var;
@@ -264,4 +314,31 @@ pure @safe unittest
      */
     assert(iota([2, 2], 1).var!0 == [1.0, 1.0]);
     assert(iota([2, 2], 1).var!1 == [0.25, 0.25]);
+    assert(iota([2, 2], 1).var!(-2) == [1.0, 1.0]);
+    assert(iota([2, 2], 1).var!(-1) == [0.25, 0.25]);
+    assert(iota([2, 3], 1).var!0 == [2.25, 2.25, 2.25]);
+    assert(iota([2, 3], 1).var!(-2) == [2.25, 2.25, 2.25]);
+}
+
+///
+pure @safe @nogc
+unittest
+{
+    import mir.ndslice : iota, as;
+    import numir : var;
+    /*
+      [[1, 2],
+       [3, 4]]
+     */
+    // [1.0, 1.0]
+    assert(iota([2, 2], 1).var!(0, true) == iota([2], 1, 0));
+    // [0.25, 0.25]
+    assert(iota([2, 2], 1).var!(1, true) == iota([2], 1, 0).as!double / 4.0);
+    // [1.0, 1.0]
+    assert(iota([2, 2], 1).var!(-2, true) == iota([2], 1, 0));
+    // [0.25, 0.25]
+    assert(iota([2, 2], 1).var!(-1, true) == iota([2], 1, 0).as!double / 4.0);
+
+    assert(iota([2, 3], 1).var!(0, true) == iota([3], 1, 0).as!double * 2.25);
+    assert(iota([2, 3], 1).var!(-2, true) == iota([3], 1, 0).as!double * 2.25);
 }
