@@ -17,9 +17,9 @@ Returns:
 TODO:
     support @nogc
  +/
-auto bincount(T)(T xs, size_t minlength=0) pure if (isUnsigned!(typeof(xs.front)) && isSlice!T)
+pure auto bincount(T)(T xs, size_t minlength=0) if (isUnsigned!(typeof(xs.front)) && isSlice!T)
 {
-    import mir.ndslice.algorithm : each;
+    import mir.ndslice.algorithm : each, reduce;
     import numir.core : zeros, resize;
 
     auto ret = zeros!size_t(minlength);
@@ -49,14 +49,14 @@ Returns:
 TODO:
     support @nogc
  +/
-auto bincount(T, W)(T xs, W weights, size_t minlength=0) pure if (isUnsigned!(typeof(xs.front)) && isSlice!T  && isSlice!W)
+pure auto bincount(T, W)(T xs, W weights, size_t minlength=0) if (isUnsigned!(typeof(xs.front)) && isSlice!T && isSlice!W)
 in
 {
     assert(xs.length == weights.length);
 }
 do
 {
-    import numir.core : zeros, resize;
+    import numir.core : zeros, resize, Ndim;
     import mir.ndslice.slice : DeepElementType;
 
     alias D = DeepElementType!(typeof(weights));
@@ -71,23 +71,31 @@ do
             maxx = x+1;
             ret = ret.resize(x+1);
         }
-        ret[x][] += weights[i];
+        static if (Ndim!W == 1)
+        {
+            ret[x] += weights[i];
+        }
+        else
+        {
+            ret[x][] += weights[i];
+        }
     }
     return ret[0 .. maxx];
 }
 
 ///
+pure @safe
 unittest
 {
     import numir : bincount, nparray;
-    import mir.ndslice.slice : sliced;
+    import mir.ndslice : sliced, iota;
 
     auto ys = [0, 1, 1, 0, 1].sliced!size_t;
     assert(ys.bincount == [2, 3]);
+    assert(ys.bincount(iota(ys.length)) == [0+3, 1+2+4]);
     assert(ys.bincount([[1, 0], [-1, 0], [-1, 0], [1, 0], [-1, 0]].nparray) == [[2, 0], [-3,0]]);
     assert([].sliced!size_t.bincount == [].sliced!size_t);
-    // FIXME
-    // assert([].sliced!size_t.bincount([].sliced!double) == [].sliced!double);
+    assert([].sliced!size_t.bincount([].sliced!double) == [].sliced!double);
 }
 
 
@@ -100,7 +108,7 @@ Params:
 Returns:
     Result (default: double) scalar mean
  +/
-@nogc auto mean(Summation algorithm=Summation.appropriate, Result=double, Xs)(Xs xs) pure
+pure auto mean(Summation algorithm=Summation.appropriate, Result=double, Xs)(Xs xs)
 {
     import mir.math.sum : sum;
     import mir.ndslice.topology : as;
@@ -113,7 +121,7 @@ template toSummation(string s) {
 }
 
 ///ditto
-@nogc auto mean(string algorithm, Result=double, Xs)(Xs xs) pure
+pure auto mean(string algorithm, Result=double, Xs)(Xs xs)
 {
     return mean!(toSummation!algorithm, Result, Xs)(xs);
 }
@@ -190,7 +198,8 @@ pure auto var(bool faster=false, string algorithm, Result=double, X)(X x) if (is
 }
 
 ///
-pure @safe @nogc unittest
+pure @safe @nogc
+unittest
 {
     import mir.ndslice : iota;
     import numir : var;
@@ -214,9 +223,12 @@ unittest
       [[1, 2],
        [3, 4]]
      */
-
     static immutable v0 = [1.0, 1.0];
     static immutable v1 = [0.25, 0.25];
+    /*
+      [[1, 2, 3],
+       [4, 5, 6]]
+     */
     static immutable v2 = [2.25, 2.25, 2.25];
     static foreach (faster; [true, false])
     {
