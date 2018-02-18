@@ -246,3 +246,81 @@ unittest {
     assert([1,2].sliced.resize(0) == [].sliced!int);
     assert([].sliced!int.resize(3) == [0,0,0]);
 }
+
+
+/++
+Similar to `mir.ndslice.topology.byDim` but `alongDim` does transposed and pack on the input slice along `dim`.
+This `axis` also can be negative as `-dim == Ndim!S - dim` like numpy.
+
+Params:
+    s = input slice
+
+Returns:
+    s.transposed(0 .. Ndim!S, dim).pack!1
+
+See_Also:
+    `s.alongDim!axis.map!func` is equivalent to numpy.apply_along_axis https://docs.scipy.org/doc/numpy/reference/generated/numpy.apply_along_axis.html
+ +/
+auto alongDim(ptrdiff_t dim, S)(S s) if (isSlice!S)
+{
+    import numir.core.utility : Ndim;
+    enum n = Ndim!S;
+    enum a = dim >= 0 ? dim : n + dim;
+    static assert(a < n);
+
+    import std.range : iota;
+    import std.array : array;
+    import mir.ndslice.dynamic : transposed;
+    import mir.ndslice.topology : pack;
+
+    enum size_t[n] ds = iota(0, a).array ~ iota(a+1, n).array ~ [a];
+    return s.transposed(ds).pack!1;
+}
+
+///
+pure @safe @nogc
+unittest
+{
+    import numir : alongDim, nparray;
+    import mir.ndslice : iota;
+
+    auto s = iota(3, 4, 5);
+
+    // along 0-dim
+    static immutable s0 = [4, 5];
+    assert(s.alongDim!0.shape == s0);
+    static immutable s0f = [3];
+    assert(s.alongDim!0[0, 0].shape == s0f);
+
+    // along 1-dim
+    static immutable s1 = [3, 5];
+    assert(s.alongDim!1.shape == s1);
+    static immutable s1f = [4];
+    assert(s.alongDim!1[0, 0].shape == s1f);
+
+    // also support negative dim -1-dim == 2-dim
+    static immutable s2 = [3, 4];
+    assert(s.alongDim!(-1).shape == s2);
+    static immutable s2f = [5];
+    assert(s.alongDim!(-1)[0, 0].shape == s2f);
+}
+
+/// example from https://docs.scipy.org/doc/numpy/reference/generated/numpy.apply_along_axis.html
+pure @safe
+unittest
+{
+    import numir.core : diag, alongDim;
+    import mir.ndslice : iota, map;
+
+    static immutable d33 =
+        [[[1, 0, 0],
+          [0, 2, 0],
+          [0, 0, 3]],
+         [[4, 0, 0],
+          [0, 5, 0],
+          [0, 0, 6]],
+         [[7, 0, 0],
+          [0, 8, 0],
+          [0, 0, 9]]];
+    assert(iota([3, 3], 1).alongDim!(-1).map!diag == d33);
+}
