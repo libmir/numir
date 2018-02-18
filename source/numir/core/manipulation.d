@@ -249,13 +249,17 @@ unittest {
 
 
 /++
-Similar to `mir.ndslice.topology.byDim` but `alongDim` does transposed and pack on the input slice along `dim`
+Similar to `mir.ndslice.topology.byDim` but `alongDim` does transposed and pack on the input slice along `dim`.
+This `axis` also can be negative as `-dim == Ndim!S - dim` like numpy.
 
 Params:
     s = input slice
 
 Returns:
     s.transposed(0 .. Ndim!S, dim).pack!1
+
+See_Also:
+    `s.alongDim!axis.map!func` is equivalent to numpy.apply_along_axis https://docs.scipy.org/doc/numpy/reference/generated/numpy.apply_along_axis.html
  +/
 auto alongDim(ptrdiff_t dim, S)(S s) if (isSlice!S)
 {
@@ -277,7 +281,7 @@ auto alongDim(ptrdiff_t dim, S)(S s) if (isSlice!S)
 pure @safe @nogc
 unittest
 {
-    import numir : alongDim;
+    import numir : alongDim, nparray;
     import mir.ndslice : iota;
 
     auto s = iota(3, 4, 5);
@@ -299,4 +303,24 @@ unittest
     assert(s.alongDim!(-1).shape == s2);
     static immutable s2f = [5];
     assert(s.alongDim!(-1)[0, 0].shape == s2f);
+}
+
+/// example from https://docs.scipy.org/doc/numpy/reference/generated/numpy.apply_along_axis.html
+pure @safe
+unittest
+{
+    import numir.core : diag, alongDim;
+    import mir.ndslice : iota, map;
+
+    static immutable d33 =
+        [[[1, 0, 0],
+          [0, 2, 0],
+          [0, 0, 3]],
+         [[4, 0, 0],
+          [0, 5, 0],
+          [0, 0, 6]],
+         [[7, 0, 0],
+          [0, 8, 0],
+          [0, 0, 9]]];
+    assert(iota([3, 3], 1).alongDim!(-1).map!diag == d33);
 }
