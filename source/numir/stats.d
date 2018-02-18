@@ -4,6 +4,10 @@ import std.traits : isUnsigned;
 import mir.math.sum : Summation;
 import mir.ndslice.slice : isSlice;
 
+
+/// bincountable type is a one-dimentional slice with unsigned elements
+enum isBincountable(T) = isUnsigned!(typeof(T.init.front)) && isSlice!T;
+
 /++
 Count number of occurrences of each value in slice of non-negative ints.
 
@@ -17,7 +21,7 @@ Returns:
 TODO:
     support @nogc
  +/
-pure auto bincount(T)(T xs, size_t minlength=0) if (isUnsigned!(typeof(xs.front)) && isSlice!T)
+pure auto bincount(T)(T xs, size_t minlength=0) if (isBincountable!T)
 {
     import mir.ndslice.algorithm : each, reduce;
     import numir.core : zeros, resize;
@@ -49,7 +53,7 @@ Returns:
 TODO:
     support @nogc
  +/
-pure auto bincount(T, W)(T xs, W weights, size_t minlength=0) if (isUnsigned!(typeof(xs.front)) && isSlice!T && isSlice!W)
+pure auto bincount(T, W)(T xs, W weights, size_t minlength=0) if (isBincountable!T && isSlice!W)
 in
 {
     assert(xs.length == weights.length);
