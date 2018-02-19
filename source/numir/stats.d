@@ -100,6 +100,9 @@ unittest
 }
 
 
+nothrow @nogc: // everything bellow here is nothrow and @nogc.
+
+
 /++
 Computes the size of an unpacked slice.
 
@@ -144,50 +147,6 @@ unittest
     assert(x.sliced.sliced(2, 2).alongDim!0.unpackedSize == 4);
 }
 
-/++
-Computes x ^ order.
-
-Params:
-    x = value
-    order = order of power
-Returns:
-    x ^ order
-+/
-@safe @nogc pure nothrow
-private T power(T)(T x, int order)
-    if (isFloatingPoint!T)
-{
-    import mir.math.common : powi;
-
-    return x.powi(order);
-}
-
-/++
-Computes x ^ order.
-
-Params:
-    x = value
-    order = order of power
-Returns:
-    x ^ order
-+/
-@safe @nogc pure nothrow
-private T power(T)(T x, in T order)
-    if (isFloatingPoint!T)
-{
-    import mir.math.common : pow;
-
-    return x.pow(order);
-}
-
-///
-pure nothrow @safe @nogc
-unittest
-{
-    double x = 2.0;
-    assert(x.power(3) == 8.0);
-    assert(x.power(3.0) == 8.0);
-}
 
 /++
 Computes the mean of a slice.
@@ -197,11 +156,10 @@ Params:
 
 See_also: $(MATHREF sum, sum)
 +/
-template mean(sumTemplateArgs...)
+nothrow @nogc template mean(sumTemplateArgs...)
 {
     import mir.ndslice.topology : as;
     import mir.math.sum : sum;
-    @nogc nothrow:
 
     /++
     Params:
@@ -488,12 +446,10 @@ Params:
 
 See_also: $(MATHREF sum, sum)
 +/
-template hmean(sumTemplateArgs...)
+nothrow @nogc template hmean(sumTemplateArgs...)
 {
-    import mir.ndslice.topology : map;
     import mir.ndslice.slice : DeepElementType;
 
-    nothrow @nogc:
     /++
     Params:
         slice = input slice
@@ -504,9 +460,7 @@ template hmean(sumTemplateArgs...)
                                            (Slice!(kind, packs, Iterator) slice)
         if (isFloatingPoint!(DeepElementType!(Slice!(kind, packs, Iterator))))
     {
-        return 1 / (slice
-                    .map!"1 / a"
-                    .mean!sumTemplateArgs);
+        return 1 / (1.0 / slice).mean!sumTemplateArgs;
     }
 
     /++
@@ -520,9 +474,7 @@ template hmean(sumTemplateArgs...)
                                 (Slice!(kind, packs, Iterator) slice, Seed seed)
         if (isFloatingPoint!(DeepElementType!(Slice!(kind, packs, Iterator))))
     {
-        return 1 / (slice
-                    .map!"1 / a"
-                    .mean!(sumTemplateArgs)(seed));
+        return 1 / (1.0 / slice).mean!(sumTemplateArgs)(seed);
     }
 }
 
@@ -601,11 +553,8 @@ Params:
 
 See_also: $(MATHREF sum, sum)
 +/
-template center(sumTemplateArgs...)
+nothrow pure @nogc template center(sumTemplateArgs...)
 {
-    import mir.ndslice.topology : map;
-
-    pure nothrow @nogc:
     /++
     Params:
         slice = input slice
@@ -667,11 +616,8 @@ Params:
 
 See_also: $(MATHREF sum, sum)
 +/
-private template deviationsPow(sumTemplateArgs...)
+pure nothrow @nogc private template deviationsPow(sumTemplateArgs...)
 {
-    import mir.ndslice.topology : map;
-
-    pure:
     /++
     Params:
         slice = input slice
@@ -682,8 +628,7 @@ private template deviationsPow(sumTemplateArgs...)
     auto deviationsPow(SliceKind kind, size_t[] packs, Iterator, Order)
                            (Slice!(kind, packs, Iterator) slice, in Order order)
     {
-        auto sliceMean = slice.mean!(sumTemplateArgs);
-        return (slice - sliceMean).map!(a => a.power(order));
+        return (slice - slice.mean!(sumTemplateArgs)) ^^ order;
     }
 
     /++
@@ -697,13 +642,12 @@ private template deviationsPow(sumTemplateArgs...)
     auto deviationsPow(SliceKind kind, size_t[] packs, Iterator, Order, Seed)
                 (Slice!(kind, packs, Iterator) slice, in Order order, Seed seed)
     {
-        auto sliceMean = slice.mean!(sumTemplateArgs)(seed);
-        return (slice - sliceMean).map!(a => a.power(order));
+        return (slice - slice.mean!(sumTemplateArgs)(seed)) ^^ order;
     }
 }
 
 /// Squared deviations of vector
-pure nothrow
+pure nothrow @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
@@ -718,7 +662,7 @@ unittest
 }
 
 /// Squared deviations of matrix
-pure nothrow
+pure nothrow @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
@@ -726,8 +670,9 @@ unittest
 
     static immutable x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
                           2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
-    auto result = [5.941406, 2.066406, 0.878906, 0.191406, 1.128906, 3.285156,
-                   0.191406, 25.62891, 6.566406, 2.066406, 0.878906, 5.941406].sliced(2, 6);
+    static immutable _result = [5.941406, 2.066406, 0.878906, 0.191406, 1.128906, 3.285156,
+                                0.191406, 25.62891, 6.566406, 2.066406, 0.878906, 5.941406];
+    auto result = _result.sliced(2, 6);
 
     auto y = x.sliced(2, 6).deviationsPow(2);
 
@@ -744,11 +689,8 @@ Params:
 
 See_also: $(MATHREF sum, sum)
 +/
-template moment(sumTemplateArgs...)
+pure nothrow @nogc template moment(sumTemplateArgs...)
 {
-    import mir.math.sum : sum;
-    import mir.ndslice.topology : map;
-
     /++
     Params:
         slice = input slice
@@ -757,15 +699,9 @@ template moment(sumTemplateArgs...)
         n-th central moment of slice
     +/
     auto moment(SliceKind kind, size_t[] packs, Iterator, Order)
-                           (Slice!(kind, packs, Iterator) slice, in Order order)
+                          (Slice!(kind, packs, Iterator) slice, in Order order)
     {
-        immutable(size_t) sliceSize = slice.unpackedSize;
-        auto sliceMean = slice.sum!(sumTemplateArgs) / sliceSize;
-
-        return (slice - sliceMean)
-            .map!(a => a.power(order))
-            .sum!(sumTemplateArgs)
-            / sliceSize;
+        return ((slice - slice.mean!sumTemplateArgs) ^^ order).mean!sumTemplateArgs;
     }
 
     /++
@@ -781,32 +717,27 @@ template moment(sumTemplateArgs...)
     {
         immutable(size_t) sliceSize = slice.size;
         Seed seedMoment = seed; //so as to not re-use seed below
-        auto sliceMean = slice.sum!(sumTemplateArgs)(seed) / sliceSize;
-
-        return slice
-                .map!(a => a - sliceMean)
-                .map!(a => a.power(order))
-                .sum!(sumTemplateArgs)(seedMoment)
-                / sliceSize;
+        return ((slice - slice.mean!sumTemplateArgs(seed)) ^^ order)
+            .mean!sumTemplateArgs(seedMoment);
     }
 }
 
 /// 2nd central moment of vector
-pure nothrow
+pure nothrow @nogc
 unittest
 {
     import std.math : approxEqual;
     import mir.ndslice.slice : sliced;
 
-    auto x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
-              2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+    static immutable x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                          2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
 
     assert(approxEqual(x.sliced.moment(2), 54.76563 / 12));
     assert(approxEqual(x.sliced.moment(2.0), 54.76563 / 12));
 }
 
 /// 2nd central moment of matrix
-pure nothrow
+pure nothrow @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
@@ -819,7 +750,7 @@ unittest
 }
 
 /// Row 2nd central moment of matrix
-pure nothrow @safe
+pure nothrow @safe @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
@@ -848,12 +779,8 @@ TODO:
 
 See_also: $(MATHREF sum, sum)
 +/
-template var(sumTemplateArgs...)
+pure nothrow @nogc template var(sumTemplateArgs...)
 {
-    import mir.math.sum : sum;
-    import mir.ndslice.topology : map;
-    pure @nogc:
-
     /++
     Params:
         slice = input slice
@@ -979,7 +906,7 @@ Params:
 
 See_also: $(MATHREF sum, sum)
 +/
-template std(sumTemplateArgs...)
+pure nothrow @nogc template std(sumTemplateArgs...)
 {
     import mir.math.common : sqrt;
 
@@ -1016,15 +943,15 @@ template std(sumTemplateArgs...)
 }
 
 /// Standard deviation of vector
-pure nothrow
+pure nothrow @nogc
 unittest
 {
     import std.math : approxEqual;
     import mir.ndslice.slice : sliced;
     import mir.math.common : sqrt;
 
-    auto x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
-              2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+    static immutable x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                          2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
 
     assert(approxEqual(x.sliced.std, sqrt(54.76563 / 12)));
     assert(approxEqual(x.sliced.std(false), sqrt(54.76563 / 11)));
@@ -1032,7 +959,7 @@ unittest
 }
 
 /// Standard deviation of matrix
-pure nothrow
+pure nothrow @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
@@ -1048,7 +975,7 @@ unittest
 }
 
 /// Row standard deviation of matrix
-pure nothrow @safe
+pure nothrow @safe @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
@@ -1074,11 +1001,10 @@ Params:
 
 See_also: $(MATHREF sum, sum)
 +/
-template zscore(sumTemplateArgs...)
+pure nothrow @nogc template zscore(sumTemplateArgs...)
 {
     import mir.math.sum : sum;
     import mir.math.common : sqrt;
-    import mir.ndslice.topology : map;
 
     /++
     Params:
@@ -1093,17 +1019,10 @@ template zscore(sumTemplateArgs...)
                                             bool isPopulation = true)
     {
         auto sliceSize = slice.unpackedSize;
-        auto sliceMean = slice.sum!(sumTemplateArgs) / sliceSize;
-        auto sliceCenter = slice.map!(a => a - sliceMean);
-        if (isPopulation == false)
-            sliceSize--;
-        auto sliceVar = sliceCenter
-                            .map!(a => a.power(2))
-                            .sum!(sumTemplateArgs)
-                            / sliceSize;
-
-        return sliceCenter
-                .map!(a => a / sliceVar.sqrt);
+        auto sliceCenter = slice - slice.sum!(sumTemplateArgs) / sliceSize;
+        if (isPopulation == false) { sliceSize--; }
+        auto sliceVar = (sliceCenter ^^ 2).sum!(sumTemplateArgs) / sliceSize;
+        return sliceCenter / sliceVar.sqrt;
     }
 
     /++
@@ -1122,21 +1041,15 @@ template zscore(sumTemplateArgs...)
         size_t sliceSize = slice.unpackedSize;
         Seed seedVar = seed;        //so as to not re-use seed below
         auto sliceMean = slice.sum!(sumTemplateArgs)(seed) / sliceSize;
-        auto sliceCenter = slice.map!(a => a - sliceMean);
-        if (isPopulation == false)
-            sliceSize--;
-        auto sliceVar = sliceCenter
-                            .map!(a => a.power(2))
-                            .sum!(sumTemplateArgs)(seedVar)
-                            / sliceSize;
-
-        return sliceCenter
-                .map!(a => a / sliceVar.sqrt);
+        auto sliceCenter = slice - sliceMean;
+        if (isPopulation == false) { sliceSize--; }
+        auto sliceVar = (sliceCenter ^^ 2).sum!(sumTemplateArgs)(seedVar) / sliceSize;
+        return sliceCenter / sliceVar.sqrt;
     }
 }
 
 /// Z-score of vector
-pure nothrow
+pure nothrow @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
@@ -1156,7 +1069,7 @@ unittest
 }
 
 /// Z-score of matrix
-//pure nothrow
+pure nothrow @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
@@ -1164,10 +1077,12 @@ unittest
 
     static immutable x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
                           2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
-    auto resultSample = [-1.09241, -0.64424, -0.42016, -0.19607, 0.47618, 0.812307,
-                         -0.19607, 2.268858, 1.148434, -0.64424, -0.42016, -1.09241].sliced(2, 6);
-    auto resultPop = [-1.14099, -0.67289, -0.43884, -0.20479, 0.497354, 0.848427,
-                      -0.20479, 2.369745, 1.199501, -0.67289, -0.43884, -1.14099].sliced(2, 6);
+    static immutable _resultSample = [-1.09241, -0.64424, -0.42016, -0.19607, 0.47618, 0.812307,
+                                      -0.19607, 2.268858, 1.148434, -0.64424, -0.42016, -1.09241];
+    auto resultSample = _resultSample.sliced(2, 6);
+    static immutable _resultPop = [-1.14099, -0.67289, -0.43884, -0.20479, 0.497354, 0.848427,
+                                   -0.20479, 2.369745, 1.199501, -0.67289, -0.43884, -1.14099];
+    auto resultPop = _resultPop.sliced(2, 6);
 
     auto y1 = x.sliced(2, 6).zscore;
     assert(approxEqual(y1[0], resultPop[0]));

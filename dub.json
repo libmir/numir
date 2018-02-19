@@ -1,15 +1,17 @@
 {
     "name": "numir",
     "authors": [
-        "karita"
+        "Shigeki Karita",
+        "John Michael Hall",
+        "Ilya Yaroshenko"
     ],
     "description": "numpy-like API wrappers of mir",
     "dependencies": {
-        "mir-algorithm": ">=0.4.3 <0.8.0",
-        "mir-random": ">=0.2.2 <0.4.0"
+        "mir-algorithm": "~>0.8.0",
+        "mir-random": "~>0.4.0"
     },
     "copyright": "Copyright © 2017, karita",
-    "license": "Boost",
+    "license": "BSL-1.0",
     "-ddoxFilterArgs": [
         "--ex", "mir.",
         "--unittest-examples"
