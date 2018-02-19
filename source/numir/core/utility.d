@@ -62,7 +62,7 @@ Params:
 Returns:
     shape
 +/
-size_t[rank!T] shapeNested(T)(T array) pure
+size_t[rank!T] shapeNested(T)(T array) pure nothrow
 {
     static if (rank!T == 0)
     {
@@ -71,8 +71,9 @@ size_t[rank!T] shapeNested(T)(T array) pure
     else
     {
         import std.conv : to;
-
-        return to!(size_t[rank!T])(array.length ~ shapeNested(array[0]));
+        import std.exception : assumeWontThrow;
+        // it won't throw the cast error because array rank is statically given.
+        return assumeWontThrow(to!(size_t[rank!T])(array.length ~ shapeNested(array[0])));
     }
 }
 

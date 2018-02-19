@@ -14,7 +14,7 @@ Params:
 Returns:
     slice filled with values of `a` with the shape of nested lengths.
 +/
-auto nparray(E=void, T)(T a)
+auto nparray(E=void, T)(T a) pure nothrow
 {
     import numir.core.utility : NestedElementType, shapeNested;
     import mir.ndslice.allocation : slice;
