@@ -464,7 +464,7 @@ unittest
 }
 
 /// Geometric mean of vector with seed
-pure @safe
+pure nothrow @safe @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
@@ -472,7 +472,7 @@ unittest
 
     enum l = 2.0 ^^ (double.max_exp - 1);
     enum s = 2.0 ^^ -(double.max_exp - 1);
-    auto x = [l, l, l, s, s, s, 0.8 * 2.0 ^^ 10];
+    static immutable x = [l, l, l, s, s, s, 0.8 * 2.0 ^^ 10];
 
     real seed = 1;
     auto y = x.sliced.gmean(seed);
@@ -493,6 +493,7 @@ template hmean(sumTemplateArgs...)
     import mir.ndslice.topology : map;
     import mir.ndslice.slice : DeepElementType;
 
+    nothrow @nogc:
     /++
     Params:
         slice = input slice
@@ -526,40 +527,43 @@ template hmean(sumTemplateArgs...)
 }
 
 /// Harmonic mean of vector
-pure nothrow @safe
+pure nothrow @safe @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
     import std.math : approxEqual;
 
-    auto x = [20.0, 100.0, 2000.0, 10.0, 5.0, 2.0];
+    static immutable x = [20.0, 100.0, 2000.0, 10.0, 5.0, 2.0];
 
     auto y = x.sliced.hmean;
     assert(approxEqual(y, 6.97269));
 }
 
 /// Harmonic mean of matrix
-pure nothrow @safe
+pure nothrow @safe @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
     import std.math : approxEqual;
 
-    auto x = [20.0, 100.0, 2000.0, 10.0, 5.0, 2.0];
+    static immutable x = [20.0, 100.0, 2000.0, 10.0, 5.0, 2.0];
 
     auto y = x.sliced(2, 3).hmean;
     assert(approxEqual(y, 6.97269));
 }
 
 /// Column harmonic mean of matrix
-pure nothrow @safe
+pure nothrow @safe @nogc
 unittest
 {
+    import mir.ndslice.slice : sliced;
     import mir.ndslice.topology : byDim, map;
     import numir : approxEqual, nparray, alongDim;
 
-    auto x = [[20.0, 100.0, 2000.0], [10.0, 5.0, 2.0]].nparray;
-    auto y = [13.33333, 9.52381, 3.996004].nparray;
+    static immutable _x = [20.0, 100.0, 2000.0, 10.0, 5.0, 2.0];
+    auto x = _x.sliced(2, 3);
+    static immutable _y = [13.33333, 9.52381, 3.996004];
+    auto y = _y.sliced;
 
     // Use byDim or alongDim with map to compute mean of row/column.
     assert(approxEqual(x.byDim!1.map!hmean, y));
@@ -567,14 +571,16 @@ unittest
 }
 
 /// Can also pass arguments to hmean
-nothrow unittest
+nothrow @nogc
+unittest
 {
     import mir.ndslice.slice: sliced;
     import mir.ndslice.topology: map, repeat;
     import std.math : approxEqual;
 
     //Set sum algorithm or output type
-    auto x = [1, 1e100, 1, -1e100].sliced.map!"a * 10_000";
+    static immutable _x = [1, 1e100, 1, -1e100];
+    auto x = _x.sliced.map!"a * 10_000";
     assert(approxEqual(x.hmean!"kbn", 20_000));
     assert(approxEqual(x.hmean!"kb2", 20_000));
     assert(approxEqual(x.hmean!"precise", 20_000));
@@ -599,6 +605,7 @@ template center(sumTemplateArgs...)
 {
     import mir.ndslice.topology : map;
 
+    pure nothrow @nogc:
     /++
     Params:
         slice = input slice
@@ -606,11 +613,9 @@ template center(sumTemplateArgs...)
         centered slice
     +/
     auto center(SliceKind kind, size_t[] packs, Iterator)
-                                          (Slice!(kind, packs, Iterator)  slice)
+                                          (Slice!(kind, packs, Iterator) slice)
     {
-        auto sliceMean = slice.mean!(sumTemplateArgs);
-
-        return slice.map!(a => a - sliceMean);
+        return slice - slice.mean!(sumTemplateArgs);
     }
 
     /++
@@ -621,16 +626,14 @@ template center(sumTemplateArgs...)
         centered slice
     +/
     auto center(SliceKind kind, size_t[] packs, Iterator, Seed)
-                               (Slice!(kind, packs, Iterator)  slice, Seed seed)
+                               (Slice!(kind, packs, Iterator) slice, Seed seed)
     {
-        auto sliceMean = slice.mean!(sumTemplateArgs)(seed);
-
-        return slice.map!(a => a - sliceMean);
+        return slice - slice.mean!(sumTemplateArgs)(seed);
     }
 }
 
 /// Center vector
-pure nothrow
+pure nothrow @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
@@ -643,7 +646,7 @@ unittest
 }
 
 /// Center matrix
-pure nothrow
+pure nothrow @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
@@ -668,6 +671,7 @@ private template deviationsPow(sumTemplateArgs...)
 {
     import mir.ndslice.topology : map;
 
+    pure:
     /++
     Params:
         slice = input slice
@@ -887,14 +891,14 @@ template var(sumTemplateArgs...)
 }
 
 /// Variance of vector
-pure nothrow
+pure nothrow @nogc
 unittest
 {
     import std.math : approxEqual;
     import mir.ndslice.slice : sliced;
 
-    auto x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
-              2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+    static immutable x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                          2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
 
     assert(approxEqual(x.sliced.var, 54.76563 / 12));
     assert(approxEqual(x.sliced.var(false), 54.76563 / 11));
@@ -902,7 +906,7 @@ unittest
 }
 
 /// Variance of matrix
-pure nothrow
+pure nothrow @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
@@ -917,7 +921,7 @@ unittest
 }
 
 /// Row variance of matrix
-pure nothrow @safe
+pure nothrow @safe @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
@@ -934,7 +938,7 @@ unittest
 }
 
 /// Compute variance tensors along specified dimention of tensors with the negative dim support
-pure @safe @nogc
+pure nothrow @safe @nogc
 unittest
 {
     import mir.ndslice : iota, map, as;
