@@ -333,22 +333,40 @@ unittest
 
 /++
 Computes the geometric mean of a slice.
+The product in gmean is computed in logarithms to avoid FP overflows.
 
 Params:
     slice = input slice
 Returns:
     geometric mean of slice
-+/
+
+See_Also:
+    @9il comment https://github.com/libmir/numir/pull/24#discussion_r168958617
+ +/
 @nogc pure @safe
 auto gmean(SliceKind kind, size_t[] packs, Iterator)
                                            (Slice!(kind, packs, Iterator) slice)
 {
-    import mir.ndslice.algorithm : reduce;
+    import mir.ndslice.algorithm : each;
     import mir.ndslice.slice : DeepElementType;
+    import mir.math.numeric : Prod;
+    import mir.math.common : exp2, pow;
+    import std.math : ldexp;
+    alias D = DeepElementType!(typeof(slice));
 
-    DeepElementType!(Slice!(kind, packs, Iterator)) seed = 1;
-
-    return seed.reduce!"a * b"(slice).power(1.0 / slice.unpackedSize);
+    Prod!D pr;
+    slice.each!(e => pr.put(e));
+    auto y = cast(D) 1.0 / slice.unpackedSize;
+    auto z = y * pr.exp;
+    auto ep = cast(int) z;
+    auto ma = pr.x.pow(y) * exp2(z - ep);
+    return ldexp(ma, ep);
+    /*
+      (pr.x * 2 ^^ pr.exp) ^^ y
+      = 2 ^^ (y * (log2(pr.x) + pr.exp))
+      = pr.x ^^ y * 2 ^^ z
+      = (pr.x ^^ y * 2 ^^ (z - floor(z))) * 2 ^^ (floor(z))
+     */
 }
 
 /++
@@ -364,9 +382,7 @@ Returns:
 auto gmean(SliceKind kind, size_t[] packs, Iterator, Seed)
                                 (Slice!(kind, packs, Iterator) slice, Seed seed)
 {
-    import mir.ndslice.algorithm : reduce;
-
-    return seed.reduce!"a * b"(slice).power(1.0 / slice.unpackedSize);
+    return seed * slice.gmean;
 }
 
 /// Geometric mean of vector
@@ -453,8 +469,8 @@ template hmean(sumTemplateArgs...)
         if (isFloatingPoint!(DeepElementType!(Slice!(kind, packs, Iterator))))
     {
         return 1 / (slice
-                        .map!(a => 1 / a)
-                        .mean!sumTemplateArgs);
+                    .map!"1 / a"
+                    .mean!sumTemplateArgs);
     }
 
     /++
