@@ -100,7 +100,7 @@ unittest
 }
 
 
-nothrow @nogc: // everything bellow here is nothrow and @nogc.
+// nothrow @nogc: // everything bellow here is nothrow and @nogc.
 
 
 /++
@@ -1095,4 +1095,100 @@ unittest
     auto y3 = x.sliced(2, 6).zscore(true);
     assert(approxEqual(y3[0], resultPop[0]));
     assert(approxEqual(y3[1], resultPop[1]));
+}
+
+
+/++
+Computes the log of the sum of exponentials of input elements.
+
+Params:
+    sumTemplateArgs = template arguments to pass to mir.math.sum (to compute the
+                      mean & standard deviation of the slice)
+
+See_also: https://github.com/scipy/scipy/blob/maintenance/1.0.x/scipy/special/_logsumexp.py
++/
+nothrow @nogc template logsumexp(sumTemplateArgs...)
+{
+    import mir.ndslice.algorithm : maxPos;
+    import mir.ndslice.topology : map;
+    import mir.math.common : exp, log;
+    import mir.math.sum : sum;
+    import mir.ndslice.slice : DeepElementType;
+    import mir.ndslice.algorithm : all;
+
+    /++
+    Params
+        a = input slice
+
+    Returns:
+        log-sum-exp value. if `a` is empty, this function returns -inf as mir.math.sum([]) does too.
+     +/
+    auto logsumexp(A)(A a) if (isSlice!A)
+    in
+    {
+        assert(a.all!"a >= 0");
+    }
+    do
+    {
+        if (a.unpackedSize == 0) return -DeepElementType!A.infinity;
+        auto a_max = a.maxPos.first;
+        auto tmp = map!exp(a - a_max);
+        return tmp.sum!sumTemplateArgs.log + a_max;
+    }
+
+    /++
+    Params
+        a = input slice
+        b = scaling factor slice for `exp(a)` must have the same shape to b
+    Returns:
+        log-sum-exp value. if `a` is empty, this function returns -inf as mir.math.sum([]) does too.
+     +/
+    auto logsumexp(A, B)(A a, B b) if (isSlice!A && isSlice!B)
+    in
+    {
+        import numir.core : Ndim;
+        import numir.testing : assertShapeEqual;
+        assert(a.all!"a >= 0");
+        assertShapeEqual(a, b);
+    }
+    do
+    {
+        if (a.unpackedSize == 0) return -DeepElementType!A.infinity;
+        auto a_max = a.maxPos.first;
+        auto tmp = map!exp(a - a_max) * b;
+        return tmp.sum!sumTemplateArgs.log + a_max;
+    }
+}
+
+///
+pure nothrow @nogc
+unittest
+{
+    // logsumexp example from doctest https://github.com/scipy/scipy/blob/maintenance/1.0.x/scipy/special/_logsumexp.py
+    import mir.ndslice : iota, map, sliced, as;
+    import mir.math : sum, log, exp;
+    import std.math : approxEqual;
+    {
+        auto x = iota(10).as!double;
+        assert(logsumexp(x) == 9.4586297444267107);
+        assert(log(sum(map!exp(x))) == logsumexp(x));
+    }
+    {
+        auto x = iota(0).as!double;
+        assert(sum(x) == 0);
+        assert(logsumexp(x) == -double.infinity);
+        assert(log(sum(map!exp(x))) == logsumexp(x));
+    }
+    {
+        auto a = iota(10).as!double;
+        auto b = iota([10], 10, -1).as!double;
+        assert(logsumexp(a, b).approxEqual(9.9170178533034665));
+        assert(log(sum(map!exp(a) * b)).approxEqual(logsumexp(a, b)));
+    }
+    {
+        auto a = iota(0).as!double;
+        auto b = iota(0).as!double;
+        assert(logsumexp(a, b) == -double.infinity);
+        assert(log(sum(map!exp(a) * b)).approxEqual(logsumexp(a, b)));
+    }
 }
