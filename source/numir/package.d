@@ -34,6 +34,9 @@ NumPy-like mir helper functions library
        $(LINK2 http://docs.algorithm.dlang.io/latest/index.html, mir.algorithm)
        $(BR)
        $(LINK2 http://docs.random.dlang.io/latest/index.html, mir.random)
+       $(BR)
+       $(BR)
+       $(LINK2 ddox/index.html, NEW numir doc) by ddox (experimental)
 */
 
 module numir;

@@ -7,8 +7,16 @@ clean:
 
 doc:
 	rm -rf docs
+	dub build -b=ddox --compiler=dmd
+	mv docs ddox
 	dub run -b=docs --compiler=dmd
-	mv docs/old/package.html docs/old/index.html
+	mv docs/package.html docs/index.html
+	mv ddox docs/ddox
+
+ddoc:
+	rm -rf docs
+	dub run -b=docs --compiler=dmd
+	mv docs/package.html docs/index.html
 
 ddox:
 	rm -rf docs
