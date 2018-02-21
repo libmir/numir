@@ -1,3 +1,19 @@
+/++
+This package implements core functions in numir.
+
+
+$(DIVC quickindex,
+$(BOOKTABLE ,
+  $(TR $(TH Submodule) $(TH Functions))
+  $(TR
+     $(TDNW $(SUBMODULE Creation, creation))
+     $(TD
+        $(SUBREF creation, empty)
+     )
+  )
+))
+
+ +/
 module numir.core;
 
 static if (__VERSION__ < 2073)

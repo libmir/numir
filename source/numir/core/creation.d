@@ -96,7 +96,7 @@ unittest
 
 /++
 Construct a new slice, filled with ones, of element type `E` and
-shape(`length ...`).
+shape(`lengths ...`).
 
 Params:
     lengths = elements of shape
@@ -104,11 +104,11 @@ Params:
 Returns:
     new ones slice
 +/
-auto ones(E = double, size_t N)(size_t[N] length...) pure
+auto ones(E = double, size_t N)(size_t[N] lengths...) pure
 {
     import mir.ndslice.allocation : slice;
 
-    return slice!E(length, 1);
+    return slice!E(lengths, 1);
 }
 
 ///
@@ -156,7 +156,7 @@ unittest
 
 /++
 Construct a new slice, filled with zeroes, of element type `E` and
-shape(`length ...`).
+shape(`lengths ...`).
 
 Params:
     lengths = elements of shape
@@ -164,11 +164,11 @@ Params:
 Returns:
     new zeroes slice
 +/
-auto zeros(E = double, size_t N)(size_t[N] length...) pure
+auto zeros(E = double, size_t N)(size_t[N] lengths...) pure
 {
     import mir.ndslice.allocation : slice;
 
-    return slice!E(length, 0);
+    return slice!E(lengths, 0);
 }
 
 ///
