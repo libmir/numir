@@ -40,4 +40,4 @@ deploy:
   local_dir: docs
   on:
     branch: master
-    condition: $DC = dmd
+    condition: $DC = dmd && $ARCH = "x86_64"
