@@ -8,7 +8,7 @@ clean:
 doc:
 	rm -rf docs
 	dub run -b=docs --compiler=dmd
-	mv docs/package.html docs/index.html
+	mv docs/old/package.html docs/old/index.html
 
 ddox:
 	rm -rf docs

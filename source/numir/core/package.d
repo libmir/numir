@@ -1,5 +1,5 @@
 /++
-This package implements core functions in numir.
+Core functions in numir.
  +/
 module numir.core;
 

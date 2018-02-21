@@ -1,3 +1,6 @@
+/++
+Various testing utility on the ndslice (e.g., approxEqual, assertShapeEqual)
+ +/
 module numir.testing;
 
 import mir.ndslice.slice : isSlice;

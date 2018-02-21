@@ -1,3 +1,7 @@
+/++
+NumPy-like mir helper functions library
+ +/
+
 /**
    $(BIG $(LINK2 creation.html, numir.core.creation))
    $(BR)
@@ -25,7 +29,7 @@
        $(LINK2 https://github.com/9il, Ilya Yaroshenko)
 
    See_Also:
-       https://github.com/libmir/numir
+       $(LINK2 https://github.com/libmir/numir, Github repo)
        $(BR)
        $(LINK2 http://docs.algorithm.dlang.io/latest/index.html, mir.algorithm)
        $(BR)

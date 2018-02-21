@@ -1,3 +1,6 @@
+/++
+NumPy file IO package
+ +/
 module numir.io;
 
 import std.system : endian, Endian;

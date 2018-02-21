@@ -1,3 +1,6 @@
+/++
+Various statistics functions on ndslice. (e.g., bincount, mean, var, logsumexp)
+ +/
 module numir.stats;
 
 import std.traits : isUnsigned, isIntegral, isFloatingPoint, isBoolean;

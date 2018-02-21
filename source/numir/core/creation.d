@@ -1,3 +1,6 @@
+/++
+Various slice creation (e.g., zeros, ones, zeros_like, diag)
+ +/
 module numir.core.creation;
 
 import mir.ndslice.slice : Slice, SliceKind;
