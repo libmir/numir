@@ -68,13 +68,10 @@ unittest
     try
     {
         assertShapeEqual(iota(3, 4), iota(3, 2));
+        assert(false);
     }
     catch (AssertError)
     {
         // OK!
-    }
-    catch (Error)
-    {
-        assert(false);
     }
 }
