@@ -103,7 +103,7 @@ unittest
 }
 
 
-// nothrow @nogc: // everything bellow here is nothrow and @nogc.
+nothrow @nogc: // everything bellow here is nothrow and @nogc.
 
 
 /++
@@ -1173,14 +1173,14 @@ unittest
     import std.math : approxEqual;
     {
         auto x = iota(10).as!double;
-        assert(logsumexp(x) == 9.4586297444267107);
-        assert(log(sum(map!exp(x))) == logsumexp(x));
+        assert(logsumexp(x).approxEqual(9.4586297444267107));
+        assert(log(sum(map!exp(x))).approxEqual(logsumexp(x)));
     }
     {
         auto x = iota(0).as!double;
         assert(sum(x) == 0);
         assert(logsumexp(x) == -double.infinity);
-        assert(log(sum(map!exp(x))) == logsumexp(x));
+        assert(log(sum(map!exp(x))).approxEqual(logsumexp(x)));
     }
     {
         auto a = iota(10).as!double;
