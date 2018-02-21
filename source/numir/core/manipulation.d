@@ -54,7 +54,7 @@ Join multiple `slices` along an `axis.`
 
 Params:
     axis = dimension of concatenation
-    slice = slices to concatentate
+    slices = slices to concatentate
 
 Returns:
     concatenated slices
@@ -123,7 +123,7 @@ Return a view of an n-dimensional slice with a dimension added at `axis`. Used
 to unsqueeze a squeezed slice.
 
 Params:
-    axis = dimension to be unsqueezed (add new dimension
+    axis = dimension to be unsqueezed (add new dimension)
     s = n-dimensional slice
 
 Returns:

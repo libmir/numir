@@ -226,7 +226,7 @@ Params:
 Returns:
     new view of a slice with the same data
 +/
-auto view(S, size_t N)(S sl, ptrdiff_t[N] length...) pure
+auto view(S, size_t N)(S sl, ptrdiff_t[N] lengths...) pure
 {
     import mir.ndslice.slice : Universal, sliced, kindOf;
     import mir.ndslice.topology : flattened, universal, reshape, ReshapeError;
@@ -239,7 +239,7 @@ auto view(S, size_t N)(S sl, ptrdiff_t[N] length...) pure
     }
 
     int err;
-    auto r = s.reshape(length, err);
+    auto r = s.reshape(lengths, err);
     if (!err)
     {
         return r;
@@ -248,28 +248,28 @@ auto view(S, size_t N)(S sl, ptrdiff_t[N] length...) pure
     {
         for (size_t n = 0; n < N; ++n)
         {
-            if (length[n] == -1)
+            if (lengths[n] == -1)
             {
                 size_t remained = 1;
                 for (size_t m = 0; m < N; ++m)
                 {
                     if (m != n)
                     {
-                        remained *= length[m];
+                        remained *= lengths[m];
                     }
                 }
-                length[n] = sl.size / remained;
+                lengths[n] = sl.size / remained;
             }
         }
 
         // allocates, flattens, reshapes with `sliced`, converts to universal kind
-        return s.slice.flattened.sliced(cast(size_t[N])length).universal;
+        return s.slice.flattened.sliced(cast(size_t[N])lengths).universal;
     }
     else
     {
         import std.format : format;
         string msg = "ReshapeError: ";
-        string vs = "%s vs %s".format(s.shape, length);
+        string vs = "%s vs %s".format(s.shape, lengths);
         final switch (err) {
         case ReshapeError.empty:
             msg ~= "Slice should not be empty";
