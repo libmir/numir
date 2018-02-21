@@ -100,7 +100,7 @@ unittest
 }
 
 
-// nothrow @nogc: // everything bellow here is nothrow and @nogc.
+nothrow @nogc: // everything bellow here is nothrow and @nogc.
 
 
 /++
