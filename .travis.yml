@@ -24,7 +24,7 @@ before_install:
 
 script:
   - dub test --arch "$ARCH" --build=unittest-cov
-  - if [ $DC = dmd ]; then make doc fi
+  - if [ $DC = dmd ]; then make doc; fi
 
 after_success:
  - bash <(curl -s https://codecov.io/bash)
