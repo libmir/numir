@@ -1149,7 +1149,6 @@ nothrow @nogc template logsumexp(sumTemplateArgs...)
     auto logsumexp(A, B)(A a, B b) if (isSlice!A && isSlice!B)
     in
     {
-        import numir.core : Ndim;
         import numir.testing : assertShapeEqual;
         assert(a.all!"a >= 0");
         assertShapeEqual(a, b);
