@@ -1170,7 +1170,7 @@ unittest
     import std.math : approxEqual;
     {
         auto x = iota(10).as!double;
-        assert(logsumexp(x) == 9.4586297444267107);
+        assert(logsumexp(x).approxEqual(9.4586297444267107));
         assert(log(sum(map!exp(x))) == logsumexp(x));
     }
     {
