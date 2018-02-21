@@ -2,7 +2,6 @@ sudo: false
 
 os:
   - linux
-#   - osx
 
 language: d
 
@@ -27,6 +26,8 @@ script:
   # https://github.com/vibe-d/vibe.d/blob/master/README.md#additional-setup-on-linux-debianubuntumint
   - if [ $DC = dmd ]; then sudo apt-get install -qq libevent-dev libssl-dev; fi
   - if [ $DC = dmd ]; then make doc; fi
+  # https://github.com/blog/572-bypassing-jekyll-on-github-pages
+  - if [ $DC = dmd ]; then touch doc/.nojekyll; fi
 
 after_success:
  - bash <(curl -s https://codecov.io/bash)
