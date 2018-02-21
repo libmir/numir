@@ -1,32 +1,14 @@
 /++
-This package implements core functions in numir.
-
-
-$(DIVC quickindex,
-$(BOOKTABLE ,
-  $(TR $(TH Submodule) $(TH Functions))
-  $(TR
-     $(TDNW $(SUBMODULE Creation, creation))
-     $(TD
-        $(SUBREF creation, empty)
-     )
-  )
-))
-
+Core functions in numir.
  +/
 module numir.core;
 
-static if (__VERSION__ < 2073)
-{
-    import numir.old : maxIndex; // not supported yet (2.071)
-}
-else
-{
-    import std.algorithm.searching: maxIndex;
-}
 
+///
 public import numir.core.creation;
+///
 public import numir.core.manipulation;
+///
 public import numir.core.utility;
 
 ///

@@ -24,6 +24,8 @@ before_install:
 
 script:
   - dub test --arch "$ARCH" --build=unittest-cov
+  # https://github.com/vibe-d/vibe.d/blob/master/README.md#additional-setup-on-linux-debianubuntumint
+  - if [ $DC = dmd ]; then sudo apt-get install -qq libevent-dev libssl-dev; fi
   - if [ $DC = dmd ]; then make doc; fi
 
 after_success:

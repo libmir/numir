@@ -1,3 +1,6 @@
+/++
+Various slice utility (e.g., ndim, view, type functions)
+ +/
 module numir.core.utility;
 
 import mir.ndslice.slice : Slice, SliceKind;

@@ -1,3 +1,6 @@
+/++
+Various statistics functions on ndslice. (e.g., bincount, mean, var, logsumexp)
+ +/
 module numir.stats;
 
 import std.traits : isUnsigned, isIntegral, isFloatingPoint, isBoolean;
@@ -1146,7 +1149,6 @@ nothrow @nogc template logsumexp(sumTemplateArgs...)
     auto logsumexp(A, B)(A a, B b) if (isSlice!A && isSlice!B)
     in
     {
-        import numir.core : Ndim;
         import numir.testing : assertShapeEqual;
         assert(a.all!"a >= 0");
         assertShapeEqual(a, b);

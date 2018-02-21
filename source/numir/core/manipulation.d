@@ -1,3 +1,6 @@
+/++
+Various slice manipulation (e.g., concatenate, squeeze, resize, alongDim)
+ +/
 module numir.core.manipulation;
 
 // TODO use more isSlice when template type T assumed to be Slice.

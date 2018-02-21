@@ -1,3 +1,6 @@
+/++
+Simple mir-random wrappers for convenience
+ +/
 module numir.random;
 
 import std.algorithm : fold;

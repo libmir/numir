@@ -7,12 +7,20 @@ clean:
 
 doc:
 	rm -rf docs
+	dub build -b=ddox --compiler=dmd
+	mv docs ddox
+	dub run -b=docs --compiler=dmd
+	mv docs/package.html docs/index.html
+	mv ddox docs/ddox
+
+ddoc:
+	rm -rf docs
 	dub run -b=docs --compiler=dmd
 	mv docs/package.html docs/index.html
 
 ddox:
 	rm -rf docs
-	dub run -b=ddox --compiler=dmd
+	dub build -b=ddox --compiler=dmd
 
 hmod:
 	# https://github.com/nemanja-boric-sociomantic/harbored-mod
