@@ -24,10 +24,10 @@ before_install:
 script:
   - dub test --arch "$ARCH" --build=unittest-cov
   # https://github.com/vibe-d/vibe.d/blob/master/README.md#additional-setup-on-linux-debianubuntumint
-  - if [ $DC = dmd ]; then sudo apt-get install -qq libevent-dev libssl-dev; fi
-  - if [ $DC = dmd ]; then make doc; fi
+  - if [ $DC = dmd ] && [ $ARCH = "x86_64" ]; then sudo apt-get install -qq libevent-dev libssl-dev; fi
+  - if [ $DC = dmd ] && [ $ARCH = "x86_64" ]; then make doc; fi
   # https://github.com/blog/572-bypassing-jekyll-on-github-pages
-  - if [ $DC = dmd ]; then touch doc/.nojekyll; fi
+  - if [ $DC = dmd ] && [ $ARCH = "x86_64" ]; then touch docs/.nojekyll; fi
 
 after_success:
  - bash <(curl -s https://codecov.io/bash)
