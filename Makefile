@@ -12,7 +12,7 @@ doc:
 
 ddox:
 	rm -rf docs
-	dub run -b=ddox --compiler=dmd
+	dub build -b=ddox --compiler=dmd
 
 hmod:
 	# https://github.com/nemanja-boric-sociomantic/harbored-mod
