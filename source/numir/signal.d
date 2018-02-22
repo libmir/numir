@@ -213,5 +213,5 @@ unittest
     // need larger overlaps to revert well
     auto ys = stft(xs, 8, 7);
     auto ixs = istft(ys, 7).map!(c => c.re);
-    assert(approxEqual(ixs, xs));
+    assert(approxEqual(ixs, xs, 1e-2, 1e-4));
 }
