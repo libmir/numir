@@ -4,8 +4,7 @@ Signal processing package
 
 module numir.signal;
 
-import mir.ndslice.slice : isSlice, DeepElementType;
-import std.traits : isFloatingPoint;
+import mir.ndslice.slice : isSlice;
 import numir.core : Ndim;
 
 /++
@@ -164,7 +163,7 @@ auto istft(alias windowFun=hann, Xs)(Xs xs, size_t noverlap)
     import std.numeric : inverseFft;
     import std.complex : Complex;
     import mir.ndslice.topology : iota;
-    import mir.ndslice.allocation : slice, ndarray, sliced;
+    import mir.ndslice.allocation : slice;
     import numir : empty;
 
     auto nperseg = xs.length!1; // = nfreqs
