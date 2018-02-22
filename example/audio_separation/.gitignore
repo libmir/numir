@@ -1,0 +1,9 @@
+*
+!*/
+!*.d
+!dub.json
+!*.md
+!*.png
+
+.dub
+!.gitignore
