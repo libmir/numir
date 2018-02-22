@@ -213,5 +213,8 @@ unittest
     // need larger overlaps to revert well
     auto ys = stft(xs, 8, 7);
     auto ixs = istft(ys, 7).map!(c => c.re);
+    // TODO remove this line if appveyor passes
+    xs.writeln;
+    ixs.writeln;
     assert(approxEqual(ixs, xs, 5e-2, 1e-2));
 }
