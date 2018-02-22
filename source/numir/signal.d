@@ -170,7 +170,8 @@ auto istft(alias windowFun=hann, Xs)(Xs xs, size_t noverlap)
     auto nstride = nperseg - noverlap;
     auto ntimes = nperseg + (xs.length!0 - 1) * nstride;
 
-    auto ret = zeros!(Complex!double)(ntimes);
+    auto ret = empty!(Complex!double)(ntimes);
+    ret[] = 0;
     auto windowsum = zeros(ntimes);
     auto window = windowFun(nperseg).slice;
     auto windowsquare = slice(window * window);
