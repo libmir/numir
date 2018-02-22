@@ -4,7 +4,7 @@
         "karita"
     ],
     "dependencies": {
-        "numir": "~>0.1.0",
+        "numir": { "path": "../.." },
         "lubeck": "~>0.0.5"
     },
     "libs": ["mkl_rt"],
