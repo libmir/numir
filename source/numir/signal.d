@@ -200,6 +200,18 @@ auto istft(alias windowFun=hann, Xs)(Xs xs)
     return istft!(windowFun, Xs)(xs, xs.length!1 / 2); // default noverlap
 }
 
+unittest
+{
+    // test fft/ifft stability
+    import std.numeric;
+    import mir.ndslice : map, sliced;
+    import numir.testing : approxEqual;
+    auto xs = [-10, 15, 106, -1, -655, -1553, -1501, -522,
+               -106, 831, 1250, 381, 1096, 2302, 2686, 2427];
+    auto ys = fft(xs);
+    assert(approxEqual(xs.sliced, inverseFft(fft(xs)).sliced.map!"a.re"));
+}
+
 /// test stft-istft health
 unittest
 {
@@ -216,5 +228,5 @@ unittest
     // TODO remove this line if appveyor passes
     xs.writeln;
     ixs.writeln;
-    assert(approxEqual(ixs, xs, 5e-2, 1e-2));
+    assert(approxEqual(ixs, xs));
 }
