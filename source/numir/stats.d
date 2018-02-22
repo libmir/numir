@@ -103,6 +103,81 @@ unittest
 }
 
 
+/+
+Computes the median of a slice. Internally, this function allocates copy of x to sort.
+
+Params: x = input slice
+
+Returns: a median value if x.length is the odd number, otherwise mean of two median values
+
+See_Also: https://docs.scipy.org/doc/numpy/reference/generated/numpy.median.html
+ +/
+pure nothrow @safe
+auto median(S)(S x) if (isSlice!S)
+in
+{
+    assert(x.length > 0);
+}
+do
+{
+    import std.algorithm.sorting : isSorted;
+    import std.traits : Unqual;
+    import mir.ndslice.slice : DeepElementType;
+    import mir.ndslice.allocation : slice;
+    import mir.ndslice.sorting : sort;
+    import numir.core : empty;
+
+    immutable i = x.length / 2;
+    if (x.isSorted)
+ {
+        return x.length % 2 == 1 ? x[i]
+            : 0.5 * (x[i-1] + x[i]);
+    }
+    alias R = Unqual!(DeepElementType!S);
+    auto s = empty!R(x.shape);
+    s[] = x;
+    s.sort;
+
+    return x.length % 2 == 1 ? s[i]
+        : 0.5 * (s[i-1] + s[i]);
+}
+
+///
+pure nothrow @safe
+unittest
+{
+    import numir.core : alongDim;
+    import mir.ndslice : map, sliced, byDim, iota;
+
+    // sorted cases
+    assert(iota(5).median == 2);
+    // [[0,1],
+    //  [2,3],
+    //  [4,5]]
+    assert(iota(3, 2).byDim!1.map!median == [2, 3]);
+    assert(iota(3, 2).byDim!0.map!median == [0.5, 2.5, 4.5]);
+
+    assert(iota(3, 2).alongDim!0.map!median == [2, 3]);
+    assert(iota(3, 2).alongDim!1.map!median == [0.5, 2.5, 4.5]);
+
+    // not sorted cases
+    auto x = [1, 5, 1, 3, 4].sliced;
+    assert(x.median == 3);
+    auto y = [1, 5, 1, 3, 4, 4].sliced;
+    assert(y.median == 3.5);
+
+    auto z = [1, 5, 1, 2, 4, 2,
+              1, 5, 1, 2, 4, 3,
+              1, 5, 1, 3, 4, 3].sliced(3, 6);
+
+    assert(z.byDim!1.map!median == [1, 5, 1, 2, 4, 3]);
+    assert(z.byDim!0.map!median == [2, 2.5, 3]);
+
+    assert(z.alongDim!0.map!median == [1, 5, 1, 2, 4, 3]);
+    assert(z.alongDim!1.map!median == [2, 2.5, 3]);
+}
+
+
 nothrow @nogc: // everything bellow here is nothrow and @nogc.
 
 
