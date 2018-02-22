@@ -164,14 +164,14 @@ auto istft(alias windowFun=hann, Xs)(Xs xs, size_t noverlap)
     import std.complex : Complex;
     import mir.ndslice.topology : iota;
     import mir.ndslice.allocation : slice;
-    import numir : empty;
+    import numir : empty, zeros;
 
     auto nperseg = xs.length!1; // = nfreqs
     auto nstride = nperseg - noverlap;
     auto ntimes = nperseg + (xs.length!0 - 1) * nstride;
 
-    auto ret = empty!(Complex!double)(ntimes);
-    auto windowsum = empty(ntimes);
+    auto ret = zeros!(Complex!double)(ntimes);
+    auto windowsum = zeros(ntimes);
     auto window = windowFun(nperseg).slice;
     auto windowsquare = slice(window * window);
     auto invbuf = empty!(Complex!double)(nperseg);
