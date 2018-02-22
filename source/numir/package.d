@@ -18,6 +18,8 @@ NumPy-like mir helper functions library
    $(BIG $(LINK2 format.html, numir.format))
    $(BR)
    $(BIG $(LINK2 testing.html, numir.testing))
+   $(BR)
+   $(BIG $(LINK2 signal.html, numir.signal))
  */
 
 /**
@@ -53,3 +55,4 @@ public import numir.io;
 public import numir.testing;
 public import numir.format;
 public import numir.stats;
+public import numir.signal;
