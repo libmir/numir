@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+numir-char-rnn.so
+numir-char-rnn.dylib
+numir-char-rnn.dll
+numir-char-rnn.a
+numir-char-rnn
+numir-char-rnn.lib
+numir-char-rnn-test-*
+*.exe
+*.o
+*.obj
+*.lst
+*.txt
