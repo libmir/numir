@@ -34,8 +34,8 @@ before_install:
 
 script:
   - dub test --arch "$ARCH" --build=unittest-cov
-  - cd examples/char_rnn && dub run --arch "$ARCH" --build=release && cd -
-  - cd examples/audio_separation && dub run --arch "$ARCH" --build=release && cd -
+  - cd example/char_rnn && dub run --arch "$ARCH" --build=release && cd -
+  - cd example/audio_separation && dub run --arch "$ARCH" --build=release && cd -
   # https://github.com/vibe-d/vibe.d/blob/master/README.md#additional-setup-on-linux-debianubuntumint
   - if [ $DC = dmd ] && [ $ARCH = "x86_64" ]; then sudo apt-get install -qq libevent-dev libssl-dev; fi
   - if [ $DC = dmd ] && [ $ARCH = "x86_64" ]; then make doc; fi
