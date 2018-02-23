@@ -34,6 +34,7 @@ before_install:
 
 script:
   - dub test --arch "$ARCH" --build=unittest-cov
+  - export OMP_NUM_THREADS=1
   - cd example/char_rnn && dub run --arch "$ARCH" --build=release && cd -
   - cd example/audio_separation && dub run --arch "$ARCH" --build=release && cd -
   # https://github.com/vibe-d/vibe.d/blob/master/README.md#additional-setup-on-linux-debianubuntumint
