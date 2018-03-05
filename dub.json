@@ -17,25 +17,25 @@
         "--unittest-examples"
     ],
     "buildTypes": {
-		"unittest": {
-			"buildOptions": ["unittests", "debugMode", "debugInfo"],
-			"versions": ["mir_test"],
-            "preBuildCommands": ["cd test && python test_npy_fileio.py ; cd .."]
-		},
-		"unittest-cov": {
-			"buildOptions": ["unittests", "coverage", "debugMode", "debugInfo"],
-			"versions": ["mir_test"],
-            "preBuildCommands": ["cd test && python test_npy_fileio.py ; cd .."]
-		}
+        "unittest": {
+            "buildOptions": ["unittests", "debugMode", "debugInfo"],
+            "versions": ["mir_test"],
+            "preBuildCommands": ["cd test && python test_npy_fileio.py || true ; cd .."]
+        },
+        "unittest-cov": {
+            "buildOptions": ["unittests", "coverage", "debugMode", "debugInfo"],
+            "versions": ["mir_test"],
+            "preBuildCommands": ["cd test && python test_npy_fileio.py || true ; cd .."]
+	}
+    },
+    "configurations": [
+	{
+	    "name": "library",
+	    "targetType": "library"
 	},
-	"configurations": [
-		{
-			"name": "library",
-			"targetType": "library"
-		},
-		{
-			"name": "sourceLibrary",
-			"targetType": "sourceLibrary"
-		}
-	],
+	{
+	    "name": "sourceLibrary",
+	    "targetType": "sourceLibrary"
+	}
+    ],
 }
