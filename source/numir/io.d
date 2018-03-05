@@ -1,3 +1,6 @@
+/++
+NumPy file IO package
+ +/
 module numir.io;
 
 import std.system : endian, Endian;
@@ -13,10 +16,10 @@ import std.stdio : writeln;
 import numir;
 import mir.ndslice : sliced, universal, ndarray, flattened, shape, DeepElementType;
 
-
 /**
-   numpy -> dlang type conversion dictionary
+numpy type string -> dlang type string conversion dictionary
 
+See_Also:
    $(BR)
    $(BIG $(LINK2 http://pyopengl.sourceforge.net/pydoc/numpy.lib.format.html, numpy format spec))
    $(BR)
@@ -30,11 +33,6 @@ enum np2d = [
     "i8": "long"
     ];
 
-version (DigitalMars) {
-    enum supportStaticForeach = __VERSION__ >= 2076;
-} else {
-    enum supportStaticForeach = false;
-}
 
 /// read bytes from file with dtype and size
 auto readBytes(Dtype)(ref File file, string dtype, size_t size)
@@ -48,39 +46,17 @@ auto readBytes(Dtype)(ref File file, string dtype, size_t size)
     auto dsize = (littleEndian || bigEndian) ? dtype[1 .. $] : dtype;
     Dtype[] result;
 
-    /*
-    static if (supportStaticForeach) /// FIXME: not work because of syntax-check
+    bool found = false;
+    static foreach (npT, dT; np2d)
     {
-        bool found = false;
-        static foreach (npT, dT; np2d)
+        if (dsize == npT)
         {
-            if (dsize == npT)
-            {
-                mixin ("result = cast(Dtype[]) file.rawRead(new " ~ dT ~ "[size]);");
-                found = true;
-            }
-        }
-        if (!found)
-        {
-            throw new FileException("dtype(%s) is not supported yet: %s".format(dtype, file.name));
+            mixin ("result = cast(Dtype[]) file.rawRead(new " ~ dT ~ "[size]);");
+            found = true;
         }
     }
-    */
-    switch (dsize)
+    if (!found)
     {
-    case "i4":
-        result = cast(Dtype[]) file.rawRead(new int[size]);
-        break;
-    case "f4":
-        result = cast(Dtype[]) file.rawRead(new float[size]);
-        break;
-    case "f8":
-        result = cast(Dtype[]) file.rawRead(new double[size]);
-        break;
-    case "i8":
-        result = cast(Dtype[]) file.rawRead(new long[size]);
-        break;
-    default:
         throw new FileException("dtype(%s) is not supported yet: %s".format(dtype, file.name));
     }
 
@@ -95,15 +71,18 @@ auto readBytes(Dtype)(ref File file, string dtype, size_t size)
 
 immutable npyfmt = "{'descr': '%s', 'fortran_order': %s, 'shape': (%s), }";
 
-
+/// NpyHeaderInfo
 struct NpyHeaderInfo(size_t N)
 {
+    /// numpy type info discription
     string descr;
+    /// numpy array shape
     ptrdiff_t[N] shape;
 }
 
-
-auto parseHeader(size_t Ndim)(string header, string path) {
+// parse npy file header into NpyHeaderInfo
+auto parseHeader(size_t Ndim)(string header, string path)
+{
     // header parsing
     string descrS, fortranS, shapeS;
     formattedRead(header, npyfmt, descrS, fortranS, shapeS);
@@ -130,7 +109,7 @@ auto parseHeader(size_t Ndim)(string header, string path) {
     return NpyHeaderInfo!Ndim(descrS, shape);
 }
 
-
+/// validate the magic numbers in npy file header
 auto enforceNPY(string magic, string path)
 {
     if (magic != "\x93NUMPY")
@@ -160,20 +139,17 @@ auto loadNpy(Dtype, size_t Ndim)(string path)
     return storage.sliced.view(info.shape);
 }
 
-
+/// convert D type (not string) into numpy type string
 template toDtype(D)
 {
     enum endianMark = endian == Endian.littleEndian ? "<" : ">";
-
+    // FIXME cannot make doc (exit -11)
     /*
-    static if (supportStaticForeach) /// FIXME: not work because of syntax-check
+    static foreach (npT, dT; np2d)
     {
-        static foreach (npT, dT; np2d)
+        static if (D.stringof == dT)
         {
-            static if (D.stringof == dT)
-            {
-                enum toDtype = endianMark ~ npT;
-            }
+            enum toDtype = endianMark ~ npT;
         }
     }
     */
@@ -307,6 +283,7 @@ unittest
     }
 }
 
+///
 unittest
 {
     if (exists("./test/b1_f8.npy")) {
