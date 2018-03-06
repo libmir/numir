@@ -10,7 +10,8 @@ import std.algorithm : each, map, filter, reduce;
 import std.conv : to;
 import std.array : array;
 import std.string : split, empty, strip;
-import std.file : FileException;
+import std.file : FileException, exists;
+import std.stdio : writeln;
 
 import numir;
 import mir.ndslice : sliced, universal, ndarray, flattened, shape, DeepElementType;
@@ -232,113 +233,121 @@ void saveNpy(S)(string path, S x)
 unittest
 {
     import mir.ndslice : iota, map;
+    if (exists("./test/a1_i4.npy")) {
+        // FIXME: make this generic
+        auto a1_i4 = loadNpy!(int, 1)("./test/a1_i4.npy");
+        assert(a1_i4 == iota(6).map!(to!int));
+        auto a2_i4 = loadNpy!(int, 2)("./test/a2_i4.npy");
+        assert(a2_i4 == iota(2, 3).map!(to!int));
+        saveNpy("./test/b1_i4.npy", a1_i4);
+        saveNpy("./test/b2_i4.npy", a2_i4);
+        auto b1_i4 = loadNpy!(int, 1)("./test/b1_i4.npy");
+        assert(b1_i4 == iota(6).map!(to!int));
+        auto b2_i4 = loadNpy!(int, 2)("./test/b2_i4.npy");
+        assert(b2_i4 == iota(2, 3).map!(to!int));
 
-    // FIXME: make this generic
-    auto a1_i4 = loadNpy!(int, 1)("./test/a1_i4.npy");
-    assert(a1_i4 == iota(6).map!(to!int));
-    auto a2_i4 = loadNpy!(int, 2)("./test/a2_i4.npy");
-    assert(a2_i4 == iota(2, 3).map!(to!int));
-    saveNpy("./test/b1_i4.npy", a1_i4);
-    saveNpy("./test/b2_i4.npy", a2_i4);
-    auto b1_i4 = loadNpy!(int, 1)("./test/b1_i4.npy");
-    assert(b1_i4 == iota(6).map!(to!int));
-    auto b2_i4 = loadNpy!(int, 2)("./test/b2_i4.npy");
-    assert(b2_i4 == iota(2, 3).map!(to!int));
+        auto a1_i8 = loadNpy!(long, 1)("./test/a1_i8.npy");
+        assert(a1_i8 == iota(6).map!(to!long));
+        auto a2_i8 = loadNpy!(long, 2)("./test/a2_i8.npy");
+        assert(a2_i8 == iota(2, 3).map!(to!long));
+        saveNpy("./test/b1_i8.npy", a1_i8);
+        saveNpy("./test/b2_i8.npy", a2_i8);
+        auto b1_i8 = loadNpy!(long, 1)("./test/b1_i8.npy");
+        assert(b1_i8 == iota(6).map!(to!long));
+        auto b2_i8 = loadNpy!(long, 2)("./test/b2_i8.npy");
+        assert(b2_i8 == iota(2, 3).map!(to!long));
 
-    auto a1_i8 = loadNpy!(long, 1)("./test/a1_i8.npy");
-    assert(a1_i8 == iota(6).map!(to!long));
-    auto a2_i8 = loadNpy!(long, 2)("./test/a2_i8.npy");
-    assert(a2_i8 == iota(2, 3).map!(to!long));
-    saveNpy("./test/b1_i8.npy", a1_i8);
-    saveNpy("./test/b2_i8.npy", a2_i8);
-    auto b1_i8 = loadNpy!(long, 1)("./test/b1_i8.npy");
-    assert(b1_i8 == iota(6).map!(to!long));
-    auto b2_i8 = loadNpy!(long, 2)("./test/b2_i8.npy");
-    assert(b2_i8 == iota(2, 3).map!(to!long));
+        auto a1_f4 = loadNpy!(float, 1)("./test/a1_f4.npy");
+        assert(a1_f4 == iota(6).map!(to!float));
+        auto a2_f4 = loadNpy!(float, 2)("./test/a2_f4.npy");
+        assert(a2_f4 == iota(2, 3).map!(to!float));
+        saveNpy("./test/b1_f4.npy", a1_f4);
+        saveNpy("./test/b2_f4.npy", a2_f4);
+        auto b1_f4 = loadNpy!(float, 1)("./test/b1_f4.npy");
+        assert(b1_f4 == iota(6).map!(to!float));
+        auto b2_f4 = loadNpy!(float, 2)("./test/b2_f4.npy");
+        assert(b2_f4 == iota(2, 3).map!(to!float));
 
-    auto a1_f4 = loadNpy!(float, 1)("./test/a1_f4.npy");
-    assert(a1_f4 == iota(6).map!(to!float));
-    auto a2_f4 = loadNpy!(float, 2)("./test/a2_f4.npy");
-    assert(a2_f4 == iota(2, 3).map!(to!float));
-    saveNpy("./test/b1_f4.npy", a1_f4);
-    saveNpy("./test/b2_f4.npy", a2_f4);
-    auto b1_f4 = loadNpy!(float, 1)("./test/b1_f4.npy");
-    assert(b1_f4 == iota(6).map!(to!float));
-    auto b2_f4 = loadNpy!(float, 2)("./test/b2_f4.npy");
-    assert(b2_f4 == iota(2, 3).map!(to!float));
-
-    auto a1_f8 = loadNpy!(double, 1)("./test/a1_f8.npy");
-    assert(a1_f8 == iota(6).map!(to!double));
-    auto a2_f8 = loadNpy!(double, 2)("./test/a2_f8.npy");
-    assert(a2_f8 == iota(2, 3).map!(to!double));
-    saveNpy("./test/b1_f8.npy", a1_f8);
-    saveNpy("./test/b2_f8.npy", a2_f8);
-    auto b1_f8 = loadNpy!(double, 1)("./test/b1_f8.npy");
-    assert(b1_f8 == iota(6).map!(to!double));
-    auto b2_f8 = loadNpy!(double, 2)("./test/b2_f8.npy");
-    assert(b2_f8 == iota(2, 3).map!(to!double));
+        auto a1_f8 = loadNpy!(double, 1)("./test/a1_f8.npy");
+        assert(a1_f8 == iota(6).map!(to!double));
+        auto a2_f8 = loadNpy!(double, 2)("./test/a2_f8.npy");
+        assert(a2_f8 == iota(2, 3).map!(to!double));
+        saveNpy("./test/b1_f8.npy", a1_f8);
+        saveNpy("./test/b2_f8.npy", a2_f8);
+        auto b1_f8 = loadNpy!(double, 1)("./test/b1_f8.npy");
+        assert(b1_f8 == iota(6).map!(to!double));
+        auto b2_f8 = loadNpy!(double, 2)("./test/b2_f8.npy");
+        assert(b2_f8 == iota(2, 3).map!(to!double));
+    } else {
+        writeln("WARNING: install numpy to test numir.io");
+    }
 }
 
 ///
 unittest
 {
-    // test exceptions
-    auto f = File("./test/b1_f8.npy", "rb");
-    try
-    {
-        readBytes!double(f, "x4", 1LU);
-    }
-    catch (FileException e)
-    {
-        // NOTE: why ": Success" is appended on Linux?
-        auto expected = "dtype(%s) is not supported yet: %s".format("x4", f.name);
-        assert(e.msg[0 .. expected.length] == expected);
+    if (exists("./test/b1_f8.npy")) {
+        // test exceptions
+        auto f = File("./test/b1_f8.npy", "rb");
+        try
+        {
+            readBytes!double(f, "x4", 1LU);
+        }
+        catch (FileException e)
+        {
+            // NOTE: why ": Success" is appended on Linux?
+            auto expected = "dtype(%s) is not supported yet: %s".format("x4", f.name);
+            assert(e.msg[0 .. expected.length] == expected);
+        }
+
+        auto fi8 = File("./test/b1_f8.npy", "rb");
+        auto es = (endian == Endian.littleEndian ? ">" : "<") ~ "i8";
+        try
+        {
+            readBytes!double(fi8, es, 1LU);
+        }
+        catch (FileException e)
+        {
+            // NOTE: why ": Success" is appended?
+            auto expected = "endian conversion (file %s) is not supported yet: %s".format(es, fi8.name);
+            assert(e.msg[0 .. expected.length] == expected);
+        }
+
+
+        auto fname = "foo.npy";
+        try
+        {
+            parseHeader!1("{'descr': '<f4', 'fortran_order': True, 'shape': (6,), }", fname);
+        }
+        catch (FileException e)
+        {
+            // NOTE: why ": Success" is appended?
+            auto expected = "Fortran ordered ndarray is not supported yet: %s".format(fname);
+            assert(e.msg[0 .. expected.length] == expected);
+        }
+
+        try
+        {
+            parseHeader!2("{'descr': '<f4', 'fortran_order': False, 'shape': (6,), }", fname);
+        }
+        catch (FileException e)
+        {
+            // NOTE: why ": Success" is appended?
+            auto expected = "your expected Ndim %s != %s in the actual npy: %s".format(2, 1, fname);
+            assert(e.msg[0 .. expected.length] == expected);
+        }
+
+        try
+        {
+            enforceNPY("foo", fname);
+        }
+        catch (FileException e)
+        {
+            auto expected = "invalid npy header: %s".format(fname);
+            assert(e.msg[0 .. expected.length] == expected);
+        }
+    } else {
+        writeln("WARNING: install numpy to test numir.io");
     }
 
-    auto fi8 = File("./test/b1_f8.npy", "rb");
-    auto es = (endian == Endian.littleEndian ? ">" : "<") ~ "i8";
-    try
-    {
-        readBytes!double(fi8, es, 1LU);
-    }
-    catch (FileException e)
-    {
-        // NOTE: why ": Success" is appended?
-        auto expected = "endian conversion (file %s) is not supported yet: %s".format(es, fi8.name);
-        assert(e.msg[0 .. expected.length] == expected);
-    }
-
-
-    auto fname = "foo.npy";
-    try
-    {
-        parseHeader!1("{'descr': '<f4', 'fortran_order': True, 'shape': (6,), }", fname);
-    }
-    catch (FileException e)
-    {
-        // NOTE: why ": Success" is appended?
-        auto expected = "Fortran ordered ndarray is not supported yet: %s".format(fname);
-        assert(e.msg[0 .. expected.length] == expected);
-    }
-
-    try
-    {
-        parseHeader!2("{'descr': '<f4', 'fortran_order': False, 'shape': (6,), }", fname);
-    }
-    catch (FileException e)
-    {
-        // NOTE: why ": Success" is appended?
-        auto expected = "your expected Ndim %s != %s in the actual npy: %s".format(2, 1, fname);
-        assert(e.msg[0 .. expected.length] == expected);
-    }
-
-    try
-    {
-        enforceNPY("foo", fname);
-    }
-    catch (FileException e)
-    {
-        auto expected = "invalid npy header: %s".format(fname);
-        assert(e.msg[0 .. expected.length] == expected);
-    }
 }
