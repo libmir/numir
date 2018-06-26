@@ -147,7 +147,7 @@ pure nothrow @safe
 unittest
 {
     import numir.core : alongDim;
-    import mir.ndslice : map, sliced, byDim, iota;
+    import mir.ndslice : map, sliced, byDim, iota, slice;
 
     // sorted cases
     assert(iota(5).median == 2);
@@ -171,10 +171,10 @@ unittest
               1, 5, 1, 3, 4, 3].sliced(3, 6);
 
     assert(z.byDim!1.map!median == [1, 5, 1, 2, 4, 3]);
-    assert(z.byDim!0.map!median == [2, 2.5, 3]);
+    assert(z.byDim!0.map!median.slice == [2.0, 2.5, 3.0]); // FIXME remove .slice here
 
     assert(z.alongDim!0.map!median == [1, 5, 1, 2, 4, 3]);
-    assert(z.alongDim!1.map!median == [2, 2.5, 3]);
+    assert(z.alongDim!1.map!median == [2.0, 2.5, 3.0]);
 }
 
 

@@ -63,7 +63,7 @@ unittest
     import numir.signal;
     import std.meta : AliasSeq;
     import mir.ndslice : maxIndex;
-    import std.numeric : approxEqual;
+    import std.math : approxEqual;
     // test windows are symmetry and peaked at median
     auto n = 11;
     static foreach (wfun; AliasSeq!(blackman, hann))
