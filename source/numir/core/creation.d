@@ -405,8 +405,8 @@ unittest
 /++
 Returns a slice with numbers evenly spaced over a log scale.
 
-In linear space, the sequence starts at `base ^^ start` (`base to the power of
-`start) and ends with `base ^^ stop`.
+In linear space, the sequence starts at `base ^^ start`
+(`base to the power of `start) and ends with `base ^^ stop`.
 
 Params:
     start = `base ^^ start` is the value of the first element

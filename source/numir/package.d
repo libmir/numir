@@ -15,8 +15,6 @@ NumPy-like mir helper functions library
    $(BR)
    $(BIG $(LINK2 io.html, numir.io))
    $(BR)
-   $(BIG $(LINK2 format.html, numir.format))
-   $(BR)
    $(BIG $(LINK2 testing.html, numir.testing))
    $(BR)
    $(BIG $(LINK2 signal.html, numir.signal))
@@ -38,8 +36,9 @@ NumPy-like mir helper functions library
        $(LINK2 http://docs.random.dlang.io/latest/index.html, mir.random)
        $(BR)
        $(BR)
-       $(LINK2 ddox/index.html, NEW numir doc) by ddox (experimental)
 */
+//        $(LINK2 ddox/index.html, NEW numir doc) by ddox (experimental)
+
 
 module numir;
 
