@@ -38,15 +38,15 @@ unittest
 pure nothrow @nogc
 void assertShapeEqual(L, R)(L lhs, R rhs) if (isSlice!L && isSlice!R)
 {
-    import numir.core : Ndim;
     import std.range : iota;
     import std.array : array;
+    import mir.primitives : DimensionCount;
 
-    static assert(Ndim!L == Ndim!R);
+    static assert(DimensionCount!L == DimensionCount!R);
     // LDC1.7.0 cannot compile this but DMD2.078.1 is OK
-    // static foreach (i; 0 .. Ndim!R) cannot be used here
+    // static foreach (i; 0 .. DimensionCount!R) cannot be used here
     // https://github.com/dlang/DIPs/blob/master/DIPs/DIP1010.md#proposal-2-add-static-foreach-declaration-and-static-foreach-statement
-    static foreach (i; iota(Ndim!R).array)
+    static foreach (i; iota(DimensionCount!R).array)
     {
         assert(lhs.length!i == rhs.length!i);
     }

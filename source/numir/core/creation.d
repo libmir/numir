@@ -405,8 +405,8 @@ unittest
 /++
 Returns a slice with numbers evenly spaced over a log scale.
 
-In linear space, the sequence starts at `base ^^ start` (`base to the power of
-`start) and ends with `base ^^ stop`.
+In linear space, the sequence starts at `base ^^ start`
+(`base to the power of `start) and ends with `base ^^ stop`.
 
 Params:
     start = `base ^^ start` is the value of the first element
@@ -444,12 +444,9 @@ Returns:
 +/
 template diag(size_t dimension = 1)
 {
-    auto diag(SliceKind kind, size_t[] packs, Iterator)
-                           (Slice!(kind, packs, Iterator) s, size_t k = 0) pure
-        if (isMatrix!(Slice!(kind, packs, Iterator)))
+    auto diag(S)(S s, size_t k = 0) pure if (isMatrix!S)
     {
         import mir.ndslice.topology : diagonal;
-
         auto sk = s.select!dimension(k, s.length!dimension);
         return sk.diagonal;
     }
@@ -480,15 +477,12 @@ Params:
 Returns:
     diagonal 2-dimensional slice
 +/
-auto diag(SliceKind kind, size_t[] packs, Iterator)
-                       (Slice!(kind, packs, Iterator) s) pure
-    if (isVector!(Slice!(kind, packs, Iterator)))
+auto diag(S)(S s) pure if (isVector!S)
 {
      import mir.ndslice.topology : diagonal;
      import mir.ndslice.slice : DeepElementType;
 
-     alias zeroType = DeepElementType!(Slice!(kind, packs, Iterator));
-
+     alias zeroType = DeepElementType!S;
      auto result = zeros!(zeroType)([s.length, s.length]);
      result.diagonal[] = s;
      return result;

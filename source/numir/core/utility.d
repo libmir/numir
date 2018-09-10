@@ -3,7 +3,7 @@ Various slice utility (e.g., ndim, view, type functions)
  +/
 module numir.core.utility;
 
-import mir.ndslice.slice : Slice, SliceKind;
+import mir.ndslice.slice : Slice, SliceKind, isSlice;
 
 /++
 Returns the number of dimensions of type `R`.
@@ -109,64 +109,6 @@ unittest
 }
 
 /++
-Returns the number of dimensions of a Slice.
-+/
-template Ndim(S)
-{
-    enum Ndim = ndim(S());
-}
-
-///
-unittest
-{
-    import mir.ndslice.topology : iota;
-
-    auto e = iota(2, 3, 1, 3);
-    static assert(Ndim!(typeof(e)) == 4);
-}
-
-unittest
-{
-    import mir.ndslice.topology : iota, pack;
-
-    auto e = iota(3, 4, 5, 6).pack!2;
-    static assert(Ndim!(typeof(e)) == 4);
-}
-
-/++
-Returns the number of dimensions of a slice.
-
-Params:
-    s = n-dimensional slice
-
-Returns:
-    number of dimensions
-+/
-size_t ndim(SliceKind kind, size_t[] packs, Iterator)(Slice!(kind, packs, Iterator) s)
-{
-    import mir.ndslice.internal: sum;
-
-    return packs.sum;
-}
-
-///
-unittest
-{
-    import mir.ndslice.topology : iota;
-
-    auto e = iota(2, 3, 1, 3);
-    assert(e.ndim == 4);
-}
-
-unittest
-{
-    import mir.ndslice.topology : iota, pack;
-
-    auto e = iota(3, 4, 5, 6).pack!2;
-    assert(e.ndim == 4);
-}
-
-/++
 Return the number of bytes to step in each dimension when traversing a slice.
 
 Params:
@@ -206,7 +148,7 @@ Returns:
 +/
 auto size(S)(S s) pure
 {
-    return s.elementsCount;
+    return s.elementCount;
 }
 
 ///
@@ -314,4 +256,26 @@ unittest
     } catch (Exception e) {
         assert(e.msg.split(":")[0] == "ReshapeError");
     }
+}
+
+/++
+Returns the number of dimensions of a slice.
+Params:
+    s = n-dimensional slice
+Returns:
+    number of dimensions
++/
+size_t ndim(S)(S s) if (isSlice!S)
+{
+    import mir.primitives : DimensionCount;
+    return DimensionCount!S;
+}
+
+///
+unittest
+{
+    import mir.ndslice.topology : iota;
+
+    auto e = iota(2, 3, 1, 3);
+    assert(e.ndim == 4);
 }

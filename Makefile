@@ -7,11 +7,11 @@ clean:
 
 doc:
 	rm -rf docs
-	# allow failure
-	dub build -b=ddox --compiler=dmd && mv docs ddox || true
+	## allow failure
+	# dub build -b=ddox --compiler=dmd && mv docs ddox || true
 	dub run -b=docs --compiler=dmd
 	mv docs/package.html docs/index.html
-	mv ddox docs/ddox || true
+	# mv ddox docs/ddox || true
 
 ddoc:
 	rm -rf docs

@@ -5,6 +5,7 @@ module numir.core.manipulation;
 
 // TODO use more isSlice when template type T assumed to be Slice.
 import mir.ndslice.slice : isSlice;
+import mir.primitives : DimensionCount;
 
 /++
 Create a slice of element type `E` with shape matching the shape of `a` and
@@ -66,11 +67,11 @@ auto concatenate(int axis=0, Slices...)(Slices slices) pure
 {
     import mir.ndslice.concatenation : concatenation;
     import mir.ndslice.allocation : slice;
-    import numir.core.utility : Ndim, view;
+    import numir.core.utility : view;
     import std.format : format;
     import std.meta : staticMap;
 
-    enum int N = Ndim!(Slices[0]);
+    enum int N = DimensionCount!(Slices[0]);
     static assert(-N <= axis, "out of bounds: axis(=%s) < %s".format(axis, -N));
     static assert(axis < N, "out of bounds: %s <= axis(=%s)".format(N, axis));
     static if (axis < 0) {
@@ -78,9 +79,9 @@ auto concatenate(int axis=0, Slices...)(Slices slices) pure
     }
 
     foreach (S; Slices) {
-        static assert(Ndim!S == N,
+        static assert(DimensionCount!S == N,
                       "all the input arrays must have same number of dimensions: %s"
-                      .format([staticMap!(Ndim, Slices)]));
+                      .format([staticMap!(DimensionCount, Slices)]));
     }
 
     return concatenation!axis(slices).slice;
@@ -134,9 +135,9 @@ Returns:
 +/
 auto unsqueeze(long axis, S)(S s) pure
 {
-    import numir.core.utility : Ndim, view;
+    import numir.core.utility : view;
 
-    enum long n = Ndim!S;
+    enum long n = DimensionCount!S;
     enum size_t[1] input = [1];
     enum a = axis < 0 ? n + axis + 1 : axis;
     ptrdiff_t[n + 1] shape = cast(ptrdiff_t[a]) s.shape[0 .. a]
@@ -178,8 +179,8 @@ Returns:
 +/
 auto squeeze(long axis, S)(S s) pure
 {
-    import numir.core.utility : Ndim, view;
-    enum long n = Ndim!S;
+    import numir.core.utility : view;
+    enum long n = DimensionCount!S;
     enum a = axis < 0 ? n + axis : axis;
     assert(s.shape[a] == 1);
 
@@ -213,7 +214,7 @@ Returns:
     new slice with new length
 
 TODO:
-    support n-dimentional new shape
+    support n-dimensional new shape
 +/
 auto resize(S)(S s, size_t size) pure if (isSlice!S)
 out(ret) {
@@ -253,21 +254,20 @@ unittest {
 
 /++
 Similar to `mir.ndslice.topology.byDim` but `alongDim` does transposed and pack on the input slice along `dim`.
-This `axis` also can be negative as `-dim == Ndim!S - dim` like numpy.
+This `axis` also can be negative as `-dim == DimensionCount!S - dim` like numpy.
 
 Params:
     s = input slice
 
 Returns:
-    s.transposed(0 .. Ndim!S, dim).pack!1
+    s.transposed(0 .. DimensionCount!S, dim).pack!1
 
 See_Also:
     `s.alongDim!axis.map!func` is equivalent to numpy.apply_along_axis https://docs.scipy.org/doc/numpy/reference/generated/numpy.apply_along_axis.html
  +/
 auto alongDim(ptrdiff_t dim, S)(S s) if (isSlice!S)
 {
-    import numir.core.utility : Ndim;
-    enum n = Ndim!S;
+    enum n = DimensionCount!S;
     enum a = dim >= 0 ? dim : n + dim;
     static assert(a < n);
 
