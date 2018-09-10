@@ -5,7 +5,7 @@ Signal processing package
 module numir.signal;
 
 import mir.ndslice.slice : isSlice;
-import numir.core : Ndim;
+import mir.primitives : DimensionCount;
 
 /++
 Classic Blackman window slice generator
@@ -118,10 +118,10 @@ See_Also:
     https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.stft.html
  +/
 auto stft(alias windowFun=hann, Xs)(Xs xs, size_t nperseg, size_t noverlap)
-    if (isSlice!Xs && Ndim!Xs == 1)
+    if (isSlice!Xs && DimensionCount!Xs == 1)
 out(ret)
 {
-    static assert(Ndim!(typeof(return)) == 2);
+    static assert(DimensionCount!(typeof(return)) == 2);
     assert(ret.length!1 == nperseg);
 }
 do
@@ -141,7 +141,7 @@ do
 
 ///ditto
 auto stft(alias windowFun=hann, Xs)(Xs xs, size_t nperseg=256)
-    if (isSlice!Xs && Ndim!Xs == 1)
+    if (isSlice!Xs && DimensionCount!Xs == 1)
 {
     return stft!(windowFun, Xs)(xs, nperseg, nperseg / 2);
 }
@@ -157,7 +157,7 @@ See_Also:
     https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.stft.html
  +/
 auto istft(alias windowFun=hann, Xs)(Xs xs, size_t noverlap)
-    if (isSlice!Xs && Ndim!Xs == 2)
+    if (isSlice!Xs && DimensionCount!Xs == 2)
 {
     import std.array : array;
     import std.numeric : inverseFft;
@@ -196,7 +196,7 @@ auto istft(alias windowFun=hann, Xs)(Xs xs, size_t noverlap)
 
 ///ditto
 auto istft(alias windowFun=hann, Xs)(Xs xs)
-    if (isSlice!Xs && Ndim!Xs == 2)
+    if (isSlice!Xs && DimensionCount!Xs == 2)
 {
     return istft!(windowFun, Xs)(xs, xs.length!1 / 2); // default noverlap
 }

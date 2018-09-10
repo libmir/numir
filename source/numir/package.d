@@ -53,6 +53,8 @@ public import numir.core;
 public import numir.random;
 public import numir.io;
 public import numir.testing;
-public import numir.format;
 public import numir.stats;
 public import numir.signal;
+
+// FIXME see lagacy/format.d to rework
+// public import numir.format;
