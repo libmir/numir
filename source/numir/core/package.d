@@ -52,7 +52,7 @@ unittest
     */
     
     import mir.ndslice.slice : sliced, DeepElementType;
-    import mir.ndslice.algorithm : all;
+    import mir.algorithm.iteration : all;
 
     // np.empty, empty_like
     assert(empty(2 ,3).shape == [2, 3]);

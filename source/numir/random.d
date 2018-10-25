@@ -5,7 +5,6 @@ module numir.random;
 
 import std.algorithm : fold;
 import mir.random : unpredictableSeed, Random;
-import mir.random.algorithm : range;
 import mir.random.variable : UniformVariable, NormalVariable;
 import mir.ndslice: slicedField, slice;
 
@@ -27,13 +26,6 @@ class RNG
             }
         }
         return *_rng;
-    }
-
-    ///
-    static auto field(V)(V var)
-    {
-        import mir.random.algorithm : field;
-        return field(this.get, var);
     }
 
     ///
@@ -65,7 +57,8 @@ unittest
 /// general function for random slice generation with global RNG
 auto generate(V, size_t N)(V var, size_t[N] length...)
 {
-    return RNG.field(var).slicedField(length);
+    import mir.random.algorithm: randomSlice;
+    return RNG.get.randomSlice(var, length);
 }
 
 ///

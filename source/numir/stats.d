@@ -148,7 +148,7 @@ pure nothrow @safe
 unittest
 {
     import numir.core : alongDim;
-    import mir.ndslice : map, sliced, byDim, iota, slice;
+    import mir.ndslice : map, byDim, iota, slice, sliced;
 
     // sorted cases
     assert(iota(5).median == 2);
@@ -285,7 +285,7 @@ unittest
 
     //Set sum algorithm or output type
     static immutable a = [1, 1e100, 1, -1e100];
-    auto x = a.sliced.map!"a * 10_000";
+    auto x = a.sliced * 10_000;
     assert(x.mean!"kbn" == 20_000 / 4);
     assert(x.mean!"kb2" == 20_000 / 4);
     assert(x.mean!"precise" == 20_000 / 4);
@@ -576,7 +576,7 @@ unittest
 
     //Set sum algorithm or output type
     static immutable _x = [1, 1e100, 1, -1e100];
-    auto x = _x.sliced.map!"a * 10_000";
+    auto x = _x.sliced * 10_000;
     assert(approxEqual(x.hmean!"kbn", 20_000));
     assert(approxEqual(x.hmean!"kb2", 20_000));
     assert(approxEqual(x.hmean!"precise", 20_000));
@@ -1197,7 +1197,8 @@ unittest
 {
     // logsumexp example from doctest https://github.com/scipy/scipy/blob/maintenance/1.0.x/scipy/special/_logsumexp.py
     import mir.ndslice : iota, map, sliced, as;
-    import mir.math : sum, log, exp;
+    import mir.math.common : log, exp;
+    import mir.math.sum;
     import std.math : approxEqual;
     {
         auto x = iota(10).as!double;

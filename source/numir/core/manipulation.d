@@ -218,7 +218,7 @@ TODO:
 +/
 auto resize(S)(S s, size_t size) pure if (isSlice!S)
 out(ret) {
-    import mir.ndslice.algorithm : all;
+    import mir.algorithm.iteration : all;
     assert(ret.length == size);
     if (s.length < size) assert(ret[s.length .. $].all!"a == 0");
 } do {

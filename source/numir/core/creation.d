@@ -117,7 +117,7 @@ auto ones(E = double, size_t N)(size_t[N] lengths...) pure
 ///
 unittest
 {
-    import mir.ndslice.algorithm : all;
+    import mir.algorithm.iteration : all;
 
     //  -------
     // | 1 1 1 |
@@ -177,7 +177,7 @@ auto zeros(E = double, size_t N)(size_t[N] lengths...) pure
 ///
 unittest
 {
-    import mir.ndslice.algorithm : all;
+    import mir.algorithm.iteration : all;
 
     //  -------
     // | 0 0 0 |
