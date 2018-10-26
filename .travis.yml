@@ -37,7 +37,7 @@ before_install:
     fi    
 
 script:
-  - dub test --arch "$ARCH" --build=unittest-cov
+  - dub test --arch "$ARCH" --build=unittest-python-cov
   # FIXME libcurl not found in 32bit
   - if [ $ARCH = "x86_64" ]; then
       wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-64bit-static.tar.xz;

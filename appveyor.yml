@@ -116,4 +116,4 @@ test_script:
  - echo %PATH%
  - '%DC% --version'
  - cd test && python test_npy_fileio.py && cd ..
- - dub test --arch=%Darch% --build=unittest-cov
+ - dub test --arch=%Darch% --build=unittest-python-cov
