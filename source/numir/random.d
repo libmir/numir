@@ -22,7 +22,7 @@ class RNG
         {
             synchronized(RNG.classinfo)
             {
-                _rng = new Random(unpredictableSeed!ulong);
+                _rng = new Random(unpredictableSeed!size_t);
             }
         }
         return *_rng;
