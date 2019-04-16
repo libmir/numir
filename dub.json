@@ -7,7 +7,7 @@
     ],
     "description": "numpy-like API wrappers of mir",
     "dependencies": {
-        "mir-random": "~>2.0.0"
+        "mir-random": ">=2.0.0 <3.4.0"
     },
     "copyright": "Copyright © 2017, karita",
     "license": "BSL-1.0",
