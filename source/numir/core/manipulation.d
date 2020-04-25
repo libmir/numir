@@ -7,17 +7,9 @@ module numir.core.manipulation;
 import mir.ndslice.slice : isSlice;
 import mir.primitives : DimensionCount;
 
-/++
-Create a slice of element type `E` with shape matching the shape of `a` and
-filled with its values. In other words, `nparray` retains the nested array
-lengths as slice shape (unlike `mir.ndslice.sliced`).
+// version = test_deprecated;
 
-Params:
-    a = input used to fill result
-
-Returns:
-    slice filled with values of `a` with the shape of nested lengths.
-+/
+deprecated("use `import mir.ndslice.fuse: fuse, fuseAs;`")
 auto nparray(E=void, T)(T a) pure nothrow
 {
     import numir.core.utility : NestedElementType, shapeNested;
@@ -32,7 +24,7 @@ auto nparray(E=void, T)(T a) pure nothrow
     return m;
 }
 
-///
+version(test_deprecated)
 unittest
 {
     import mir.ndslice.slice : sliced, DeepElementType;
@@ -46,6 +38,7 @@ unittest
     static assert(is(DeepElementType!(typeof(m)) == int));
 }
 
+version(test_deprecated)
 unittest
 {
     auto v = nparray([1, 2]);
@@ -90,11 +83,12 @@ auto concatenate(int axis=0, Slices...)(Slices slices) pure
 ///
 unittest
 {
+    import mir.ndslice.fuse : fuse;
     import mir.ndslice.topology : universal;
     import mir.ndslice.dynamic : transposed;
 
-    auto m = nparray([[1, 2],[3, 4]]);
-    auto u = nparray([[5, 6]]);
+    auto m = fuse([[1, 2],[3, 4]]);
+    auto u = fuse([[5, 6]]);
 
     assert(concatenate(m, u) == [[1, 2], [3, 4], [5, 6]]);
     assert(concatenate(u, m) == [[5, 6], [1, 2], [3, 4]]);
@@ -106,33 +100,24 @@ unittest
 ///
 unittest
 {
+    import mir.ndslice.fuse : fuse;
     import mir.ndslice.topology : iota;
 
-    assert(concatenate!0([[0, 1]].nparray,
-                         [[2, 3]].nparray,
-                         [[4, 5]].nparray) == iota(3, 2));
-    assert(concatenate!1([[0, 1]].nparray,
-                            [[2, 3]].nparray,
-                            [[4, 5]].nparray) == [iota(6)]);
+    assert(concatenate!0([[0, 1]].fuse,
+                         [[2, 3]].fuse,
+                         [[4, 5]].fuse) == iota(3, 2));
+    assert(concatenate!1([[0, 1]].fuse,
+                            [[2, 3]].fuse,
+                            [[4, 5]].fuse) == [iota(6)]);
 
     // axis=-1 is the same to axis=$-1
-    assert(concatenate!(-1)([[0, 1]].nparray,
-                            [[2, 3]].nparray,
-                            [[4, 5]].nparray) == [iota(6)]);
-    assert(concatenate!(-1)([[0, 1]].nparray, [[2]].nparray) == [[0, 1, 2]]);
+    assert(concatenate!(-1)([[0, 1]].fuse,
+                            [[2, 3]].fuse,
+                            [[4, 5]].fuse) == [iota(6)]);
+    assert(concatenate!(-1)([[0, 1]].fuse, [[2]].fuse) == [[0, 1, 2]]);
 }
 
-/++
-Return a view of an n-dimensional slice with a dimension added at `axis`. Used
-to unsqueeze a squeezed slice.
-
-Params:
-    axis = dimension to be unsqueezed (add new dimension)
-    s = n-dimensional slice
-
-Returns:
-    unsqueezed slice
-+/
+deprecated("use `import mir.ndslice.topology: unsqueeze;`")
 auto unsqueeze(long axis, S)(S s) pure
 {
     import numir.core.utility : view;
@@ -145,7 +130,7 @@ auto unsqueeze(long axis, S)(S s) pure
     return s.view(shape);
 }
 
-///
+version(test_deprecated)
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -166,17 +151,7 @@ unittest
                                       [[3], [4], [5]]]);
 }
 
-/++
-Returns a new view of an n-dimensional slice with dimension `axis` removed, if
-it is single-dimensional.
-
-Params:
-    axis = dimension to remove, if it is single-dimensional
-    s = n-dimensional slice
-
-Returns:
-    new view of a slice with dimension removed
-+/
+deprecated("use `import mir.ndslice.topology: squeeze;`")
 auto squeeze(long axis, S)(S s) pure
 {
     import numir.core.utility : view;
@@ -189,7 +164,7 @@ auto squeeze(long axis, S)(S s) pure
     return s.view(shape);
 }
 
-///
+version(test_deprecated)
 unittest
 {
     import mir.ndslice.topology : iota;
@@ -237,34 +212,23 @@ out(ret) {
 
 ///
 unittest {
+    import mir.ndslice.fuse : fuse;
     import mir.ndslice.slice : sliced;
 
     assert([1,2].sliced.resize(3) == [1, 2, 0]);
     assert([1,2].sliced.resize(2) == [1, 2]);
     assert([1,2].sliced.resize(1) == [1]);
 
-    assert([[1,2],[3,4]].nparray.resize(3) == [[1,2], [3,4], [0,0]]);
-    assert([[1,2],[3,4]].nparray.resize(2) == [[1,2], [3,4]]);
-    assert([[1,2],[3,4]].nparray.resize(1) == [[1,2]]);
+    assert([[1,2],[3,4]].fuse.resize(3) == [[1,2], [3,4], [0,0]]);
+    assert([[1,2],[3,4]].fuse.resize(2) == [[1,2], [3,4]]);
+    assert([[1,2],[3,4]].fuse.resize(1) == [[1,2]]);
 
     assert([1,2].sliced.resize(0) == [].sliced!int);
     assert([].sliced!int.resize(3) == [0,0,0]);
 }
 
 
-/++
-Similar to `mir.ndslice.topology.byDim` but `alongDim` does transposed and pack on the input slice along `dim`.
-This `axis` also can be negative as `-dim == DimensionCount!S - dim` like numpy.
-
-Params:
-    s = input slice
-
-Returns:
-    s.transposed(0 .. DimensionCount!S, dim).pack!1
-
-See_Also:
-    `s.alongDim!axis.map!func` is equivalent to numpy.apply_along_axis https://docs.scipy.org/doc/numpy/reference/generated/numpy.apply_along_axis.html
- +/
+deprecated("use `import mir.ndslice.topology: alongDim;`")
 auto alongDim(ptrdiff_t dim, S)(S s) if (isSlice!S)
 {
     enum n = DimensionCount!S;
@@ -280,7 +244,7 @@ auto alongDim(ptrdiff_t dim, S)(S s) if (isSlice!S)
     return s.transposed(ds).pack!1;
 }
 
-///
+version(test_deprecated)
 pure @safe @nogc
 unittest
 {
@@ -306,24 +270,4 @@ unittest
     assert(s.alongDim!(-1).shape == s2);
     static immutable s2f = [5];
     assert(s.alongDim!(-1)[0, 0].shape == s2f);
-}
-
-/// example from https://docs.scipy.org/doc/numpy/reference/generated/numpy.apply_along_axis.html
-pure @safe
-unittest
-{
-    import numir.core : diag, alongDim;
-    import mir.ndslice : iota, map;
-
-    static immutable d33 =
-        [[[1, 0, 0],
-          [0, 2, 0],
-          [0, 0, 3]],
-         [[4, 0, 0],
-          [0, 5, 0],
-          [0, 0, 6]],
-         [[7, 0, 0],
-          [0, 8, 0],
-          [0, 0, 9]]];
-    assert(iota([3, 3], 1).alongDim!(-1).map!diag == d33);
 }

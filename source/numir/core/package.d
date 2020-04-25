@@ -87,23 +87,24 @@ unittest
 
        numpy                     | numir
        --------------------------+------------------------
-       np.array([ [1,2],[3,4] ]) | nparray([ [1,2],[3,4] ])
+       np.array([ [1,2],[3,4] ]) | fuse([ [1,2],[3,4] ])
        np.ascontiguousarray(x)   | x.assumeContiguous
-       np.copy(x)                | ????
+       np.copy(x)                | slice(x)
        np.fromfile(file)         | ????
        np.concatenate            | concatenate
     */
 
     import mir.ndslice.slice : sliced;
+    import mir.ndslice.fuse;
 
     auto s = [[1, 2],[3, 4]].sliced; // mir's sliced
     // error: s[0, 0] = -1;
 
-    auto m = nparray([[1, 2],[3, 4]]);
+    auto m = fuse([[1, 2],[3, 4]]);
     m[0, 0] = -1;
     assert(m == [[-1, 2], [3, 4]]);
 
-    auto u = nparray([[5, 6]]);
+    auto u = fuse([[5, 6]]);
     assert(concatenate(m, u) == [[-1, 2], [3, 4], [5, 6]]);
     assert(concatenate(u, m) == [[5, 6], [-1, 2], [3, 4]]);
 }
@@ -211,7 +212,7 @@ unittest
        x.squeeze   | x.squeeze, x.unsqueeze
      */
      
-    import mir.ndslice.topology : universal, iota;
+    import mir.ndslice.topology : squeeze, unsqueeze, universal, iota;
     import mir.ndslice.allocation : slice;
     import mir.ndslice.dynamic : transposed;
 

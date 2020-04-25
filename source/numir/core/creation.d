@@ -467,6 +467,24 @@ unittest
     assert(a.diag!0(1) == [3]);
 }
 
+/// example from https://docs.scipy.org/doc/numpy/reference/generated/numpy.apply_along_axis.html
+pure @safe
+unittest
+{
+    import mir.ndslice : iota, map, alongDim;
+
+    static immutable d33 =
+        [[[1, 0, 0],
+          [0, 2, 0],
+          [0, 0, 3]],
+         [[4, 0, 0],
+          [0, 5, 0],
+          [0, 0, 6]],
+         [[7, 0, 0],
+          [0, 8, 0],
+          [0, 0, 9]]];
+    assert(iota([3, 3], 1).alongDim!(-1).map!diag == d33);
+}
 
 /++
 Create a diagonal 2-dimensional slice from a 1-dimensional slice.
