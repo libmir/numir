@@ -1,5 +1,5 @@
 /++
-Various statistics functions on ndslice. (e.g., bincount, mean, var, logsumexp)
+Various statistics functions on ndslice. (e.g., bincount, var, logsumexp)
  +/
 module numir.stats;
 
@@ -9,6 +9,7 @@ import std.meta : allSatisfy, anySatisfy;
 import mir.ndslice.slice : isSlice, Slice, SliceKind;
 import mir.primitives : DimensionCount, elementCount;
 
+// version = test_deprecated;
 
 /// bincountable type is a one-dimentional slice with unsigned elements
 enum isBincountable(T) = isUnsigned!(typeof(T.init.front)) && isSlice!T;
@@ -92,13 +93,13 @@ do
 pure @safe nothrow
 unittest
 {
-    import numir : bincount, nparray;
-    import mir.ndslice : sliced, iota;
+    import numir : bincount;
+    import mir.ndslice : sliced, iota, fuse;
 
     auto ys = [0, 1, 1, 0, 1].sliced!size_t;
     assert(ys.bincount == [2, 3]);
     assert(ys.bincount(iota(ys.length)) == [0+3, 1+2+4]);
-    assert(ys.bincount([[1, 0], [-1, 0], [-1, 0], [1, 0], [-1, 0]].nparray) == [[2, 0], [-3,0]]);
+    assert(ys.bincount([[1, 0], [-1, 0], [-1, 0], [1, 0], [-1, 0]].fuse) == [[2, 0], [-3,0]]);
     assert([].sliced!size_t.bincount == [].sliced!size_t);
     assert([].sliced!size_t.bincount([].sliced!double) == [].sliced!double);
 }
@@ -147,8 +148,7 @@ do
 pure nothrow @safe
 unittest
 {
-    import numir.core : alongDim;
-    import mir.ndslice : map, byDim, iota, slice, sliced;
+    import mir.ndslice : map, alongDim, byDim, iota, slice, sliced;
 
     // sorted cases
     assert(iota(5).median == 2);
@@ -181,15 +181,7 @@ unittest
 
 nothrow @nogc: // everything bellow here is nothrow and @nogc.
 
-
-/++
-Computes the mean of a slice.
-
-Params:
-    sumTemplateArgs = template arguments to pass to mir.math.sum
-
-See_also: $(MATHREF sum, sum)
-+/
+deprecated("use `import mir.math.stat: mean;`")
 nothrow @nogc template mean(sumTemplateArgs ...)
 {
     import mir.ndslice.topology : as;
@@ -220,19 +212,21 @@ nothrow @nogc template mean(sumTemplateArgs ...)
 }
 
 // maybe not need
+deprecated("use `import mir.math.stat: mean;`")
 auto mean(S)(S slice) if (isSlice!S)
 {
     return slice.mean!"appropriate";
 }
 
 // maybe not need
+deprecated("use `import mir.math.stat: mean;`")
 auto mean(S, Seed)(S slice, Seed seed) if (isSlice!S)
 {
     return slice.mean!"appropriate"(seed);
 }
 
 
-/// Mean of vector
+version(test_deprecated)
 @nogc pure nothrow
 unittest
 {
@@ -243,7 +237,7 @@ unittest
     assert(x.sliced.mean == 29.25 / 12);
 }
 
-/// Mean of matrix
+version(test_deprecated)
 @nogc pure nothrow
 unittest
 {
@@ -254,13 +248,12 @@ unittest
     assert(x.sliced(2, 6).mean == 29.25 / 12);
 }
 
-/// Column mean of matrix
+version(test_deprecated)
 @nogc pure nothrow
 unittest
 {
     import mir.ndslice.slice : sliced;
-    import mir.ndslice.topology : byDim, map;
-    import numir.core : alongDim;
+    import mir.ndslice.topology : alongDim, byDim, map;
 
     static immutable x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
                           2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
@@ -276,7 +269,7 @@ unittest
     // assert(x.sliced(2, 6).alongDim!0.mean == x.sliced.mean);
 }
 
-/// Can also pass arguments to sum
+version(test_deprecated)
 @nogc nothrow
 unittest
 {
@@ -296,8 +289,7 @@ unittest
     assert(y.mean(ulong.init) == 12884901885 / 3);
 }
 
-/// For integral slices, pass output type as template parameter to ensure output
-/// type is correct
+version(test_deprecated)
 @nogc pure nothrow
 unittest
 {
@@ -309,7 +301,7 @@ unittest
     assert(approxEqual(x.sliced.mean!double, 29.0 / 12, 1.0e-10));
 }
 
-/// Mean works for complex numbers (and other user-defined types)
+version(test_deprecated)
 @nogc pure nothrow
 unittest
 {
@@ -321,12 +313,12 @@ unittest
 }
 
 
-/// Compute mean tensors along specified dimention of tensors
+version(test_deprecated)
 nothrow pure @safe @nogc
 unittest
 {
-    import numir : mean, alongDim;
-    import mir.ndslice : iota, as, map;
+    import numir : mean;
+    import mir.ndslice : alongDim, iota, as, map;
     /*
       [[0,1,2],
        [3,4,5]]
@@ -455,8 +447,8 @@ pure nothrow @safe @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
-    import mir.ndslice.topology : byDim, map;
-    import numir : alongDim, approxEqual;
+    import mir.ndslice.topology : alongDim, byDim, map;
+    import numir : approxEqual;
 
     static immutable x = [1.1, 0.99, 1.01, 1.2, 0.9, 1.05];
     static immutable y = [1.148913, 0.943928, 1.029806];
@@ -504,6 +496,7 @@ nothrow @nogc template hmean(sumTemplateArgs...)
                                            (S slice)
         if (isFloatingPoint!(DeepElementType!(S)))
     {
+        import mir.math.stat: mean;
         return 1 / (1.0 / slice).mean!sumTemplateArgs;
     }
 
@@ -518,7 +511,8 @@ nothrow @nogc template hmean(sumTemplateArgs...)
                                 (S slice, Seed seed)
         if (isFloatingPoint!(DeepElementType!(S)))
     {
-        return 1 / (1.0 / slice).mean!(sumTemplateArgs)(seed);
+        import mir.math.stat: mean;
+        return 1 / ((1.0 / slice).mean!(sumTemplateArgs) + seed);
     }
 }
 
@@ -553,8 +547,8 @@ pure nothrow @safe @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
-    import mir.ndslice.topology : byDim, map;
-    import numir : approxEqual, nparray, alongDim;
+    import mir.ndslice.topology : alongDim, byDim, map;
+    import numir : approxEqual;
 
     static immutable _x = [20.0, 100.0, 2000.0, 10.0, 5.0, 2.0];
     auto x = _x.sliced(2, 3);
@@ -607,6 +601,7 @@ nothrow pure @nogc template center(sumTemplateArgs...)
     +/
     auto center(S)(S slice) if (isSlice!S)
     {
+        import mir.math.stat: mean;
         return slice - slice.mean!(sumTemplateArgs);
     }
 
@@ -619,6 +614,7 @@ nothrow pure @nogc template center(sumTemplateArgs...)
     +/
     auto center(S, Seed)(S slice, Seed seed) if (isSlice!S)
     {
+        import mir.math.stat: mean;
         return slice - slice.mean!(sumTemplateArgs)(seed);
     }
 }
@@ -671,6 +667,7 @@ pure nothrow @nogc private template deviationsPow(sumTemplateArgs...)
     auto deviationsPow(S, Order)
         (S slice, in Order order) if (isSlice!S)
     {
+        import mir.math.stat: mean;
         return (slice - slice.mean!(sumTemplateArgs)) ^^ order;
     }
 
@@ -685,6 +682,7 @@ pure nothrow @nogc private template deviationsPow(sumTemplateArgs...)
     auto deviationsPow(S, Order, Seed)
         (S slice, in Order order, Seed seed) if (isSlice!S)
     {
+        import mir.math.stat: mean;
         return (slice - slice.mean!(sumTemplateArgs)(seed)) ^^ order;
     }
 }
@@ -745,6 +743,7 @@ pure nothrow @nogc template moment(sumTemplateArgs...)
     auto moment(S, Order)
         (S slice, in Order order) if (isSlice!S)
     {
+        import mir.math.stat: mean;
         return ((slice - slice.mean!sumTemplateArgs) ^^ order).mean!sumTemplateArgs;
     }
 
@@ -759,6 +758,7 @@ pure nothrow @nogc template moment(sumTemplateArgs...)
     auto moment(S, Order, Seed)
         (S slice,  in Order order, Seed seed) if (isSlice!S)
     {
+        import mir.math.stat: mean;
         immutable(size_t) sliceSize = slice.size;
         Seed seedMoment = seed; //so as to not re-use seed below
         return ((slice - slice.mean!sumTemplateArgs(seed)) ^^ order)
@@ -798,8 +798,7 @@ pure nothrow @safe @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
-    import mir.ndslice.topology : byDim, map;
-    import numir : approxEqual, alongDim, nparray;
+    import mir.ndslice.topology : byDim, alongDim, map;
     import std.math : approxEqual;
 
     static immutable x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
@@ -834,6 +833,7 @@ pure nothrow @nogc template var(sumTemplateArgs...)
     +/
     auto var(S)(S slice, bool isPopulation = true) if (isSlice!S)
     {
+        import mir.math.stat: mean;
         size_t sliceSize = slice.elementCount;
         auto v = ((slice - slice.mean!sumTemplateArgs) ^^ 2.0).mean!sumTemplateArgs;
         if (!isPopulation) { v *= cast(double) sliceSize / (sliceSize - 1); }
@@ -892,8 +892,8 @@ pure nothrow @safe @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
-    import mir.ndslice.topology : byDim, map;
-    import numir : approxEqual, alongDim;
+    import mir.ndslice.topology : alongDim, byDim, map;
+    import numir : approxEqual;
 
     static immutable x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
                           2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
@@ -908,8 +908,8 @@ unittest
 pure nothrow @safe @nogc
 unittest
 {
-    import mir.ndslice : iota, map, as;
-    import numir : var, alongDim;
+    import mir.ndslice : alongDim, iota, map, as;
+    import numir : var;
     /*
       [[1, 2],
        [3, 4]]
@@ -1015,9 +1015,9 @@ pure nothrow @safe @nogc
 unittest
 {
     import mir.ndslice.slice : sliced;
-    import mir.ndslice.topology : byDim, map;
+    import mir.ndslice.topology : alongDim, byDim, map;
     import mir.math.common : sqrt;
-    import numir : approxEqual, alongDim;
+    import numir : approxEqual;
 
     static immutable x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
                           2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
