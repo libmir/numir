@@ -90,7 +90,7 @@ do
 }
 
 ///
-pure @safe nothrow
+pure @safe
 unittest
 {
     import numir : bincount;
