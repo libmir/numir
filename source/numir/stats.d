@@ -198,13 +198,7 @@ nothrow @nogc template mean(sumTemplateArgs ...)
         return slice.sum!(sumTemplateArgs) / slice.elementCount;
     }
 
-    /++
-    Params:
-        slice = input slice
-        seed = seed used to calculate sum
-    Returns:
-        mean of slice
-    +/
+    deprecated // twice
     auto mean(S, Seed)(S slice, Seed seed) if (isSlice!S)
     {
         return slice.sum!(sumTemplateArgs)(seed) / slice.elementCount;
@@ -500,13 +494,7 @@ nothrow @nogc template hmean(sumTemplateArgs...)
         return 1 / (1.0 / slice).mean!sumTemplateArgs;
     }
 
-    /++
-    Params:
-        slice = input slice
-        seed = seed used to calculate sum (for harmonic mean)
-    Returns:
-        harmonic mean of slice
-    +/
+    deprecated
     auto hmean(S, Seed)
                                 (S slice, Seed seed)
         if (isFloatingPoint!(DeepElementType!(S)))
@@ -575,11 +563,6 @@ unittest
     assert(approxEqual(x.hmean!"kb2", 20_000));
     assert(approxEqual(x.hmean!"precise", 20_000));
     assert(approxEqual(x.hmean!(double, "precise"), 20_000.0));
-
-    //Provide a seed
-    auto y = float.max.repeat(3);
-    double seed = 0.0;
-    assert(approxEqual(y.hmean(seed), float.max));
 }
 
 /++
@@ -605,17 +588,11 @@ nothrow pure @nogc template center(sumTemplateArgs...)
         return slice - slice.mean!(sumTemplateArgs);
     }
 
-    /++
-    Params:
-        slice = input slice
-        seed = seed used to calculate sum (for mean)
-    Returns:
-        centered slice
-    +/
+    deprecated
     auto center(S, Seed)(S slice, Seed seed) if (isSlice!S)
     {
         import mir.math.stat: mean;
-        return slice - slice.mean!(sumTemplateArgs)(seed);
+        return slice - (slice.mean!(sumTemplateArgs) + seed);
     }
 }
 
@@ -671,19 +648,12 @@ pure nothrow @nogc private template deviationsPow(sumTemplateArgs...)
         return (slice - slice.mean!(sumTemplateArgs)) ^^ order;
     }
 
-    /++
-    Params:
-        slice = input slice
-        order = order of power
-        seed = seed used to calculate sum (for mean)
-    Returns:
-        centered slice with each each value taken to power
-    +/
+    deprecated
     auto deviationsPow(S, Order, Seed)
         (S slice, in Order order, Seed seed) if (isSlice!S)
     {
         import mir.math.stat: mean;
-        return (slice - slice.mean!(sumTemplateArgs)(seed)) ^^ order;
+        return (slice - (slice.mean!(sumTemplateArgs) + seed)) ^^ order;
     }
 }
 
@@ -747,21 +717,14 @@ pure nothrow @nogc template moment(sumTemplateArgs...)
         return ((slice - slice.mean!sumTemplateArgs) ^^ order).mean!sumTemplateArgs;
     }
 
-    /++
-    Params:
-        slice = input slice
-        order = order of moment
-        seed = seed used to calculate sum (for mean)
-    Returns:
-        n-th central moment of slice
-    +/
+    deprecated
     auto moment(S, Order, Seed)
         (S slice,  in Order order, Seed seed) if (isSlice!S)
     {
         import mir.math.stat: mean;
         immutable(size_t) sliceSize = slice.size;
         Seed seedMoment = seed; //so as to not re-use seed below
-        return ((slice - slice.mean!sumTemplateArgs(seed)) ^^ order)
+        return ((slice - (slice.mean!sumTemplateArgs + seed)) ^^ order)
             .mean!sumTemplateArgs(seedMoment);
     }
 }
@@ -840,18 +803,11 @@ pure nothrow @nogc template var(sumTemplateArgs...)
         return v;
     }
 
-    /++
-    Params:
-        slice = input slice
-        seed = seed used to calculate sum (for mean and variance)
-        isPopulation = true (default) if computing population variance, false otherwise
-    Returns:
-        variance of slice
-    +/
+    deprecated
     auto var(S, Seed)(S slice, Seed seed, bool isPopulation = true) if (isSlice!S)
     {
         size_t sliceSize = slice.elementCount;
-        auto v = ((slice - slice.mean!sumTemplateArgs) ^^ 2.0).mean!sumTemplateArgs;
+        auto v = ((slice - (slice.mean!sumTemplateArgs + seed)) ^^ 2.0).mean!sumTemplateArgs;
         if (!isPopulation) { v *= cast(double) sliceSize / (sliceSize - 1); }
         return v;
     }
@@ -963,15 +919,7 @@ pure nothrow @nogc template std(sumTemplateArgs...)
         return slice.var!(sumTemplateArgs)(isPopulation).sqrt;
     }
 
-    /++
-    Params:
-        slice = input slice
-        seed = seed used to calculate sum (for mean and variance)
-        isPopulation = true (default) if computing population standard deviation, false
-               otherwise
-    Returns:
-        standard deviation of slice
-    +/
+    deprecated
     auto std(S, Seed)(S slice, Seed seed, bool isPopulation = false) if (isSlice!S)
     {
         return slice.var!(sumTemplateArgs)(seed, isPopulation).sqrt;
@@ -1059,15 +1007,7 @@ pure nothrow @nogc template zscore(sumTemplateArgs...)
         return sliceCenter / sliceVar.sqrt;
     }
 
-    /++
-    Params:
-        slice = input slice
-        seed = seed used to calculate sum (for mean and standard deviation)
-        isPopulation = true (default) if computing population standard
-                       deviation, false otherwise
-    Returns:
-        zscore of slice
-    +/
+    deprecated
     auto zscore(S, Seed)(S slice, Seed seed, bool isPopulation = true) if (isSlice!S)
     {
         size_t sliceSize = slice.elementCount;
