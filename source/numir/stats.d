@@ -344,23 +344,24 @@ Returns:
 See_Also:
     @9il comment https://github.com/libmir/numir/pull/24#discussion_r168958617
  +/
+deprecated("use `import mir.math.stat: gmean;`")
 pure nothrow @safe @nogc
 auto gmean(S)(S slice) if (isSlice!S)
 {
     import mir.algorithm.iteration : each;
     import mir.ndslice.slice : DeepElementType;
-    import mir.math.numeric : Prod;
+    import mir.math.numeric : ProdAccumulator;
     import mir.math.common : exp2, pow;
     import std.math : ldexp;
     import std.traits : Unqual;
     alias D = Unqual!(DeepElementType!(typeof(slice)));
 
-    Prod!D pr;
+    ProdAccumulator!D pr;
     slice.each!(e => pr.put(e));
     auto y = cast(D) 1.0 / slice.elementCount;
     auto z = y * pr.exp;
     auto ep = cast(int) z;
-    auto ma = pr.x.pow(y) * exp2(z - ep);
+    auto ma = pr.prod.pow(y) * exp2(z - ep);
     return ldexp(ma, ep);
     /*
       (pr.x * 2 ^^ pr.exp) ^^ y
@@ -379,12 +380,13 @@ Params:
 Returns:
     geometric mean of slice
 +/
+deprecated("use `import mir.math.stat: gmean;`")
 pure nothrow @safe @nogc
 auto gmean(S, Seed)(S slice, Seed seed) if (isSlice!S)
 {
     import mir.algorithm.iteration : each;
     import mir.ndslice.slice : DeepElementType;
-    import mir.math.numeric : Prod;
+    import mir.math.numeric : ProdAccumulator;
     import mir.math.common : exp2, pow;
     import std.math : ldexp;
     import std.traits : Unqual;
@@ -392,7 +394,7 @@ auto gmean(S, Seed)(S slice, Seed seed) if (isSlice!S)
     import std.bitmanip : DoubleRep;
     DoubleRep rep;
     rep.value = seed;
-    Prod!Seed pr;
+    ProdAccumulator!Seed pr;
     pr.exp = rep.exponent;
     rep.exponent = 1;
     pr.x = rep.value * 0.5;
@@ -411,6 +413,7 @@ auto gmean(S, Seed)(S slice, Seed seed) if (isSlice!S)
 }
 
 /// Geometric mean of vector
+version(test_deprecated)
 pure nothrow @safe @nogc
 unittest
 {
@@ -424,6 +427,7 @@ unittest
 }
 
 /// Geometric mean of matrix
+version(test_deprecated)
 pure nothrow @safe @nogc
 unittest
 {
@@ -437,6 +441,7 @@ unittest
 }
 
 /// Column geometric mean of matrix
+version(test_deprecated)
 pure nothrow @safe @nogc
 unittest
 {
@@ -452,6 +457,7 @@ unittest
 }
 
 /// Geometric mean of vector with seed
+version(test_deprecated)
 pure nothrow @safe @nogc
 unittest
 {
@@ -476,6 +482,7 @@ Params:
 
 See_also: $(MATHREF sum, sum)
 +/
+deprecated("use `import mir.math.stat: hmean;`")
 nothrow @nogc template hmean(sumTemplateArgs...)
 {
     import mir.ndslice.slice : DeepElementType;
@@ -505,6 +512,7 @@ nothrow @nogc template hmean(sumTemplateArgs...)
 }
 
 /// Harmonic mean of vector
+version(test_deprecated)
 pure nothrow @safe @nogc
 unittest
 {
@@ -518,6 +526,7 @@ unittest
 }
 
 /// Harmonic mean of matrix
+version(test_deprecated)
 pure nothrow @safe @nogc
 unittest
 {
@@ -531,6 +540,7 @@ unittest
 }
 
 /// Column harmonic mean of matrix
+version(test_deprecated)
 pure nothrow @safe @nogc
 unittest
 {
@@ -549,6 +559,7 @@ unittest
 }
 
 /// Can also pass arguments to hmean
+version(test_deprecated)
 nothrow @nogc
 unittest
 {
@@ -574,6 +585,7 @@ Params:
 
 See_also: $(MATHREF sum, sum)
 +/
+deprecated("use `import mir.math.stat: center;`")
 nothrow pure @nogc template center(sumTemplateArgs...)
 {
     /++
@@ -597,6 +609,7 @@ nothrow pure @nogc template center(sumTemplateArgs...)
 }
 
 /// Center vector
+version(test_deprecated)
 pure nothrow @nogc
 unittest
 {
@@ -610,6 +623,7 @@ unittest
 }
 
 /// Center matrix
+version(test_deprecated)
 pure nothrow @nogc
 unittest
 {
@@ -785,6 +799,7 @@ TODO:
 
 See_also: $(MATHREF sum, sum)
 +/
+deprecated("use `import mir.math.stat: variance;`")
 pure nothrow @nogc template var(sumTemplateArgs...)
 {
     /++
@@ -814,6 +829,7 @@ pure nothrow @nogc template var(sumTemplateArgs...)
 }
 
 /// Variance of vector
+version(test_deprecated)
 pure nothrow @nogc
 unittest
 {
@@ -829,6 +845,7 @@ unittest
 }
 
 /// Variance of matrix
+version(test_deprecated)
 pure nothrow @nogc
 unittest
 {
@@ -844,6 +861,7 @@ unittest
 }
 
 /// Row variance of matrix
+version(test_deprecated)
 pure nothrow @safe @nogc
 unittest
 {
@@ -861,6 +879,7 @@ unittest
 }
 
 /// Compute variance tensors along specified dimention of tensors with the negative dim support
+version(test_deprecated)
 pure nothrow @safe @nogc
 unittest
 {
@@ -902,6 +921,7 @@ Params:
 
 See_also: $(MATHREF sum, sum)
 +/
+deprecated("use `import mir.math.stat: standardDeviation;`")
 pure nothrow @nogc template std(sumTemplateArgs...)
 {
     import mir.math.common : sqrt;
@@ -927,6 +947,7 @@ pure nothrow @nogc template std(sumTemplateArgs...)
 }
 
 /// Standard deviation of vector
+version(test_deprecated)
 pure nothrow @nogc
 unittest
 {
@@ -943,6 +964,7 @@ unittest
 }
 
 /// Standard deviation of matrix
+version(test_deprecated)
 pure nothrow @nogc
 unittest
 {
@@ -959,6 +981,7 @@ unittest
 }
 
 /// Row standard deviation of matrix
+version(test_deprecated)
 pure nothrow @safe @nogc
 unittest
 {
