@@ -1,0 +1,2464 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>numir.stats</title>
+    <style type="text/css" media="screen">
+      html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p,
+      blockquote, pre, a, abbr, address, cite, code, del, dfn, em, figure,
+      img, ins, kbd, q, s, samp, small, strong, sub, sup, var, b, u, i, dl,
+      dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption,
+      tbody, tfoot, thead, tr, th, td {
+        background: transparent none repeat scroll 0 0;
+        border: 0 none;
+        font-size: 100%;
+        margin: 0;
+        outline: 0 none;
+        padding: 0;
+        vertical-align: baseline;
+      }
+
+      h1 { font-size: 200%; }
+      h2 { font-size: 160%; }
+      h3 { font-size: 120%; }
+      h4 { font-size: 100%; }
+      h5 { font-size: 80%; }
+      h6 { font-size: 80%; font-weight: normal; }
+
+      ul, ol {
+        margin: 1.4em 0;
+      }
+      ul ul, ol ol, ul ol, ol ul {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+      ul, ol {
+        margin-left: 2.8em;
+      }
+
+      ol {
+        list-style: decimal;
+      }
+      ol ol {
+        list-style: lower-alpha;
+      }
+      ol ol ol {
+        list-style: lower-roman;
+      }
+      ol ol ol ol {
+        list-style: decimal;
+      }
+
+      blockquote {
+        margin: 0.1em;
+        margin-left: 1em;
+        border-left: 2px solid #cccccc;
+        padding-left: 0.7em;
+      }
+
+      .color_red { color: #dc322f; }
+      .color_blue { color: #268bd2; }
+      .color_green { color: #859901; }
+      .color_yellow { color: #b58901; }
+      .color_black { color: black; }
+      .color_white { color: white; }
+
+      .font_big {
+        font-size: 1.2em;
+      }
+
+      .ddoc_section_h {
+        font-weight: bold;
+        font-size: 13px;
+        line-height: 19.5px;
+        margin-top: 11px;
+        display: block;
+      }
+
+      body.dlang .dlang {
+        display: inline-block;
+      }
+
+      body.dlang .declaration .dlang {
+          display: block;
+      }
+
+      body.dlang .ddoc_header_anchor a.dlang {
+        display: block;
+        color: rgba(0, 136, 204, 1);
+        text-decoration: none;
+      }
+
+      body.dlang .ddoc_header_anchor .code {
+        color: rgba(0, 136, 204, 1);
+      }
+
+      #ddoc_main .module {
+          border-color: currentColor rgba(233, 233, 233, 1) rgba(233, 233, 233, 1);
+          border-style: none solid solid;
+          border-width: 0 1px 1px;
+          overflow-x: hidden;
+          padding: 15px;
+      }
+
+      #ddoc_main .section .section {
+        margin-top: 0;
+      }
+
+      #ddoc_main .ddoc_module_members_section {
+          padding: 1px 0 0;
+          transition: transform 0.3s ease 0s;
+      }
+
+      #ddoc_main .ddoc_member, #ddoc_main .ddoc_module_members section.intro {
+          background: #fff none repeat scroll 0 0;
+          list-style-type: none;
+          width: 100%;
+      }
+
+      #ddoc_main .ddoc_header_anchor {
+          font-size: 1.4em;
+          transition: transform 0.3s ease 0s;
+      }
+
+      #ddoc_main .ddoc_header_anchor > .code {
+          display: inline-block;
+
+      }
+
+      #ddoc_main .ddoc_decl {
+        background-color: transparent;
+        height: 100%;
+        left: 0;
+        top: 0;
+        padding: 0;
+        padding-left: 15px;
+      }
+
+      #ddoc_main .ddoc_decl .section, #ddoc_main .section.ddoc_sections {
+        background: white none repeat scroll 0 0;
+        margin: 0;
+        padding: 5px;
+        position: relative;
+        border-radius: 5px;
+      }
+
+      #ddoc_main .ddoc_decl .section h4:first-of-type, #ddoc_main .section.ddoc_sections h4:first-of-type {
+        font-size: 13px;
+        line-height: 1.5;
+        margin-top: 21px;
+      }
+
+      #ddoc_main .section .declaration {
+          margin-top: 21px;
+      }
+
+      #ddoc_main .section .declaration .code {
+          color: rgba(0, 0, 0, 1);
+          margin-bottom: 15px;
+          padding-bottom: 6px;
+      }
+
+      #ddoc_main .declaration div .para {
+          margin-bottom: 0;
+      }
+
+      #ddoc_main .ddoc_params .graybox tr td:first-of-type {
+        padding: 7px;
+        text-align: right;
+        vertical-align: top;
+        word-break: normal;
+        white-space: nowrap;
+      }
+
+      #ddoc_main .ddoc_params .graybox {
+        border: 0 none;
+      }
+
+      #ddoc_main .ddoc_params .graybox td {
+        border-color: rgba(214, 214, 214, 1);
+      }
+
+      #ddoc_main .ddoc_params .graybox tr:first-child > td {
+        border-top: 0 none;
+      }
+
+      #ddoc_main .ddoc_params .graybox tr:last-child > td {
+        border-bottom: 0 none;
+      }
+
+      #ddoc_main .ddoc_params .graybox tr > td:first-child {
+        border-left: 0 none;
+      }
+
+      #ddoc_main .ddoc_params .graybox tr > td:last-child {
+        border-right: 0 none;
+        width: 100%;
+      }
+
+      #ddoc_main em.term, #ddoc_main em.term .code {
+        color: rgba(65, 65, 65, 1);
+        font-size: 12px;
+        font-style: italic;
+        line-height: 1.5;
+      }
+
+      #ddoc_main .see-also {
+        cursor: pointer;
+        font-family: Menlo,monospace;
+      }
+
+      #ddoc_main .ddoc_decl .section > div:last-of-type {
+        margin-bottom: 15px;
+      }
+
+      #ddoc_main .ddoc_member, #ddoc_main .ddoc_module_members {
+          transition: transform 0.3s ease 0s;
+      }
+
+      #ddoc_main .code_sample {
+        background: inherit;
+      }
+
+      #ddoc_main .declaration .code-line {
+          display: block;
+          font: 1em Menlo,monospace;
+      }
+
+      #ddoc_main a[name] {
+        margin: -112px 0 0;
+        padding-top: 112px;
+      }
+
+      #ddoc_main .ddoc_decl td {
+        max-width: inherit;
+      }
+
+      #ddoc_main .declaration a {
+        color: inherit;
+      }
+
+      #ddoc_main .declaration a:hover {
+          color: rgba(0, 136, 204, 1);
+          text-decoration: underline;
+      }
+
+      body.ddoc {
+        background-color: transparent;
+        color: rgba(0, 0, 0, 1);
+        font-family: Helvetica,Arial,sans-serif;
+        font-size: 62.5%;
+        margin: 0;
+        border: 0;
+        left: 0;
+        top: 0;
+        padding: 0;
+      }
+
+      .ddoc a[name] {
+        display: block;
+        height: 0;
+        margin: -85px 0 0;
+        padding-top: 85px;
+        width: 0;
+      }
+
+      .ddoc .module {
+          border-color: transparent;
+          background-color: rgba(255, 255, 255, 1);
+          border-color: currentColor rgba(233, 233, 233, 1) rgba(233, 233, 233, 1);
+          border-image: none;
+          border-style: none solid solid;
+          border-width: 0 1px 1px;
+          box-shadow: 0 0 1px rgba(0, 0, 0, 0.07);
+          display: block;
+          margin-left: 0;
+          min-height: calc(100% - 173px);
+          overflow: auto;
+          padding-bottom: 100px;
+      }
+
+      .ddoc .content_wrapper {
+          background-color: rgba(242, 242, 242, 1);
+          margin: 0 auto;
+          max-width: 980px;
+      }
+
+      .ddoc .section {
+        padding: 15px 25px 30px;
+      }
+
+      .ddoc .section .section {
+        margin: 30px 0 0;
+        padding: 0;
+      }
+
+      .ddoc .para {
+        color: rgba(65, 65, 65, 1);
+        font-size: 1.4em;
+        line-height: 145%;
+        margin-bottom: 15px;
+      }
+
+      .ddoc .ddoc_examples .para {
+        margin-bottom: 0;
+      }
+
+      .ddoc .module_name {
+          color: rgba(0, 0, 0, 1);
+          display: block;
+          font-family: Helvetica;
+          font-size: 2.8em;
+          font-weight: 100;
+          margin-bottom: 0;
+          padding: 15px 0;
+      }
+
+      .ddoc .module a {
+          color: rgba(0, 136, 204, 1);
+          text-decoration: none;
+      }
+
+      .ddoc .code {
+        color: rgba(128, 128, 128, 1);
+        font-family: Menlo,monospace;
+        font-size: 0.85em;
+        word-wrap: break-word;
+      }
+
+      .ddoc .code i {
+        font-style: normal;
+      }
+
+      .ddoc .code .code {
+        font-size: 1em;
+      }
+
+      .ddoc .code_sample {
+        background-clip: padding-box;
+        margin: 1px 0;
+        text-align: left;
+      }
+
+      .ddoc .code_sample {
+        display: block;
+        font-size: 1.4em;
+        margin-left: 21px;
+      }
+
+      .ddoc ol .code_sample {
+        font-size: 1em;
+      }
+
+      .ddoc .code_lines {
+        counter-reset: li;
+        line-height: 1.6em;
+        list-style: outside none none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .ddoc .code_listing .code_sample div {
+        margin-left: 13px;
+        width: 93%;
+      }
+
+      .ddoc .code_listing .code_sample div .code_lines li {
+        list-style-type: none;
+        margin: 0;
+        padding-right: 10px;
+      }
+
+      .ddoc .code_sample div .code_lines li::before {
+        margin-left: -33px;
+        margin-right: 25px;
+      }
+
+      .ddoc .code_sample div .code_lines li:nth-child(n+10)::before {
+        margin-left: -39px;
+        margin-right: 25px;
+      }
+
+      .ddoc .code_sample div .code_lines li:nth-child(n+100)::before {
+        margin-left: -46px;
+        margin-right: 25px;
+      }
+
+      .ddoc .code_sample .code_lines .code {
+        color: #000;
+      }
+
+      .ddoc div.dlang {
+        margin: 10px 0 21px;
+        padding: 4px 0 2px 10px;
+      }
+
+      .ddoc div.dlang {
+          margin: 10px 0 21px;
+          padding: 4px 0 2px 10px;
+      }
+
+      .ddoc div.dlang {
+        border-left: 5px solid rgba(0, 155, 51, 0.2);
+      }
+
+      .ddoc .code_lines li::before {
+        color: rgba(128, 128, 128, 1);
+        content: counter(li, decimal);
+        counter-increment: li;
+        font-family: Menlo,monospace;
+        font-size: 0.9em;
+        margin-right: 16px;
+      }
+
+      .ddoc .code_lines li {
+        padding-left: 0;
+        white-space: pre-wrap;
+      }
+
+      .ddoc .code_lines li:only-of-type::before {
+        color: rgba(255, 255, 255, 1);
+        content: " ";
+      }
+
+      .ddoc .code_lines li:only-of-type {
+        color: rgba(255, 255, 255, 1);
+        content: " ";
+      }
+
+      .ddoc .code_lines li:nth-child(n+10) {
+        text-indent: -17px;
+      }
+
+      .ddoc .code_lines li:nth-child(n+10)::before {
+        margin-right: 12px;
+      }
+
+      .ddoc .graybox {
+        border: 1px solid rgba(233, 233, 233, 1);
+        border-collapse: collapse;
+        border-spacing: 0;
+        empty-cells: hide;
+        margin: 20px 0 36px;
+        text-align: left;
+      }
+
+      .ddoc .graybox p {
+        margin: 0;
+        min-width: 50px;
+      }
+
+      .ddoc th {
+        margin: 0;
+        max-width: 260px;
+        padding: 5px 10px 5px 10px;
+        vertical-align: bottom;
+      }
+
+      .ddoc td {
+        border: 1px solid rgba(233, 233, 233, 1);
+        margin: 0;
+        max-width: 260px;
+        padding: 5px 10px 5px 10px;
+        vertical-align: middle;
+      }
+
+      .punctuation {
+        color: rgba(0, 0, 0, 1);
+      }
+
+      .comment {
+        color: rgba(0, 131, 18, 1);
+      }
+
+      .operator {
+        color: #000;
+      }
+
+      .keyword {
+        color: rgba(170, 13, 145, 1);
+      }
+
+      .keyword_type {
+        color: rgba(170, 51, 145, 1);
+      }
+
+      .string_literal {
+        color: rgba(196, 26, 22, 1);
+      }
+
+      .ddoc_psuper_symbol {
+        color: rgba(92, 38, 153, 1);
+      }
+
+      .param {
+        color: rgba(0, 0, 0, 1);
+      }
+
+      .psymbol {
+        color: rgba(0, 0, 0, 1);
+      }
+
+      .ddoc_member_header .ddoc_header_anchor .code {
+        font-size: 1em;
+      }
+    </style>
+  </head>
+  <body id="ddoc_main" class="ddoc dlang">
+    <div class="content_wrapper">
+      <article class="module">
+        <h1 class="module_name">numir.stats</h1>
+        <section id="module_content"><section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Various statistics functions on ndslice. (e.g., bincount, var, logsumexp)
+  </p>
+</div>
+
+</section>
+<section class="section ddoc_module_members_section">
+  <div class="ddoc_module_members">
+    <ul class="ddoc_members">
+  <li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#isBincountable" id="isBincountable"><code class="code">isBincountable</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="isBincountable"></span>enum auto <code class="code">isBincountable</code>(T);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    bincountable type is a one-dimentional slice with unsigned elements
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#bincount" id="bincount"><code class="code">bincount</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="bincount"></span>pure nothrow @safe auto <code class="code">bincount</code>(T)(T <code class="code">xs</code>, size_t <code class="code">minlength</code> = 0) if (isBincountable!T);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Count number of occurrences of each value in slice of non-negative ints.
+
+  </p>
+</div>
+<div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">T <code class="code">xs</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      input slice
+    </p>
+  </div>
+</td>
+</tr>
+<tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">size_t <code class="code">minlength</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      a minimum number of bins for the output array
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_returns">
+  <h4>Return Value</h4>
+  <p class="para">
+    size_t slice of number of ocurrence
+
+  </p>
+</div>
+<div class="ddoc_section">
+  <p class="para">
+    <span class="ddoc_section_h">TODO:</span>
+support @nogc
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#bincount" id="bincount"><code class="code">bincount</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="bincount.2"></span>pure nothrow @safe auto <code class="code">bincount</code>(T, W)(T <code class="code">xs</code>, W <code class="code">weights</code>, size_t <code class="code">minlength</code> = 0) if (isBincountable!T &amp;&amp; isSlice!W);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Count weighted number of occurrences of each value in slice of non-negative ints.
+Note that empty weight causes compiler error.
+
+  </p>
+</div>
+<div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">T <code class="code">xs</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      input slice
+    </p>
+  </div>
+</td>
+</tr>
+<tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">W <code class="code">weights</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      <code class="code">weights</code> slice of the same length as <code class="code"><code class="code">xs</code></code>
+    </p>
+  </div>
+</td>
+</tr>
+<tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">size_t <code class="code">minlength</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      a minimum number of bins for the output array
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_returns">
+  <h4>Return Value</h4>
+  <p class="para">
+    slice like <code class="code">weights</code> of weighted number of ocurrences
+
+  </p>
+</div>
+<div class="ddoc_section">
+  <p class="para">
+    <span class="ddoc_section_h">TODO:</span>
+support @nogc
+  </p>
+</div>
+<div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> numir : <span class="psymbol">bincount</span>;
+<span class="keyword">import</span> mir.ndslice : sliced, iota, fuse;
+
+<span class="keyword">auto</span> ys = [0, 1, 1, 0, 1].sliced!size_t;
+<span class="keyword">assert</span>(ys.<span class="psymbol">bincount</span> == [2, 3]);
+<span class="keyword">assert</span>(ys.<span class="psymbol">bincount</span>(iota(ys.length)) == [0+3, 1+2+4]);
+<span class="keyword">assert</span>(ys.<span class="psymbol">bincount</span>([[1, 0], [-1, 0], [-1, 0], [1, 0], [-1, 0]].fuse) == [[2, 0], [-3,0]]);
+<span class="keyword">assert</span>([].sliced!size_t.<span class="psymbol">bincount</span> == [].sliced!size_t);
+<span class="keyword">assert</span>([].sliced!size_t.<span class="psymbol">bincount</span>([].sliced!<span class="keyword">double</span>) == [].sliced!<span class="keyword">double</span>);
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div>
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#gmean" id="gmean"><code class="code">gmean</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="gmean"></span>pure nothrow @nogc @safe auto <code class="code">gmean</code>(S)(S <code class="code">slice</code>) if (isSlice!S);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Computes the geometric mean of a <code class="code">slice</code>.
+The product in <code class="code">gmean</code> is computed in logarithms to avoid FP overflows.
+
+  </p>
+</div>
+<div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">S <code class="code">slice</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      input <code class="code">slice</code>
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_returns">
+  <h4>Return Value</h4>
+  <p class="para">
+    geometric mean of <code class="code">slice</code>
+
+
+  </p>
+</div>
+<div class="ddoc_see_also">
+  <h4>See Also</h4>
+  <p class="para">
+    @9il comment <a href="https://github.com/libmir/numir/pull/24#discussion_r168958617">https://github.com/libmir/numir/pull/24#discussion_r168958617</a>
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#gmean" id="gmean"><code class="code">gmean</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="gmean.2"></span>pure nothrow @nogc @safe auto <code class="code">gmean</code>(S, Seed)(S <code class="code">slice</code>, Seed <code class="code">seed</code>) if (isSlice!S);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Computes the geometric mean of a <code class="code">slice</code>.
+
+  </p>
+</div>
+<div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">S <code class="code">slice</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      input <code class="code">slice</code>
+    </p>
+  </div>
+</td>
+</tr>
+<tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">Seed <code class="code">seed</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      <code class="code">seed</code> used to calculate product (should be 1 in most cases)
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_returns">
+  <h4>Return Value</h4>
+  <p class="para">
+    geometric mean of <code class="code">slice</code>
+  </p>
+</div>
+<div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Geometric mean of vector
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.<span class="param">slice</span> : sliced;
+<span class="keyword">import</span> std.math : approxEqual;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [1.1, 0.99, 1.01, 1.2, 0.9, 1.05];
+
+<span class="keyword">auto</span> y = x.sliced.<span class="psymbol">gmean</span>;
+<span class="keyword">assert</span>(approxEqual(y, 1.037513));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Geometric mean of matrix
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.<span class="param">slice</span> : sliced;
+<span class="keyword">import</span> std.math : approxEqual;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [1.1, 0.99, 1.01, 1.2, 0.9, 1.05];
+
+<span class="keyword">auto</span> y = x.sliced(2, 3).<span class="psymbol">gmean</span>;
+<span class="keyword">assert</span>(approxEqual(y, 1.037513));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Column geometric mean of matrix
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.<span class="param">slice</span> : sliced;
+<span class="keyword">import</span> mir.ndslice.topology : alongDim, byDim, map;
+<span class="keyword">import</span> numir : approxEqual;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [1.1, 0.99, 1.01, 1.2, 0.9, 1.05];
+<span class="keyword">static</span> <span class="keyword">immutable</span> y = [1.148913, 0.943928, 1.029806];
+<span class="comment">// Use byDim or alongDim with map to compute mean of row/column.
+</span><span class="keyword">assert</span>(approxEqual(x.sliced(2, 3).byDim!1.map!<span class="psymbol">gmean</span>, y.sliced));
+<span class="keyword">assert</span>(approxEqual(x.sliced(2, 3).alongDim!0.map!<span class="psymbol">gmean</span>, y.sliced));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Geometric mean of vector with <code class="code">seed</code>
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.<span class="param">slice</span> : sliced;
+<span class="keyword">import</span> std.math : approxEqual;
+
+<span class="keyword">enum</span> l = 2.0 ^^ (<span class="keyword">double</span>.max_exp - 1);
+<span class="keyword">enum</span> s = 2.0 ^^ -(<span class="keyword">double</span>.max_exp - 1);
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [l, l, l, s, s, s, 0.8 * 2.0 ^^ 10];
+
+<span class="keyword">real</span> <span class="param">seed</span> = 1;
+<span class="keyword">auto</span> y = x.sliced.<span class="psymbol">gmean</span>(<span class="param">seed</span>);
+<span class="keyword">assert</span>(approxEqual(y, (0.8 * 2.0 ^^ 10) ^^ (1.0 / 7.0)));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div>
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#hmean" id="hmean"><code class="code">hmean</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="hmean"></span>template <code class="code">hmean</code>(sumTemplateArgs...)
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Computes the harmonic mean of a slice.
+
+  </p>
+</div>
+<div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">sumTemplateArgs</em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      template arguments to pass to mir.math.sum (to compute the
+                      harmonic mean)
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_see_also">
+  <h4>See Also</h4>
+  <p class="para">
+    
+  </p>
+</div>
+<div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Harmonic mean of vector
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice : sliced;
+<span class="keyword">import</span> std.math : approxEqual;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [20.0, 100.0, 2000.0, 10.0, 5.0, 2.0];
+
+<span class="keyword">auto</span> y = x.sliced.<span class="psymbol">hmean</span>;
+<span class="keyword">assert</span>(approxEqual(y, 6.97269));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Harmonic mean of matrix
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice : sliced;
+<span class="keyword">import</span> std.math : approxEqual;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [20.0, 100.0, 2000.0, 10.0, 5.0, 2.0];
+
+<span class="keyword">auto</span> y = x.sliced(2, 3).<span class="psymbol">hmean</span>;
+<span class="keyword">assert</span>(approxEqual(y, 6.97269));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Column harmonic mean of matrix
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice : sliced;
+<span class="keyword">import</span> mir.ndslice.topology : alongDim, byDim, map;
+<span class="keyword">import</span> numir : approxEqual;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> _x = [20.0, 100.0, 2000.0, 10.0, 5.0, 2.0];
+<span class="keyword">auto</span> x = _x.sliced(2, 3);
+<span class="keyword">static</span> <span class="keyword">immutable</span> _y = [13.33333, 9.52381, 3.996004];
+<span class="keyword">auto</span> y = _y.sliced;
+
+<span class="comment">// Use byDim or alongDim with map to compute mean of row/column.
+</span><span class="keyword">assert</span>(approxEqual(x.byDim!1.map!<span class="psymbol">hmean</span>, y));
+<span class="keyword">assert</span>(approxEqual(x.alongDim!0.map!<span class="psymbol">hmean</span>, y));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Can also pass arguments to <code class="code">hmean</code>
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice: sliced;
+<span class="keyword">import</span> mir.ndslice.topology: map, repeat;
+<span class="keyword">import</span> std.math : approxEqual;
+
+<span class="comment">//Set sum algorithm or output type
+</span><span class="keyword">static</span> <span class="keyword">immutable</span> _x = [1, 1e100, 1, -1e100];
+<span class="keyword">auto</span> x = _x.sliced * 10_000;
+<span class="keyword">assert</span>(approxEqual(x.<span class="psymbol">hmean</span>!<span class="string_literal">"kbn"</span>, 20_000));
+<span class="keyword">assert</span>(approxEqual(x.<span class="psymbol">hmean</span>!<span class="string_literal">"kb2"</span>, 20_000));
+<span class="keyword">assert</span>(approxEqual(x.<span class="psymbol">hmean</span>!<span class="string_literal">"precise"</span>, 20_000));
+<span class="keyword">assert</span>(approxEqual(x.<span class="psymbol">hmean</span>!(<span class="keyword">double</span>, <span class="string_literal">"precise"</span>), 20_000.0));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div>
+</section>
+<ul class="ddoc_members">
+  <li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#hmean.hmean" id="hmean.hmean"><code class="code">hmean</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="hmean.hmean"></span>auto <code class="code">hmean</code>(S)(S <code class="code">slice</code>) if (isFloatingPoint!(DeepElementType!S));
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">S <code class="code">slice</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      input <code class="code">slice</code>
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_returns">
+  <h4>Return Value</h4>
+  <p class="para">
+    harmonic mean of <code class="code">slice</code>
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li>
+</ul>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#center" id="center"><code class="code">center</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="center"></span>template <code class="code">center</code>(sumTemplateArgs...)
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Lazily centers a slice.
+
+  </p>
+</div>
+<div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">sumTemplateArgs</em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      template arguments to pass to mir.math.sum (to compute the
+                      mean of the slice)
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_see_also">
+  <h4>See Also</h4>
+  <p class="para">
+    
+  </p>
+</div>
+<div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Center vector
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice : sliced;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                      2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+<span class="keyword">static</span> <span class="keyword">immutable</span> result = [-2.4375, -1.4375, -0.9375, -0.4375,  1.0625,  1.8125,
+                           -0.4375,  5.0625,  2.5625, -1.4375, -0.9375, -2.4375];
+<span class="keyword">assert</span>(x.sliced.<span class="psymbol">center</span> == result.sliced);
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Center matrix
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice : sliced;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                      2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+<span class="keyword">static</span> <span class="keyword">immutable</span> result = [-2.4375, -1.4375, -0.9375, -0.4375,  1.0625,  1.8125,
+                           -0.4375,  5.0625,  2.5625, -1.4375, -0.9375, -2.4375];
+<span class="keyword">assert</span>(x.sliced(2, 6).<span class="psymbol">center</span> == result.sliced(2, 6));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div>
+</section>
+<ul class="ddoc_members">
+  <li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#center.center" id="center.center"><code class="code">center</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="center.center"></span>auto <code class="code">center</code>(S)(S <code class="code">slice</code>) if (isSlice!S);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">S <code class="code">slice</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      input <code class="code">slice</code>
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_returns">
+  <h4>Return Value</h4>
+  <p class="para">
+    centered <code class="code">slice</code>
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li>
+</ul>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#moment" id="moment"><code class="code">moment</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="moment"></span>template <code class="code">moment</code>(sumTemplateArgs...)
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Computes the n-th central <code class="code">moment</code> of a slice.
+
+  </p>
+</div>
+<div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">sumTemplateArgs</em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      template arguments to pass to mir.math.sum (to compute the
+                      mean of the slice and the relevant <code class="code">moment</code>)
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_see_also">
+  <h4>See Also</h4>
+  <p class="para">
+    
+  </p>
+</div>
+<div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    2nd central <code class="code">moment</code> of vector
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> std.math : approxEqual;
+<span class="keyword">import</span> mir.ndslice.slice : sliced;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                      2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+
+<span class="comment">// FIXME assert(approxEqual(x.sliced.moment(2), 54.76563 / 12));
+</span><span class="keyword">assert</span>(approxEqual(x.sliced.<span class="psymbol">moment</span>(2.0), 54.76563 / 12));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    2nd central <code class="code">moment</code> of matrix
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice : sliced;
+<span class="keyword">import</span> std.math : approxEqual;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                      2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+
+<span class="keyword">assert</span>(approxEqual(x.sliced(2, 6).<span class="psymbol">moment</span>(2.0), 54.76563 / 12));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Row 2nd central <code class="code">moment</code> of matrix
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice : sliced;
+<span class="keyword">import</span> mir.ndslice.topology : byDim, alongDim, map;
+<span class="keyword">import</span> std.math : approxEqual;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                      2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+<span class="keyword">static</span> <span class="keyword">immutable</span> y = [2.092014, 6.722222];
+
+<span class="comment">// Use byDim or alongDim with map to compute moment of row/column.
+</span><span class="keyword">assert</span>(approxEqual(x.sliced(2, 6).byDim!0.map!(a =&gt; a.<span class="psymbol">moment</span>(2.0)), y.sliced));
+<span class="keyword">assert</span>(approxEqual(x.sliced(2, 6).alongDim!1.map!(a =&gt; a.<span class="psymbol">moment</span>(2.0)), y.sliced));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div>
+</section>
+<ul class="ddoc_members">
+  <li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#moment.moment" id="moment.moment"><code class="code">moment</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="moment.moment"></span>auto <code class="code">moment</code>(S, Order)(S <code class="code">slice</code>, in Order <code class="code">order</code>) if (isSlice!S);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">S <code class="code">slice</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      input <code class="code">slice</code>
+    </p>
+  </div>
+</td>
+</tr>
+<tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">Order <code class="code">order</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      <code class="code">order</code> of <code class="code">moment</code>
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_returns">
+  <h4>Return Value</h4>
+  <p class="para">
+    n-th central <code class="code">moment</code> of <code class="code">slice</code>
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li>
+</ul>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#var" id="var"><code class="code">var</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="var"></span>template <code class="code">var</code>(sumTemplateArgs...)
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Computes the variance of a slice.
+
+  </p>
+</div>
+<div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">sumTemplateArgs</em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      template arguments to pass to mir.math.sum (to compute the
+                      mean &amp; variance of the slice)
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_section">
+  <p class="para">
+    <span class="ddoc_section_h">TODO:</span>
+merge fast implementation in <a href="https://github.com/libmir/numir/pull/22#issuecomment-366526194">https://github.com/libmir/numir/pull/22#issuecomment-366526194</a>
+
+
+  </p>
+</div>
+<div class="ddoc_see_also">
+  <h4>See Also</h4>
+  <p class="para">
+    
+  </p>
+</div>
+<div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Variance of vector
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> std.math : approxEqual;
+<span class="keyword">import</span> mir.ndslice.slice : sliced;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                      2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+
+<span class="keyword">assert</span>(approxEqual(x.sliced.<span class="psymbol">var</span>, 54.76563 / 12));
+<span class="keyword">assert</span>(approxEqual(x.sliced.<span class="psymbol">var</span>(<span class="keyword">false</span>), 54.76563 / 11));
+<span class="keyword">assert</span>(approxEqual(x.sliced.<span class="psymbol">var</span>(<span class="keyword">true</span>), 54.76563 / 12));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Variance of matrix
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice : sliced;
+<span class="keyword">import</span> std.math : approxEqual;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                      2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+
+<span class="keyword">assert</span>(approxEqual(x.sliced(2, 6).<span class="psymbol">var</span>, 54.76563 / 12));
+<span class="keyword">assert</span>(approxEqual(x.sliced(2, 6).<span class="psymbol">var</span>(<span class="keyword">false</span>), 54.76563 / 11));
+<span class="keyword">assert</span>(approxEqual(x.sliced(2, 6).<span class="psymbol">var</span>(<span class="keyword">true</span>), 54.76563 / 12));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Row variance of matrix
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice : sliced;
+<span class="keyword">import</span> mir.ndslice.topology : alongDim, byDim, map;
+<span class="keyword">import</span> numir : approxEqual;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                      2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+<span class="keyword">static</span> <span class="keyword">immutable</span> y = [2.092014, 6.722222];
+
+<span class="comment">// Use byDim or alongDim with map to compute variance of row/column.
+</span><span class="keyword">assert</span>(approxEqual(x.sliced(2, 6).byDim!0.map!(a =&gt; a.<span class="psymbol">var</span>(<span class="keyword">true</span>)), y.sliced));
+<span class="keyword">assert</span>(approxEqual(x.sliced(2, 6).alongDim!1.map!(a =&gt; a.<span class="psymbol">var</span>(<span class="keyword">true</span>)), y.sliced));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Compute variance tensors along specified dimention of tensors with the negative dim support
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice : alongDim, iota, map, as;
+<span class="keyword">import</span> numir : <span class="psymbol">var</span>;
+<span class="comment">/*
+  [[1, 2],
+   [3, 4]]
+ */</span>
+<span class="keyword">auto</span> x = iota([2, 2], 1).as!<span class="keyword">double</span>;
+<span class="keyword">static</span> <span class="keyword">immutable</span> v0 = [1.0, 1.0];
+<span class="keyword">static</span> <span class="keyword">immutable</span> v1 = [0.25, 0.25];
+<span class="comment">/*
+  [[1, 2, 3],
+   [4, 5, 6]]
+ */</span>
+<span class="keyword">auto</span> y = iota([2, 3], 1).as!<span class="keyword">double</span>;
+<span class="keyword">static</span> <span class="keyword">immutable</span> v2 = [2.25, 2.25, 2.25];
+<span class="comment">// static foreach (faster; [true, false])
+</span>{
+    <span class="keyword">assert</span>(x.alongDim!0.map!<span class="psymbol">var</span> == v0);
+    <span class="keyword">assert</span>(x.alongDim!(-2).map!<span class="psymbol">var</span> == v0);
+
+    <span class="keyword">assert</span>(x.alongDim!1.map!<span class="psymbol">var</span> == v1);
+    <span class="keyword">assert</span>(x.alongDim!(-1).map!<span class="psymbol">var</span> == v1);
+
+    <span class="keyword">assert</span>(y.alongDim!0.map!<span class="psymbol">var</span> == v2);
+    <span class="keyword">assert</span>(y.alongDim!(-2).map!<span class="psymbol">var</span> == v2);
+}
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div>
+</section>
+<ul class="ddoc_members">
+  <li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#var.var" id="var.var"><code class="code">var</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="var.var"></span>auto <code class="code">var</code>(S)(S <code class="code">slice</code>, bool <code class="code">isPopulation</code> = true) if (isSlice!S);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">S <code class="code">slice</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      input <code class="code">slice</code>
+    </p>
+  </div>
+</td>
+</tr>
+<tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">bool <code class="code">isPopulation</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      <code class="code">true</code> (default) if computing population variance, <code class="code">false</code> otherwise
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_returns">
+  <h4>Return Value</h4>
+  <p class="para">
+    variance of <code class="code">slice</code>
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li>
+</ul>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#std" id="std"><code class="code">std</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="std"></span>template <code class="code">std</code>(sumTemplateArgs...)
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Computes the standard deviation of a slice.
+
+  </p>
+</div>
+<div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">sumTemplateArgs</em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      template arguments to pass to mir.math.sum (to compute the
+                      mean &amp; variance of the slice)
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_see_also">
+  <h4>See Also</h4>
+  <p class="para">
+    
+  </p>
+</div>
+<div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Standard deviation of vector
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> <span class="psymbol">std</span>.math : approxEqual;
+<span class="keyword">import</span> mir.ndslice.slice : sliced;
+<span class="keyword">import</span> mir.math.common : sqrt;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                      2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+
+<span class="keyword">assert</span>(approxEqual(x.sliced.<span class="psymbol">std</span>, sqrt(54.76563 / 12)));
+<span class="keyword">assert</span>(approxEqual(x.sliced.<span class="psymbol">std</span>(<span class="keyword">false</span>), sqrt(54.76563 / 11)));
+<span class="keyword">assert</span>(approxEqual(x.sliced.<span class="psymbol">std</span>(<span class="keyword">true</span>), sqrt(54.76563 / 12)));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Standard deviation of matrix
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice : sliced;
+<span class="keyword">import</span> <span class="psymbol">std</span>.math : approxEqual;
+<span class="keyword">import</span> mir.math.common : sqrt;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                      2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+
+<span class="keyword">assert</span>(approxEqual(x.sliced(2, 6).<span class="psymbol">std</span>, sqrt(54.76563 / 12)));
+<span class="keyword">assert</span>(approxEqual(x.sliced(2, 6).<span class="psymbol">std</span>(<span class="keyword">false</span>), sqrt(54.76563 / 11)));
+<span class="keyword">assert</span>(approxEqual(x.sliced(2, 6).<span class="psymbol">std</span>(<span class="keyword">true</span>), sqrt(54.76563 / 12)));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Row standard deviation of matrix
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice : sliced;
+<span class="keyword">import</span> mir.ndslice.topology : alongDim, byDim, map;
+<span class="keyword">import</span> mir.math.common : sqrt;
+<span class="keyword">import</span> numir : approxEqual;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                      2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+<span class="keyword">static</span> <span class="keyword">immutable</span> y = [sqrt(2.092014), sqrt(6.722222)];
+
+<span class="comment">// Use byDim or alongDim or alongDim with map to compute variance of row/column.
+</span><span class="keyword">assert</span>(approxEqual(x.sliced(2, 6).byDim!0.map!(a =&gt; a.<span class="psymbol">std</span>(<span class="keyword">true</span>)), y.sliced));
+<span class="keyword">assert</span>(approxEqual(x.sliced(2, 6).alongDim!1.map!(a =&gt; a.<span class="psymbol">std</span>(<span class="keyword">true</span>)), y.sliced));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div>
+</section>
+<ul class="ddoc_members">
+  <li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#std.std" id="std.std"><code class="code">std</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="std.std"></span>auto <code class="code">std</code>(S)(S <code class="code">slice</code>, bool <code class="code">isPopulation</code> = true) if (isSlice!S);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">S <code class="code">slice</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      input <code class="code">slice</code>
+    </p>
+  </div>
+</td>
+</tr>
+<tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">bool <code class="code">isPopulation</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      <code class="code">true</code> (default) if computing population standard deviation, <code class="code">false</code>
+                       otherwise
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_returns">
+  <h4>Return Value</h4>
+  <p class="para">
+    standard deviation of <code class="code">slice</code>
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li>
+</ul>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#zscore" id="zscore"><code class="code">zscore</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="zscore"></span>template <code class="code">zscore</code>(sumTemplateArgs...)
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Computes the <code class="code">zscore</code> of a slice.
+
+  </p>
+</div>
+<div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">sumTemplateArgs</em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      template arguments to pass to mir.math.sum (to compute the
+                      mean &amp; standard deviation of the slice)
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_see_also">
+  <h4>See Also</h4>
+  <p class="para">
+    
+  </p>
+</div>
+<div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Z-score of vector
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice : sliced;
+<span class="keyword">import</span> std.math : approxEqual;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                      2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+<span class="keyword">static</span> <span class="keyword">immutable</span> resultSample = [-1.09241, -0.64424, -0.42016, -0.19607, 0.47618, 0.812307,
+                                 -0.19607, 2.268858, 1.148434, -0.64424, -0.42016, -1.09241];
+<span class="keyword">static</span> <span class="keyword">immutable</span> resultPop = [-1.14099, -0.67289, -0.43884, -0.20479, 0.497354, 0.848427,
+                              -0.20479, 2.369745, 1.199501, -0.67289, -0.43884, -1.14099];
+
+<span class="keyword">assert</span>(approxEqual(x.sliced.<span class="psymbol">zscore</span>, resultPop.sliced));
+<span class="keyword">assert</span>(approxEqual(x.sliced.<span class="psymbol">zscore</span>(<span class="keyword">false</span>), resultSample.sliced));
+<span class="keyword">assert</span>(approxEqual(x.sliced.<span class="psymbol">zscore</span>(<span class="keyword">true</span>), resultPop.sliced));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div><div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    Z-score of matrix
+
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="keyword">import</span> mir.ndslice.slice : sliced;
+<span class="keyword">import</span> std.math : approxEqual;
+
+<span class="keyword">static</span> <span class="keyword">immutable</span> x = [0.0, 1.0, 1.5, 2.0, 3.5, 4.25,
+                      2.0, 7.5, 5.0, 1.0, 1.5, 0.0];
+<span class="keyword">static</span> <span class="keyword">immutable</span> _resultSample = [-1.09241, -0.64424, -0.42016, -0.19607, 0.47618, 0.812307,
+                                  -0.19607, 2.268858, 1.148434, -0.64424, -0.42016, -1.09241];
+<span class="keyword">auto</span> resultSample = _resultSample.sliced(2, 6);
+<span class="keyword">static</span> <span class="keyword">immutable</span> _resultPop = [-1.14099, -0.67289, -0.43884, -0.20479, 0.497354, 0.848427,
+                               -0.20479, 2.369745, 1.199501, -0.67289, -0.43884, -1.14099];
+<span class="keyword">auto</span> resultPop = _resultPop.sliced(2, 6);
+
+<span class="keyword">auto</span> y1 = x.sliced(2, 6).<span class="psymbol">zscore</span>;
+<span class="keyword">assert</span>(approxEqual(y1[0], resultPop[0]));
+<span class="keyword">assert</span>(approxEqual(y1[1], resultPop[1]));
+
+<span class="keyword">auto</span> y2 = x.sliced(2, 6).<span class="psymbol">zscore</span>(<span class="keyword">false</span>);
+<span class="keyword">assert</span>(approxEqual(y2[0], resultSample[0]));
+<span class="keyword">assert</span>(approxEqual(y2[1], resultSample[1]));
+
+<span class="keyword">auto</span> y3 = x.sliced(2, 6).<span class="psymbol">zscore</span>(<span class="keyword">true</span>);
+<span class="keyword">assert</span>(approxEqual(y3[0], resultPop[0]));
+<span class="keyword">assert</span>(approxEqual(y3[1], resultPop[1]));
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div>
+</section>
+<ul class="ddoc_members">
+  <li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#zscore.zscore" id="zscore.zscore"><code class="code">zscore</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="zscore.zscore"></span>auto <code class="code">zscore</code>(S)(S <code class="code">slice</code>, bool <code class="code">isPopulation</code> = true) if (isSlice!S);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">S <code class="code">slice</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      input <code class="code">slice</code>
+    </p>
+  </div>
+</td>
+</tr>
+<tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">bool <code class="code">isPopulation</code></em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      <code class="code">true</code> (default) if computing population standard
+                       deviation, <code class="code">false</code> otherwise
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_returns">
+  <h4>Return Value</h4>
+  <p class="para">
+    <code class="code">zscore</code> of <code class="code">slice</code>
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li>
+</ul>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#logsumexp" id="logsumexp"><code class="code">logsumexp</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="logsumexp"></span>template <code class="code">logsumexp</code>(sumTemplateArgs...)
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Computes the log of the sum of exponentials of input elements.
+
+  </p>
+</div>
+<div class="ddoc_params">
+  <h4>Parameters</h4>
+  <table cellspacing="0" cellpadding="5" border="0" class="graybox">
+    <tbody>
+      <tr class="ddoc_param_row">
+  <td scope="ddoc_param_id">
+  <code class="code">
+    <em class="term">sumTemplateArgs</em>
+  </code>
+</td>
+<td>
+  <div class="ddoc_param_desc">
+    <p class="para">
+      template arguments to pass to mir.math.sum (to compute the
+                      mean &amp; standard deviation of the slice)
+    </p>
+  </div>
+</td>
+</tr>
+
+    </tbody>
+  </table>
+</div>
+<div class="ddoc_see_also">
+  <h4>See Also</h4>
+  <p class="para">
+    <a href="https://github.com/scipy/scipy/blob/maintenance/1.0.x/scipy/special/_logsumexp.py">https://github.com/scipy/scipy/blob/maintenance/1.0.x/scipy/special/_logsumexp.py</a>
+  </p>
+</div>
+<div class="ddoc_examples">
+  <h4>Examples</h4>
+  <p class="para">
+    
+<section class="code_listing">
+  <div class="code_sample">
+    <div class="dlang">
+      <ol class="code_lines">
+        <li><code class="code"><span class="comment">// logsumexp example from doctest https://github.com/scipy/scipy/blob/maintenance/1.0.x/scipy/special/_logsumexp.py
+</span><span class="keyword">import</span> mir.ndslice : iota, map, sliced, as;
+<span class="keyword">import</span> mir.math.common : log, exp;
+<span class="keyword">import</span> mir.math.sum;
+<span class="keyword">import</span> std.math : approxEqual;
+{
+    <span class="keyword">auto</span> x = iota(10).as!<span class="keyword">double</span>;
+    <span class="keyword">assert</span>(<span class="psymbol">logsumexp</span>(x).approxEqual(9.4586297444267107));
+    <span class="keyword">assert</span>(log(sum(map!exp(x))).approxEqual(<span class="psymbol">logsumexp</span>(x)));
+}
+{
+    <span class="keyword">auto</span> x = iota(0).as!<span class="keyword">double</span>;
+    <span class="keyword">assert</span>(sum(x) == 0);
+    <span class="keyword">assert</span>(<span class="psymbol">logsumexp</span>(x) == -<span class="keyword">double</span>.infinity);
+    <span class="keyword">assert</span>(log(sum(map!exp(x))).approxEqual(<span class="psymbol">logsumexp</span>(x)));
+}
+{
+    <span class="keyword">auto</span> a = iota(10).as!<span class="keyword">double</span>;
+    <span class="keyword">auto</span> b = iota([10], 10, -1).as!<span class="keyword">double</span>;
+    <span class="keyword">assert</span>(<span class="psymbol">logsumexp</span>(a, b).approxEqual(9.9170178533034665));
+    <span class="keyword">assert</span>(log(sum(map!exp(a) * b)).approxEqual(<span class="psymbol">logsumexp</span>(a, b)));
+}
+{
+    <span class="keyword">auto</span> a = iota(0).as!<span class="keyword">double</span>;
+    <span class="keyword">auto</span> b = iota(0).as!<span class="keyword">double</span>;
+    <span class="keyword">assert</span>(<span class="psymbol">logsumexp</span>(a, b) == -<span class="keyword">double</span>.infinity);
+    <span class="keyword">assert</span>(log(sum(map!exp(a) * b)).approxEqual(<span class="psymbol">logsumexp</span>(a, b)));
+}
+</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+  </p>
+</div>
+</section>
+<ul class="ddoc_members">
+  <li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#logsumexp.logsumexp" id="logsumexp.logsumexp"><code class="code">logsumexp</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="logsumexp.logsumexp"></span>auto <code class="code">logsumexp</code>(A)(A <code class="code">a</code>) if (isSlice!A);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Params
+        <code class="code">a</code> = input slice
+
+  </p>
+</div>
+<div class="ddoc_returns">
+  <h4>Return Value</h4>
+  <p class="para">
+    log-sum-exp value. if <code class="code"><code class="code">a</code></code> is empty, this function returns -inf as mir.math.sum([]) does too.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li><li class="ddoc_member">
+  <div class="ddoc_member_header">
+  <div class="ddoc_header_anchor">
+  <a href="#logsumexp.logsumexp" id="logsumexp.logsumexp"><code class="code">logsumexp</code></a>
+</div>
+</div><div class="ddoc_decl">
+  <section class="section">
+    <div class="declaration">
+      <h4>Declaration</h4>
+      <div class="dlang">
+        <p class="para">
+          <code class="code">
+            <span class="ddoc_anchor" id="logsumexp.logsumexp.2"></span>auto <code class="code">logsumexp</code>(A, B)(A <code class="code">a</code>, B <code class="code">b</code>) if (isSlice!A &amp;&amp; isSlice!B);
+
+          </code>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ddoc_decl">
+  <section class="section ddoc_sections">
+  <div class="ddoc_summary">
+  <p class="para">
+    Params
+        <code class="code">a</code> = input slice
+        <code class="code">b</code> = scaling factor slice for <code class="code">exp(<code class="code">a</code>)</code> must have the same shape to <code class="code">b</code>
+
+  </p>
+</div>
+<div class="ddoc_returns">
+  <h4>Return Value</h4>
+  <p class="para">
+    log-sum-exp value. if <code class="code"><code class="code">a</code></code> is empty, this function returns -inf as mir.math.sum([]) does too.
+  </p>
+</div>
+
+</section>
+
+</div>
+
+</li>
+</ul>
+
+</div>
+
+</li>
+</ul>
+  </div>
+</section>
+</section>
+      </article>
+    </div>
+  </body>
+</html>
